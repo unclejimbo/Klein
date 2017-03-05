@@ -1,0 +1,4 @@
+build/*
+!build/klein.pro
+bin/*
+contents/screenshots/*
