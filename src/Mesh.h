@@ -9,7 +9,6 @@
 
 #include <QVector3D>
 #include <CGAL/Polyhedron_3.h>
-#include <CGAL/Polyhedron_incremental_builder_3.h>
 #include <CGAL/Polyhedron_items_with_id_3.h>
 #include <CGAL/Simple_cartesian.h>
 #include <Eigen/Dense>
@@ -43,48 +42,6 @@ private:
 	std::vector<unsigned> _indices;
 	std::unique_ptr<CMesh> _cMesh;
 };
-
-
-
-template<typename HDS>
-class MeshBuilder : public CGAL::Modifier_base<HDS>
-{
-public:
-	MeshBuilder(const std::vector<QVector3D>& vertices, const std::vector<unsigned>& indices);
-	void operator()(HDS& hds);
-
-private:
-	const std::vector<QVector3D>& _vertices;
-	const std::vector<unsigned>& _indices;
-};
-
-template<typename HDS>
-inline MeshBuilder<HDS>::MeshBuilder(const std::vector<QVector3D>& vertices, const std::vector<unsigned>& indices)
-	: _vertices(vertices), _indices(indices)
-{
-}
-
-template<typename HDS>
-inline void MeshBuilder<HDS>::operator()(HDS& hds)
-{
-	CGAL::Polyhedron_incremental_builder_3<HDS> builder(hds, true);
-	builder.begin_surface(_vertices.size(), _indices.size() / 3);
-
-	for (const auto& v : _vertices) {
-		builder.add_vertex(HDS::Vertex::Point(v.x(), v.y(), v.z()));
-	}
-
-	for (size_t i = 0; i < _indices.size(); ++i) {
-		builder.begin_facet();
-		builder.add_vertex_to_facet(_indices[i++]);
-		builder.add_vertex_to_facet(_indices[i++]);
-		builder.add_vertex_to_facet(_indices[i]);
-		builder.end_facet();
-	}
-
-	builder.end_surface();
-}
-
 
 
 // Convinient function for adding cgal mesh to glBuffers

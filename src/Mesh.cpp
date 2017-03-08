@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "ResourceManager.h"
 #include "Util.h"
+#include <euclid/Polyhedron_3.h>
 
 #ifdef _WIN32
 #include <CodeAnalysis/Warnings.h>
@@ -28,7 +29,7 @@ Polyhedron_3::Polyhedron_3(const std::vector<QVector3D>& vertices, const std::ve
 	);
 
 	_cMesh = std::make_unique<CMesh>();
-	MeshBuilder<CMesh::HalfedgeDS> meshBuilder(vertices, indices);
+	euclid::TriMeshBuilder<CMesh> meshBuilder(_vertices, indices);
 	try {
 		_cMesh->delegate(meshBuilder);
 
