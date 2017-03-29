@@ -258,4 +258,5 @@ void Scene::render(RenderPass renderPass)
 			}
 		}
 	}
+	vertexColorMeshShader->release();
 }
