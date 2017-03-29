@@ -52,10 +52,10 @@ void GLWidget::readColorBuffer(QImage& img)
 	QOpenGLFramebufferObject offscreen(this->width(), this->height(), format);
 	offscreen.bind();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	if (_scene != nullptr) {
-		_scene->render(RenderPass::offscreen);
+		_scene->render(RenderPass::offscreen); // Models in offscreen pass got rendered, see renderToTexture for difference
 	}
 	img = offscreen.toImage();
 
@@ -67,6 +67,7 @@ void GLWidget::readDepthBuffer(std::vector<float>& depth)
 {
 	this->makeCurrent();
 
+	// Use native OpenGL calls because QOpenGLFrameBufferObject has bugs
 	GLuint fbo;
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -119,7 +120,7 @@ void GLWidget::renderToTexture(QImage& img)
 		static_cast<float>(bgColor.blueF()), static_cast<float>(bgColor.alphaF()));
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	if (_scene != nullptr) {
-		_scene->render(RenderPass::shading);
+		_scene->render(RenderPass::shading); // Models in shading pass got rendered to texture, see readColorBuffer for difference
 	}
 	img = offscreen.toImage();
 
@@ -151,9 +152,6 @@ void GLWidget::paintGL()
 
 	if (_scene != nullptr) {
 		_scene->render(RenderPass::shading);
-	}
-
-	if (_scene != nullptr) {
 		_paintAxis();
 	}
 }
