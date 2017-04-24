@@ -3,12 +3,6 @@
 #include "Core/Material.h"
 #include "Core/Mesh.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLWidget>
@@ -18,10 +12,6 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 using MeshMap = std::unordered_map<std::string, std::pair<std::unique_ptr<Polyhedron_3>, std::string>>; // <Polyhedron_3, GLBuffer>
 using GLBufferMap = std::unordered_map<std::string, QOpenGLBuffer>;

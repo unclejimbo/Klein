@@ -1,19 +1,9 @@
 #include "Core/Logger.h"
 #include "Core/Common.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QDateTime>
 #include <QTextStream>
 #include <iostream>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 void Logger::initialize()
 {

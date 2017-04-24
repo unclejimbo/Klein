@@ -2,19 +2,9 @@
 
 #include "Core/Scene.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QMatrix4x4>
 #include <string>
 #include <unordered_map>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 class SceneNode
 {

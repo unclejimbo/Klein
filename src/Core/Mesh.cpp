@@ -4,18 +4,8 @@
 #include "Core/Util.h"
 #include <Euclid/Geometry/Polyhedron_3.h>
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <algorithm>
 #include <cmath>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 Polyhedron_3::Polyhedron_3(const std::vector<QVector3D>& vertices, const std::vector<unsigned>& indices)
 	: _indices(indices)

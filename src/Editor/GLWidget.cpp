@@ -4,12 +4,6 @@
 #include "Core/ResourceManager.h"
 #include "Core/Scene.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QColor>
 #include <QMatrix4x4>
 #include <QOpenGLBuffer>
@@ -19,10 +13,6 @@
 #include <QVector3D>
 #include <QVector2D>
 #include <vector>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 GLWidget::GLWidget(QWidget* parent)
 	: QOpenGLWidget(parent)

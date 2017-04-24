@@ -1,6 +1,5 @@
 #pragma once
 
-
 #ifdef _WIN32
 #include <CodeAnalysis/Warnings.h>
 #pragma warning(push)

@@ -2,17 +2,7 @@
 
 #include "Editor/ProcessWidget.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <memory>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 class PropertyWidget : public ProcessWidget
 {
