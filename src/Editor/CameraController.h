@@ -2,19 +2,9 @@
 
 #include "Core/Camera.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QWheelEvent>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 class CameraController
 {

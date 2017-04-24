@@ -3,17 +3,7 @@
 #include "Editor/GLWidget.h"
 #include "Editor/PropertyWidget.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QtWidgets>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 ProcessPanel::ProcessPanel(MainWindow* parent, GLWidget* glWidget)
 	: QDockWidget(parent)

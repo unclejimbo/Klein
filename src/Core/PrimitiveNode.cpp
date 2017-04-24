@@ -2,20 +2,10 @@
 #include "Core/ResourceManager.h"
 #include "Core/Scene.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QOpenGLWidget>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QtMath>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 PrimitiveNode::PrimitiveNode(QOpenGLWidget* context, Scene* scene, SceneNode* parent, const QMatrix4x4& transform)
 	: SceneNode(scene, parent, transform)

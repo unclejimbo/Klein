@@ -1,20 +1,10 @@
 #pragma once
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QVector3D>
 #include <QImage>
 #include <Eigen/Dense>
 #include <algorithm>
 #include <vector>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 /*****************************
  Vector and Matrix Conversion

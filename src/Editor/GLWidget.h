@@ -1,11 +1,5 @@
 #pragma once
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QOpenGLDebugLogger>
 #include <QOpenGLDebugMessage>
 #include <QOpenGLFrameBufferObject>
@@ -14,10 +8,6 @@
 #include <QImage>
 #include <memory>
 #include <vector>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 class CameraController;
 class Scene;

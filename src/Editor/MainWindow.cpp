@@ -7,19 +7,9 @@
 #include "Core/Scene.h"
 #include "Core/SceneNode.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QMatrix4x4>
 #include <memory>
 #include <fstream>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow(parent)

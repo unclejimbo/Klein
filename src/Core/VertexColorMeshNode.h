@@ -4,18 +4,8 @@
 #include "Core/Light.h"
 #include "Core/SceneNode.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QopenGLFunctions_4_3_Core>
 #include <QOpenGLShaderProgram>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 class QOpenGLWidget;
 

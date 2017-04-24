@@ -5,12 +5,6 @@
 #include "Core/ResourceManager.h"
 #include "Editor/MainWindow.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QApplication>
 #include <QColor>
 #include <QString>
@@ -22,10 +16,6 @@
 #define _DEBUG
 #else
 #include <Python.h>
-#endif
-
-#ifdef _WIN32
-#pragma warning(pop)
 #endif
 
 void initializeResourceSystem()

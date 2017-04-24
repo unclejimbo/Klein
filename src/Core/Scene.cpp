@@ -6,17 +6,7 @@
 #include "Core/SceneNode.h"
 #include "Core/VertexColorMeshNode.h"
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QOpenGLWidget>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 Scene::Scene(QOpenGLWidget* context)
 	: _screenAspect(context->width() / (context->height() + 0.00001f)), _context(context)
