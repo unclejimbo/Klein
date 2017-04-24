@@ -5,7 +5,7 @@
 #include "ResourceManager.h"
 #include "Util.h"
 #include "VertexColorMeshNode.h"
-#include <euclid/OBB.h>
+#include <Euclid/Analysis/OBB.h>
 
 #ifdef _WIN32
 #include <CodeAnalysis/Warnings.h>
@@ -111,7 +111,7 @@ void PropertyWidget::onImportMesh(MeshInfo* info)
 		auto obbNode = dynamic_cast<PrimitiveNode*>(
 			_scene->addNode(_scene->node("MainMesh"), SceneNodeType::primitiveNode, "OBB"));
 		if (auto cMesh = ResourceManager::instance().mesh("MainMesh").first->cMesh()) {
-			euclid::OBB<CMesh> obb(*cMesh);
+			Euclid::OBB<CMesh> obb(*cMesh);
 			auto lbb = eigenToQt(obb.lbb());
 			auto lbf = eigenToQt(obb.lbf());
 			auto ltb = eigenToQt(obb.ltb());
@@ -123,7 +123,7 @@ void PropertyWidget::onImportMesh(MeshInfo* info)
 			obbNode->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
 		}
 		else {
-			euclid::OBB<CMesh>
+			Euclid::OBB<CMesh>
 				obb(ResourceManager::instance().mesh("MainMesh").first->vertices());
 			auto lbb = eigenToQt(obb.lbb());
 			auto lbf = eigenToQt(obb.lbf());

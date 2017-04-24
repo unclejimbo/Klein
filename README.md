@@ -5,19 +5,11 @@ Klein is a mesh viewer as well as a coding framework to help visualize and test 
 - CGAL 4.9
 - Eigen 3.3
 - Python 3.5
-- [euclid](https://github.com/unclejimbo/euclid)
+- [Euclid](https://github.com/unclejimbo/Euclid)
 - C++14 compatable compiler
 
 # Installation
-Please change the include and lib path in "build/Klein.pro".
-
-Use Qt Creator to open this project file and build, or type
-
-```
-qmake -tp vc Klein.pro
-```
-
-to generate a msvc solution file on windows.
+Use CMake to build.
 
 # Using Klein
 
