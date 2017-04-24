@@ -19,10 +19,10 @@ include_directories(${CGAL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR} ${Euclid_INCLUDE_
 
 add_definitions(-DQT_NO_KEYWORDS)
 
-file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
-file(GLOB SHADERS ${CMAKE_SOURCE_DIR}/contents/shaders/*.*)
-file(GLOB SCRIPTS ${CMAKE_SOURCE_DIR}/contents/scripts/*.py)
+file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+file(GLOB_RECURSE SHADERS ${CMAKE_SOURCE_DIR}/contents/shaders/*)
+file(GLOB_RECURSE SCRIPTS ${CMAKE_SOURCE_DIR}/contents/scripts/*.py)
 add_executable(Klein ${SOURCES} ${HEADERS} ${SHADERS} ${SCRIPTS})
 source_group("Scripts" FILES ${SCRIPTS})
 source_group("Shaders" FILES ${SHADERS})
