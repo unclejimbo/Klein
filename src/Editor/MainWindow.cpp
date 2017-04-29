@@ -2,10 +2,10 @@
 #include "Core/Logger.h"
 #include "Core/OBJMeshIO.h"
 #include "Core/OFFMeshIO.h"
-#include "Core/RenderMeshNode.h"
 #include "Core/ResourceManager.h"
 #include "Core/Scene.h"
 #include "Core/SceneNode.h"
+#include "Core/PBRMeshGraphics.h"
 
 #include <QMatrix4x4>
 #include <memory>
@@ -27,17 +27,16 @@ MainWindow::~MainWindow() = default;
 
 void MainWindow::initializeScene()
 {
-	_scene = std::make_unique<Scene>(_glWidget);
-
 	// Default scene setup
-	_scene->setCamera(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f), 45.0f);
-	_scene->addLight(QVector3D(3.0f, 3.0f, 3.0f), QVector3D(300.0f, 300.0f, 300.0f));
-	_scene->addLight(QVector3D(-3.0f, -3.0f, -3.0f), QVector3D(300.0f, 300.0f, 300.0f));
+	_scene.setCamera(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), 
+		QVector3D(0.0f, 1.0f, 0.0f), 45.0f, _glWidget->width() / (_glWidget->height() + 0.00001f));
+	_scene.setLight(0, QVector3D(3.0f, 3.0f, 3.0f), QVector3D(300.0f, 300.0f, 300.0f));
+	_scene.setLight(1, QVector3D(-3.0f, -3.0f, -3.0f), QVector3D(300.0f, 300.0f, 300.0f));
 
 	// bindScene should be called at the end of scene initialization
-	_glWidget->bindScene(_scene.get());
+	_glWidget->bindScene(&_scene);
 
-	Q_EMIT sceneInitialized(_scene.get());
+	Q_EMIT sceneInitialized(&_scene);
 }
 
 void MainWindow::_createCentralWidget()
@@ -156,13 +155,22 @@ void MainWindow::_importMesh()
 		}
 
 		if (meshIO->readMesh(path, "MainMesh", true, &_meshInfo)) {
+			_scene.removeNode("MainMesh");
+			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
+
+			auto graphics = std::make_unique<PBRMeshGraphics>(*_glWidget);
+			graphics->setShader("KLEIN_CookTorrance");
+			graphics->setPositionBuffer("MainMesh_VertexBuffer");
+			graphics->setNormalBuffer("MainMesh_NormalBuffer");
+			graphics->setMaterial("KLEIN_PBR_Default");
 			QMatrix4x4 transform;
 			transform.scale(1.0f / _meshInfo.radius);
 			transform.translate(-_meshInfo.center);
-			_scene->removeNode("MainMesh");
-			auto node = dynamic_cast<RenderMeshNode*>(_scene->addNode(_scene->rootNode(), SceneNodeType::renderMeshNode, "MainMesh", transform));
-			node->attachMesh("MainMesh_VertexBuffer", "MainMesh_NormalBuffer");
-			_scene->camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
+			graphics->setTransform(transform);
+			node->addGraphicsComponent(std::move(graphics));
+
+			_scene.camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
+
 			_lastOpenFile = QFileInfo(path).path();
 			_changeTitle(QFileInfo(path).fileName());
 			_updateStatusLabel(_meshInfo.nVertices, _meshInfo.nFaces);
@@ -176,7 +184,7 @@ void MainWindow::_importMesh()
 
 void MainWindow::_clearAll()
 {
-	_scene->removeNode("MainMesh");
+	_scene.removeNode("MainMesh");
 	Q_EMIT meshImported(nullptr);
 	_glWidget->update();
 }
@@ -194,24 +202,18 @@ void MainWindow::_screenShot()
 
 void MainWindow::_shaded()
 {
-	if (_scene != nullptr) {
-		_scene->setShadingMethod(ShadingMethod::shaded);
-		_glWidget->update();
-	}
+	_scene.setShadingMethod(ShadingMethod::shaded);
+	_glWidget->update();
 }
 
 void MainWindow::_wireframe()
 {
-	if (_scene != nullptr) {
-		_scene->setShadingMethod(ShadingMethod::wireframe);
-		_glWidget->update();
-	}
+	_scene.setShadingMethod(ShadingMethod::wireframe);
+	_glWidget->update();
 }
 
 void MainWindow::_hiddenline()
 {
-	if (_scene != nullptr) {
-		_scene->setShadingMethod(ShadingMethod::hiddenLine);
-		_glWidget->update();
-	}
+	_scene.setShadingMethod(ShadingMethod::hiddenLine);
+	_glWidget->update();
 }

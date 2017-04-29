@@ -6,7 +6,8 @@
 class Camera
 {
 public:
-	Camera(const QVector3D& position, const QVector3D& focus, const QVector3D& up, float fov, float aspect);
+	Camera(const QVector3D& position, const QVector3D& focus, const QVector3D& up,
+		float fov, float aspect, float nearPlane = 0.001f, float farPlane = 1000.0f);
 	virtual ~Camera();
 
 	void lookAt(const QVector3D& position, const QVector3D& focus, const QVector3D& up);
@@ -22,6 +23,10 @@ public:
 	void setFov(float fov);
 	float aspect() const;
 	void setAspect(float aspect);
+	float farPlane() const;
+	void setFarPlane(float far);
+	float nearPlane() const;
+	void setNearPlane(float near);
 
 protected:
 	QMatrix4x4 _view;
@@ -34,5 +39,7 @@ protected:
 	QVector3D _right;
 	float _fov;
 	float _aspect;
+	float _nearPlane;
+	float _farPlane;
 	mutable bool _invViewDirty = true;
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Scene.h"
 #include "Core/Common.h"
 #include "Core/MeshIO.h"
 #include "Editor/GLWidget.h"
@@ -8,8 +9,6 @@
 #include <QMainWindow>
 #include <QtWidgets>
 #include <memory>
-
-class Scene;
 
 class MainWindow : public QMainWindow
 {
@@ -58,7 +57,7 @@ private:
 	QAction* _aWireframe;
 	QAction* _aHiddenline;
 
-	std::unique_ptr<Scene> _scene;
+	Scene _scene;
 	MeshInfo _meshInfo;
 	QString _lastOpenFile = KLEIN_IMPORT_PATH;
 };

@@ -1,16 +1,16 @@
 #pragma once
 
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions_4_3_Core>
 #include <QOpenGLDebugLogger>
 #include <QOpenGLDebugMessage>
-#include <QOpenGLFrameBufferObject>
-#include <QOpenGLFunctions_4_3_Core>
-#include <QOpenGLWidget>
 #include <QImage>
 #include <memory>
 #include <vector>
 
-class CameraController;
 class Scene;
+class CameraController;
+class QOpenGLDebugLogger;
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
 {

@@ -25,11 +25,11 @@ void initializeResourceSystem()
 	OBJMeshIO objIO;
 	offIO.readMesh(QString(KLEIN_MESH_PATH).append("Cube.off"), "KLEIN_Cube", false, nullptr);
 	objIO.readMesh(QString(KLEIN_MESH_PATH).append("UVSphere.obj"), "KLEIN_UVSphere", false, nullptr);
-		
-	auto color = QColor(255, 0, 0);
-	ResourceManager::instance().addMaterial("KLEIN_Red",
-		QVector3D(static_cast<float>(color.redF()), static_cast<float>(color.greenF()), static_cast<float>(color.blueF())),
-		0.8f, 0.4f, 10.0f);
+	
+	ResourceManager::instance().addPBRMaterial("KLEIN_PBR_Default",
+		QVector3D(1.0f, 1.0f, 1.0f), 0.8f, 0.4f, 10.0f);
+	ResourceManager::instance().addPBRMaterial("KLEIN_PBR_Red",
+		QVector3D(1.0f, 0.0f, 0.0f), 0.8f, 0.4f, 10.0f);
 
 	ResourceManager::instance().addShaderProgram("KLEIN_ColorMesh",
 		QString(KLEIN_SHADER_PATH).append("Mesh.vert").toStdString(),

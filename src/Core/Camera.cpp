@@ -1,7 +1,8 @@
 #include "Core/Camera.h"
 
-Camera::Camera(const QVector3D& position, const QVector3D& focus, const QVector3D& up, float fov, float aspect)
-	: _fov(fov), _aspect(aspect)
+Camera::Camera(const QVector3D& position, const QVector3D& focus, const QVector3D& up,
+	float fov, float aspect, float nearPlane, float farPlane)
+	: _fov(fov), _aspect(aspect), _nearPlane(nearPlane), _farPlane(farPlane)
 {
 	lookAt(position, focus, up);
 }
@@ -88,4 +89,24 @@ float Camera::aspect() const
 void Camera::setAspect(float aspect)
 {
 	_aspect = aspect;
+}
+
+float Camera::farPlane() const
+{
+	return _farPlane;
+}
+
+void Camera::setFarPlane(float far)
+{
+	_farPlane = far;
+}
+
+float Camera::nearPlane() const
+{
+	return _nearPlane;
+}
+
+void Camera::setNearPlane(float near)
+{
+	_nearPlane = near;
 }

@@ -1,15 +1,15 @@
 #include "Editor/GLWidget.h"
 #include "Editor/ArcballController.h"
-#include "Core/Logger.h"
-#include "Core/ResourceManager.h"
 #include "Core/Scene.h"
+#include "Core/ResourceManager.h"
+#include "Core/Logger.h"
 
+#include <QOpenGLBuffer>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLFrameBufferObject>
+#include <QPainter>
 #include <QColor>
 #include <QMatrix4x4>
-#include <QOpenGLBuffer>
-#include <QOpenGLFrameBufferObject>
-#include <QOpenGLVertexArrayObject>
-#include <QPainter>
 #include <QVector3D>
 #include <QVector2D>
 #include <vector>
@@ -109,7 +109,7 @@ void GLWidget::renderToTexture(QImage& img)
 		static_cast<float>(bgColor.blueF()), static_cast<float>(bgColor.alphaF()));
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	if (_scene != nullptr) {
-		_scene->render(RenderPass::shading); // Models in shading pass got rendered to texture, see readColorBuffer for difference
+		_scene->render(RenderPass::onscreen); // Models in shading pass got rendered to texture, see readColorBuffer for difference
 	}
 	img = offscreen.toImage();
 
@@ -140,7 +140,7 @@ void GLWidget::paintGL()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (_scene != nullptr) {
-		_scene->render(RenderPass::shading);
+		_scene->render(RenderPass::onscreen);
 		_paintAxis();
 	}
 }

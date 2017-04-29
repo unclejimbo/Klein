@@ -181,19 +181,19 @@ bool ResourceManager::removeGLBuffer(const std::string& name)
 	}
 }
 
-void ResourceManager::addMaterial(const std::string& name, const QVector3D& albedo,
+void ResourceManager::addPBRMaterial(const std::string& name, const QVector3D& albedo,
 	const float roughness, const float metallic, float ao)
 {
-	Material material{ albedo, roughness, metallic, ao };
-	if (!_materialMap.insert_or_assign(name, material).second) {
+	PBRMaterial material{ albedo, roughness, metallic, ao };
+	if (!_pbrMaterialMap.insert_or_assign(name, material).second) {
 		KLEIN_LOG_WARNING(QString("Material %1 already exists and is replaced").arg(name.c_str()));
 	}
 }
 
-Material* ResourceManager::material(const std::string & name)
+PBRMaterial* ResourceManager::pbrMaterial(const std::string & name)
 {
-	if (_materialMap.find(name) != _materialMap.end()) {
-		return &_materialMap[name];
+	if (_pbrMaterialMap.find(name) != _pbrMaterialMap.end()) {
+		return &_pbrMaterialMap[name];
 	}
 	else {
 		KLEIN_LOG_CRITICAL(QString("Can't find Material %1").arg(name.c_str()));
@@ -201,9 +201,9 @@ Material* ResourceManager::material(const std::string & name)
 	}
 }
 
-bool ResourceManager::removeMaterial(const std::string& name)
+bool ResourceManager::removePBRMaterial(const std::string& name)
 {
-	if (_materialMap.erase(name) == 0) {
+	if (_pbrMaterialMap.erase(name) == 0) {
 		KLEIN_LOG_WARNING(QString("Can't find Material %1, nothing removed").arg(name.c_str()));
 		return false;
 	}
