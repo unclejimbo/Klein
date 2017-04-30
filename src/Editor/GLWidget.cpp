@@ -220,7 +220,7 @@ void GLWidget::_paintAxis()
 	std::vector<QVector3D> colors{ QVector3D(1.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f),
 		QVector3D(0.0f, 1.0, 0.0f), QVector3D(0.0f, 0.0f, 1.0f), QVector3D(0.0f, 0.0f, 1.0f) };
 
-	auto shader = ResourceManager::instance().shaderProgram("KLEIN_VertexColorPrimitive");
+	auto shader = ResourceManager::instance().shaderProgram("KLEIN_Unlit_VColor");
 	shader->bind();
 	shader->setUniformValue("mvp", mvp);
 
