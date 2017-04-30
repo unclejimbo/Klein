@@ -1,9 +1,18 @@
 #include "Core/GraphicsComponent.h"
 #include "Core/Logger.h"
 #include "Core/ResourceManager.h"
+#include "GraphicsComponent.h"
 
 GraphicsComponent::GraphicsComponent(QOpenGLWidget& context, bool transparent, int layer)
 	: _context(context), _transparent(transparent), _layer(layer)
+{
+	_context.makeCurrent();
+	this->initializeOpenGLFunctions();
+	_context.doneCurrent();
+}
+
+GraphicsComponent::GraphicsComponent(SceneNode* node, QOpenGLWidget& context, bool transparent, int layer)
+	: Component(node), _context(context), _transparent(transparent), _layer(layer)
 {
 	_context.makeCurrent();
 	this->initializeOpenGLFunctions();

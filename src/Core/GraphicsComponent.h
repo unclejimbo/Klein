@@ -28,6 +28,7 @@ class GraphicsComponent : public Component, public QOpenGLFunctions_4_3_Core
 {
 public:
 	GraphicsComponent(QOpenGLWidget& context, bool transparent = false, int layer = 0);
+	GraphicsComponent(SceneNode* node, QOpenGLWidget& context, bool transparent = false, int layer = 0);
 	virtual ~GraphicsComponent();
 
 	bool transparent() const;

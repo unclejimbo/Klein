@@ -31,12 +31,12 @@ SceneNode* Scene::rootNode()
 	return _root;
 }
 
-SceneNode * Scene::addNode(const std::string& parentName, const std::string& name, const QMatrix4x4& transform)
+SceneNode* Scene::addNode(const std::string& parentName, const std::string& name, const QMatrix4x4& transform)
 {
 	SceneNode* rtn = nullptr;
 	if (_nodes.find(parentName) != _nodes.end()) {
 		auto parent = _nodes[parentName].get();
-		addNode(parent, name, transform);
+		rtn = addNode(parent, name, transform);
 	}
 	else {
 		KLEIN_LOG_CRITICAL(QString("Node %1 doesn't exist").arg(parentName.c_str()));
@@ -160,13 +160,13 @@ void Scene::render(RenderPass renderPass)
 {
 	for (const auto& node : _graphicsNodes) {
 		auto graphics = node.second->graphicsComponent();
-		if (graphics->renderPass() || renderPass) {
+		if (graphics->visible() && (graphics->renderPass() || renderPass)) {
 			graphics->render(*_camera, _lights);
 		}
 	}
 	for (const auto& node : _transparentGraphicsNodes) {
 		auto graphics = node.second->graphicsComponent();
-		if (graphics->renderPass() || renderPass) {
+		if (graphics->visible() && (graphics->renderPass() || renderPass)) {
 			graphics->render(*_camera, _lights);
 		}
 	}

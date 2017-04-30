@@ -165,16 +165,17 @@ void MainWindow::_importMesh()
 			_scene.removeNode("MainMesh");
 			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
 
+			QMatrix4x4 transform;
+			transform.scale(1.0f / _meshInfo.radius);
+			transform.translate(-_meshInfo.center);
+			node->setTransform(transform);
+
 			auto graphics = std::make_unique<PBRMeshGraphics>(*_glWidget);
 			graphics->setShaderLit("KLEIN_CookTorrance");
 			graphics->setShaderUnlit("KLEIN_Unlit");
 			graphics->setPositionBuffer("MainMesh_VertexBuffer");
 			graphics->setNormalBuffer("MainMesh_NormalBuffer");
 			graphics->setMaterial("KLEIN_PBR_Default");
-			QMatrix4x4 transform;
-			transform.scale(1.0f / _meshInfo.radius);
-			transform.translate(-_meshInfo.center);
-			graphics->setTransform(transform);
 			node->addGraphicsComponent(std::move(graphics));
 
 			_scene.camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));

@@ -63,6 +63,7 @@ void SceneNode::addGraphicsComponent(std::unique_ptr<GraphicsComponent> graphics
 		KLEIN_LOG_WARNING("Existing graphics component is replaced");
 	}
 	_graphics = std::move(graphics);
+	_graphics->attachTo(this);
 	if (_graphics->transparent()) {
 		_scene._transparentGraphicsNodes[_name] = this;
 	}

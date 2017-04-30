@@ -1,11 +1,21 @@
 #include "Core/PBRMeshGraphics.h"
+#include "Core/SceneNode.h"
 #include "Core/ResourceManager.h"
 #include "Core/Logger.h"
 
 #include <QOpenGLVertexArrayObject>
+#include <QOpenGLBuffer>
 
 PBRMeshGraphics::PBRMeshGraphics(QOpenGLWidget& context, bool transparent, int layer)
 	: GraphicsComponent(context, transparent, layer)
+{
+	this->setShaderLit("KLEIN_CookTorrance");
+	this->setShaderUnlit("KLEIN_Unlit");
+	_material = ResourceManager::instance().pbrMaterial("KLEIN_PBR_Default");
+}
+
+PBRMeshGraphics::PBRMeshGraphics(SceneNode* node, QOpenGLWidget& context, bool transparent, int layer)
+	: GraphicsComponent(node, context, transparent, layer)
 {
 	this->setShaderLit("KLEIN_CookTorrance");
 	this->setShaderUnlit("KLEIN_Unlit");
@@ -50,11 +60,6 @@ bool PBRMeshGraphics::setMaterial(const std::string& materialID)
 	}
 }
 
-void PBRMeshGraphics::setTransform(const QMatrix4x4& transform)
-{
-	_transform = transform;
-}
-
 void PBRMeshGraphics::_renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights)
 {
 	if (_posBuf == nullptr) {
@@ -70,9 +75,10 @@ void PBRMeshGraphics::_renderLit(const Camera& camera, const std::array<Light, K
 		_shaderLit->bind();
 		QMatrix4x4 projection;
 		projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
-		auto mvp = projection * camera.view() * _transform;
-		auto invTransModel = _transform.inverted().transposed();
-		_shaderLit->setUniformValue("model", _transform);
+		auto transform = this->sceneNode()->transform();
+		auto mvp = projection * camera.view() * transform;
+		auto invTransModel = transform.inverted().transposed();
+		_shaderLit->setUniformValue("model", transform);
 		_shaderLit->setUniformValue("mvp", mvp);
 		_shaderLit->setUniformValue("invTransModel", invTransModel);
 		_shaderLit->setUniformValue("viewPosition_w", camera.position());
@@ -112,7 +118,8 @@ void PBRMeshGraphics::_renderLit(const Camera& camera, const std::array<Light, K
 		_shaderUnlit->bind();
 		QMatrix4x4 projection;
 		projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
-		auto mvp = projection * camera.view() * _transform;
+		auto transform = this->sceneNode()->transform();
+		auto mvp = projection * camera.view() * transform;
 		_shaderUnlit->setUniformValue("mvp", mvp);
 		_shaderUnlit->setUniformValue("diffuseColor", QVector3D(1.0f, 1.0f, 1.0f));
 
@@ -146,7 +153,8 @@ void PBRMeshGraphics::_renderUnlit(const Camera & camera)
 	_shaderUnlit->bind();
 	QMatrix4x4 projection;
 	projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
-	auto mvp = projection * camera.view() * _transform;
+	auto transform = this->sceneNode()->transform();
+	auto mvp = projection * camera.view() * transform;
 	_shaderUnlit->setUniformValue("mvp", mvp);
 
 	QOpenGLVertexArrayObject vao;
