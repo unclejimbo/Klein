@@ -1,6 +1,7 @@
 #include "Editor/PropertyWidget.h"
 #include "Core/ResourceManager.h"
 #include "Core/PrimitiveGraphics.h"
+#include "Core/PBRMeshVColorGraphics.h"
 #include "Core/Color.h"
 #include "Core/Util.h"
 
@@ -225,36 +226,39 @@ void PropertyWidget::showSphere(int state)
 
 void PropertyWidget::onColorChanged(int state)
 {
-	//if (state == 0) { // Material
-	//	_scene->node("MainMesh")->setVisible(true);
-	//	if (_scene->node("MainMeshValence") != nullptr) {
-	//		_scene->node("MainMeshValence")->setVisible(false);
-	//	}
-	//}
-	//
-	//if (state == 1) { // Valence
-	//	_scene->node("MainMesh")->setVisible(false);
-	//	if (_scene->node("MainMeshValence") != nullptr) {
-	//		_scene->node("MainMeshValence")->setVisible(true);
-	//	}
-	//	else {
-	//		auto cMesh = ResourceManager::instance().mesh("MainMesh").first->cMesh();
-	//		std::vector<unsigned> valences;
-	//		valences.reserve(cMesh->size_of_facets() * 3);
-	//		for (auto f = cMesh->facets_begin(); f != cMesh->facets_end(); ++f) {
-	//			auto v = f->facet_begin();
-	//			do {
-	//				valences.push_back(static_cast<unsigned>(v->vertex_degree()));
-	//			} while (++v != f->facet_begin());
-	//		}
-	//		auto colors = temperature(valences, QVector4D(1.0f, 0.0f, 0.0f, 1.0f), QVector4D(0.0f, 0.0f, 1.0f, 1.0f));
-	//		ResourceManager::instance().addGLBuffer("MainMeshValence", colors);
+	if (state == 0) { // Material
+		_scene->node("MainMesh")->graphicsComponent()->setVisible(true);
+		if (_scene->node("MainMeshValence") != nullptr) {
+			_scene->node("MainMeshValence")->graphicsComponent()->setVisible(false);
+		}
+	}
+	
+	if (state == 1) { // Valence
+		_scene->node("MainMesh")->graphicsComponent()->setVisible(false);
+		if (_scene->node("MainMeshValence") != nullptr) {
+			_scene->node("MainMeshValence")->graphicsComponent()->setVisible(true);
+		}
+		else {
+			auto cMesh = ResourceManager::instance().mesh("MainMesh").first->cMesh();
+			std::vector<unsigned> valences;
+			valences.reserve(cMesh->size_of_facets() * 3);
+			for (auto f = cMesh->facets_begin(); f != cMesh->facets_end(); ++f) {
+				auto v = f->facet_begin();
+				do {
+					valences.push_back(static_cast<unsigned>(v->vertex_degree()));
+				} while (++v != f->facet_begin());
+			}
+			auto colors = temperature(valences, QVector3D(1.0f, 0.0f, 0.0f), QVector3D(0.0f, 0.0f, 1.0f));
+			ResourceManager::instance().addGLBuffer("MainMeshValence", colors);
 
-	//		auto valenceNode = dynamic_cast<VertexColorMeshNode*>(_scene->addNode(_scene->rootNode(),
-	//			SceneNodeType::vertexColorMeshNode, "MainMeshValence", _scene->node("MainMesh")->transform()));
-	//		valenceNode->attachMesh("MainMesh_VertexBuffer", "MainMeshValence");
-	//	}
-	//}
+			auto valenceNode = _scene->addNode(_scene->rootNode(), "MainMeshValence", _scene->node("MainMesh")->transform());
+			auto graphics = std::make_unique<PBRMeshVColorGraphics>(valenceNode, *_glWidget);
+			graphics->setPositionBuffer("MainMesh_VertexBuffer");
+			graphics->setNormalBuffer("MainMesh_NormalBuffer");
+			graphics->setColorBuffer("MainMeshValence");
+			valenceNode->addGraphicsComponent(std::move(graphics));
+		}
+	}
 
-	//_glWidget->update();
+	_glWidget->update();
 }

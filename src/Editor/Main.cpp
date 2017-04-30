@@ -34,6 +34,9 @@ void initializeResourceSystem()
 	ResourceManager::instance().addShaderProgram("KLEIN_CookTorrance",
 		QString(KLEIN_SHADER_PATH).append("Mesh.vert").toStdString(),
 		QString(KLEIN_SHADER_PATH).append("CookTorrance.frag").toStdString());
+	ResourceManager::instance().addShaderProgram("KLEIN_CookTorrance_VColor",
+		QString(KLEIN_SHADER_PATH).append("MeshVColor.vert").toStdString(),
+		QString(KLEIN_SHADER_PATH).append("CookTorranceVColor.frag").toStdString());
 	ResourceManager::instance().addShaderProgram("KLEIN_Unlit",
 		QString(KLEIN_SHADER_PATH).append("Unlit.vert").toStdString(),
 		QString(KLEIN_SHADER_PATH).append("Unlit.frag").toStdString());
