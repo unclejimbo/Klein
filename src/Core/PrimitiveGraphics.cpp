@@ -1,7 +1,5 @@
 #include "Core/PrimitiveGraphics.h"
 #include "Core/SceneNode.h"
-#include "Core/ResourceManager.h"
-#include "Core/Logger.h"
 
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
