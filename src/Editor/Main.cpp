@@ -31,21 +31,9 @@ void initializeResourceSystem()
 	ResourceManager::instance().addPBRMaterial("KLEIN_PBR_Red",
 		QVector3D(1.0f, 0.0f, 0.0f), 0.8f, 0.4f, 10.0f);
 
-	ResourceManager::instance().addShaderProgram("KLEIN_ColorMesh",
-		QString(KLEIN_SHADER_PATH).append("Mesh.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("ColorMesh.frag").toStdString());
 	ResourceManager::instance().addShaderProgram("KLEIN_CookTorrance",
 		QString(KLEIN_SHADER_PATH).append("Mesh.vert").toStdString(),
 		QString(KLEIN_SHADER_PATH).append("CookTorrance.frag").toStdString());
-	ResourceManager::instance().addShaderProgram("KLEIN_VertexColorMesh",
-		QString(KLEIN_SHADER_PATH).append("VertexColorMesh.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("VertexColorMesh.frag").toStdString());
-	ResourceManager::instance().addShaderProgram("KLEIN_Primitive",
-		QString(KLEIN_SHADER_PATH).append("Primitive.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("Primitive.frag").toStdString());
-	ResourceManager::instance().addShaderProgram("KLEIN_VertexColorPrimitive",
-		QString(KLEIN_SHADER_PATH).append("VertexColorPrimitive.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("VertexColorPrimitive.frag").toStdString());
 	ResourceManager::instance().addShaderProgram("KLEIN_Unlit",
 		QString(KLEIN_SHADER_PATH).append("Unlit.vert").toStdString(),
 		QString(KLEIN_SHADER_PATH).append("Unlit.frag").toStdString());
