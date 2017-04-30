@@ -1,6 +1,6 @@
 #include "Editor/ProcessWidget.h"
 
-ProcessWidget::ProcessWidget(QWidget* parent, GLWidget* glWidget)
+ProcessWidget::ProcessWidget(QWidget* parent, QOpenGLWidget* glWidget)
 	: QWidget(parent), _glWidget(glWidget)
 {
 }
