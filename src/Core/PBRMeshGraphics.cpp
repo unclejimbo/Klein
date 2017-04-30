@@ -121,7 +121,7 @@ void PBRMeshGraphics::_renderLit(const Camera& camera, const std::array<Light, K
 		auto transform = this->sceneNode()->transform();
 		auto mvp = projection * camera.view() * transform;
 		_shaderUnlit->setUniformValue("mvp", mvp);
-		_shaderUnlit->setUniformValue("diffuseColor", QVector3D(1.0f, 1.0f, 1.0f));
+		_shaderUnlit->setUniformValue("diffuseColor", _material->albedo);
 
 		QOpenGLVertexArrayObject vao;
 		vao.create();
@@ -156,6 +156,7 @@ void PBRMeshGraphics::_renderUnlit(const Camera & camera)
 	auto transform = this->sceneNode()->transform();
 	auto mvp = projection * camera.view() * transform;
 	_shaderUnlit->setUniformValue("mvp", mvp);
+	_shaderUnlit->setUniformValue("diffuseColor", _material->albedo);
 
 	QOpenGLVertexArrayObject vao;
 	vao.create();
@@ -167,12 +168,10 @@ void PBRMeshGraphics::_renderUnlit(const Camera & camera)
 	_posBuf->release();
 
 	if (this->shadingMethod() == ShadingMethod::shaded || this->shadingMethod() == ShadingMethod::hiddenLine) {
-		_shaderUnlit->setUniformValue("diffuseColor", _material->albedo);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDrawArrays(GL_TRIANGLES, 0, bufferSize / sizeof(QVector3D));
 	}
 	if (this->shadingMethod() == ShadingMethod::wireframe || this->shadingMethod() == ShadingMethod::hiddenLine) {
-		_shaderUnlit->setUniformValue("diffuseColor", QVector3D(1.0f, 1.0f, 1.0f));
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_POLYGON_OFFSET_LINE);
 		glPolygonOffset(-1.0f, 1.0f);
