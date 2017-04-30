@@ -46,6 +46,9 @@ void initializeResourceSystem()
 	ResourceManager::instance().addShaderProgram("KLEIN_VertexColorPrimitive",
 		QString(KLEIN_SHADER_PATH).append("VertexColorPrimitive.vert").toStdString(),
 		QString(KLEIN_SHADER_PATH).append("VertexColorPrimitive.frag").toStdString());
+	ResourceManager::instance().addShaderProgram("KLEIN_Unlit",
+		QString(KLEIN_SHADER_PATH).append("Unlit.vert").toStdString(),
+		QString(KLEIN_SHADER_PATH).append("Unlit.frag").toStdString());
 }
 
 int main(int argc, char *argv[])

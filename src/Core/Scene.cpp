@@ -146,6 +146,16 @@ void Scene::setShadingMethod(ShadingMethod shading)
 	}
 }
 
+void Scene::setUnlit(bool unlit)
+{
+	for (auto&& node : _graphicsNodes) {
+		node.second->graphicsComponent()->setUnlit(unlit);
+	}
+	for (auto&& node : _transparentGraphicsNodes) {
+		node.second->graphicsComponent()->setUnlit(unlit);
+	}
+}
+
 void Scene::render(RenderPass renderPass)
 {
 	for (const auto& node : _graphicsNodes) {

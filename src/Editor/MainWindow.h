@@ -41,6 +41,7 @@ private Q_SLOTS:
 	void _shaded();
 	void _wireframe();
 	void _hiddenline();
+	void _unlit();
 
 private:
 	GLWidget* _glWidget;
@@ -56,6 +57,7 @@ private:
 	QAction* _aShaded;
 	QAction* _aWireframe;
 	QAction* _aHiddenline;
+	QAction* _aUnlit;
 
 	Scene _scene;
 	MeshInfo _meshInfo;

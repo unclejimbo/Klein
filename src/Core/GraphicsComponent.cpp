@@ -1,6 +1,6 @@
 #include "Core/GraphicsComponent.h"
 #include "Core/Logger.h"
-#include "GraphicsComponent.h"
+#include "Core/ResourceManager.h"
 
 GraphicsComponent::GraphicsComponent(QOpenGLWidget& context, bool transparent, int layer)
 	: _context(context), _transparent(transparent), _layer(layer)
@@ -44,14 +44,38 @@ void GraphicsComponent::setVisible(bool visible)
 	_visible = visible;
 }
 
-bool GraphicsComponent::lit() const
+bool GraphicsComponent::unlit() const
 {
-	return _lit;
+	return _unlit;
 }
 
-void GraphicsComponent::setLit(bool lit)
+void GraphicsComponent::setUnlit(bool unlit)
 {
-	_lit = lit;
+	_unlit = unlit;
+}
+
+bool GraphicsComponent::setShaderLit(const std::string & shaderID)
+{
+	auto shader = ResourceManager::instance().shaderProgram(shaderID);
+	if (shader != nullptr) {
+		_shaderLit = shader;
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool GraphicsComponent::setShaderUnlit(const std::string & shaderID)
+{
+	auto shader = ResourceManager::instance().shaderProgram(shaderID);
+	if (shader != nullptr) {
+		_shaderUnlit = shader;
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 ShadingMethod GraphicsComponent::shadingMethod() const
@@ -82,6 +106,16 @@ void GraphicsComponent::removeRenderPass(int renderPass)
 void GraphicsComponent::setRenderPass(int renderPass)
 {
 	_renderPass = renderPass;
+}
+
+void GraphicsComponent::render(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights)
+{
+	if (!_unlit) {
+		_renderLit(camera, lights);
+	}
+	else {
+		_renderUnlit(camera);
+	}
 }
 
 int GraphicsComponent::layer() const

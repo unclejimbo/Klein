@@ -84,6 +84,11 @@ void MainWindow::_createActions()
 	_aHiddenline = new QAction("Hiddenline", shadingActions);
 	_aHiddenline->setCheckable(true);
 	connect(_aHiddenline, &QAction::triggered, this, &MainWindow::_hiddenline);
+
+	_aUnlit = new QAction("Unlit", this);
+	_aUnlit->setCheckable(true);
+	_aUnlit->setChecked(false);
+	connect(_aUnlit, &QAction::triggered, this, &MainWindow::_unlit);
 }
 
 void MainWindow::_createMenuBar()
@@ -103,6 +108,8 @@ void MainWindow::_createMenuBar()
 	view->addAction(_aShaded);
 	view->addAction(_aWireframe);
 	view->addAction(_aHiddenline);
+	view->addSeparator();
+	view->addAction(_aUnlit);
 }
 
 void MainWindow::_createToolBar()
@@ -159,7 +166,8 @@ void MainWindow::_importMesh()
 			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
 
 			auto graphics = std::make_unique<PBRMeshGraphics>(*_glWidget);
-			graphics->setShader("KLEIN_CookTorrance");
+			graphics->setShaderLit("KLEIN_CookTorrance");
+			graphics->setShaderUnlit("KLEIN_Unlit");
 			graphics->setPositionBuffer("MainMesh_VertexBuffer");
 			graphics->setNormalBuffer("MainMesh_NormalBuffer");
 			graphics->setMaterial("KLEIN_PBR_Default");
@@ -215,5 +223,16 @@ void MainWindow::_wireframe()
 void MainWindow::_hiddenline()
 {
 	_scene.setShadingMethod(ShadingMethod::hiddenLine);
+	_glWidget->update();
+}
+
+void MainWindow::_unlit()
+{
+	if (_aUnlit->isChecked()) {
+		_scene.setUnlit(true);
+	}
+	else {
+		_scene.setUnlit(false);
+	}
 	_glWidget->update();
 }

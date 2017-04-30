@@ -7,6 +7,7 @@
 
 #include <QOpenGLFunctions_4_3_Core>
 #include <QOpenGLWidget>
+#include <QOpenGLShaderProgram>
 #include <array>
 
 enum class ShadingMethod
@@ -36,8 +37,10 @@ public:
 	void setLayer(bool layer);
 	bool visible() const;
 	void setVisible(bool visible);
-	bool lit() const;
-	void setLit(bool lit);
+	bool unlit() const;
+	void setUnlit(bool unlit);
+	bool setShaderLit(const std::string& shaderID);
+	bool setShaderUnlit(const std::string& shaderID);
 	ShadingMethod shadingMethod() const;
 	void setShadingMethod(ShadingMethod shading);
 	int renderPass() const;
@@ -45,7 +48,15 @@ public:
 	void removeRenderPass(int renderPass);
 	void setRenderPass(int renderPass);
 	
-	virtual void render(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights) = 0;
+	void render(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights);
+
+protected:
+	QOpenGLShaderProgram* _shaderLit;
+	QOpenGLShaderProgram* _shaderUnlit;
+
+private:
+	virtual void _renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights) = 0;
+	virtual void _renderUnlit(const Camera& camera) = 0;
 
 private:
 	QOpenGLWidget& _context;
@@ -53,7 +64,7 @@ private:
 	float _transparency = 1.0f;
 	int _layer;
 	bool _visible = true;
-	bool _lit = true;
+	bool _unlit = false;
 	ShadingMethod _shading = ShadingMethod::shaded;
 	int _renderPass = onscreen;
 };
