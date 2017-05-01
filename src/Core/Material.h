@@ -2,7 +2,7 @@
 
 #include <QVector3D>
 
-struct Material
+struct PBRMaterial
 {
 	QVector3D albedo;
 	float roughness;

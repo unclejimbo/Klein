@@ -1,96 +1,19 @@
 #include "Core/Scene.h"
-#include "Core/Logger.h"
-#include "Core/PrimitiveNode.h"
-#include "Core/RenderMeshNode.h"
-#include "Core/ResourceManager.h"
 #include "Core/SceneNode.h"
-#include "Core/VertexColorMeshNode.h"
+#include "Core/Camera.h"
+#include "Core/ResourceManager.h"
+#include "Core/Logger.h"
 
-#include <QOpenGLWidget>
-
-Scene::Scene(QOpenGLWidget* context)
-	: _screenAspect(context->width() / (context->height() + 0.00001f)), _context(context)
+Scene::Scene()
 {
-	auto root = std::make_unique<SceneNode>(this, nullptr);
-	_root = root.get();
-	_nodes["RootNode"] = std::move(root);
+	_nodes["RootNode"] = std::make_unique<SceneNode>("RootNode", *this, nullptr);
+	_root = _nodes["RootNode"].get();
+	for (auto&& l : _lights) {
+		l = { QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 0.0f, 0.0f) };
+	}
 }
 
 Scene::~Scene() = default;
-
-void Scene::resize(int width, int height)
-{
-	_screenAspect = width / (height + 0.00001f);
-}
-
-SceneNode* Scene::addNode(SceneNode* parent, SceneNodeType type, const std::string& name, const QMatrix4x4& transform)
-{
-	SceneNode* rtn = nullptr;
-	if (_nodes.find(name) != _nodes.end()) {
-		KLEIN_LOG_CRITICAL(QString("Node %1 already exists").arg(name.c_str()));
-	}
-	else {
-		switch (type) {
-		case SceneNodeType::sceneNode:
-		{
-			auto node = std::make_unique<SceneNode>(this, parent, transform);
-			rtn = node.get();
-			if (parent != nullptr) {
-				parent->_children[name] = node.get();
-			}
-			_nodes[name] = std::move(node);
-			break;
-		}
-		case SceneNodeType::renderMeshNode:
-		{
-			auto node = std::make_unique<RenderMeshNode>(_context, this, parent, transform);
-			rtn = node.get();
-			_meshNodes[name] = node.get();
-			if (parent != nullptr) {
-				parent->_children[name] = node.get();
-			}
-			_nodes[name] = std::move(node);
-			break;
-		}
-		case SceneNodeType::vertexColorMeshNode:
-		{
-			auto node = std::make_unique<VertexColorMeshNode>(_context, this, parent, transform);
-			rtn = node.get();
-			_vertexColorMeshNodes[name] = node.get();
-			if (parent != nullptr) {
-				parent->_children[name] = node.get();
-			}
-			_nodes[name] = std::move(node);
-			break;
-		}
-		case SceneNodeType::alphaVertexColorMeshNode:
-		{
-			auto node = std::make_unique<VertexColorMeshNode>(_context, this, parent, transform);
-			rtn = node.get();
-			_alphaVertexColorMeshNodes[name] = node.get();
-			if (parent != nullptr) {
-				parent->_children[name] = node.get();
-			}
-			_nodes[name] = std::move(node);
-			break;
-		}
-		case SceneNodeType::primitiveNode:
-		{
-			auto node = std::make_unique<PrimitiveNode>(_context, this, parent, transform);
-			rtn = node.get();
-			_primitiveNodes[name] = node.get();
-			if (parent != nullptr) {
-				parent->_children[name] = node.get();
-			}
-			_nodes[name] = std::move(node);
-			break;
-		}
-		default:
-			break;
-		}
-	}
-	return rtn;
-}
 
 SceneNode* Scene::node(const std::string& name)
 {
@@ -101,6 +24,40 @@ SceneNode* Scene::node(const std::string& name)
 	else {
 		return _nodes[name].get();
 	}
+}
+
+SceneNode* Scene::rootNode()
+{
+	return _root;
+}
+
+SceneNode* Scene::addNode(const std::string& parentName, const std::string& name, const QMatrix4x4& transform)
+{
+	SceneNode* rtn = nullptr;
+	if (_nodes.find(parentName) != _nodes.end()) {
+		auto parent = _nodes[parentName].get();
+		rtn = addNode(parent, name, transform);
+	}
+	else {
+		KLEIN_LOG_CRITICAL(QString("Node %1 doesn't exist").arg(parentName.c_str()));
+	}
+	return rtn;
+}
+
+SceneNode* Scene::addNode(SceneNode* parent, const std::string& name, const QMatrix4x4& transform)
+{
+	SceneNode* rtn = nullptr;
+	if (_nodes.find(name) != _nodes.end()) {
+		KLEIN_LOG_CRITICAL(QString("Node %1 already exists").arg(name.c_str()));
+	}
+	else {
+		_nodes[name] = std::make_unique<SceneNode>(name, *this, parent, transform);
+		if (parent != nullptr) {
+			parent->_children[name] = _nodes[name].get();
+		}
+		rtn = _nodes[name].get();
+	}
+	return rtn;
 }
 
 bool Scene::removeNode(const std::string& name)
@@ -118,19 +75,14 @@ bool Scene::removeNode(const std::string& name)
 			auto childName = child->first;
 
 			// Remove child from cache
-			if (typeid(*child->second) == typeid(RenderMeshNode)) {
-				_meshNodes.erase(childName);
-			}
-			if (typeid(*child->second) == typeid(VertexColorMeshNode)) {
-				if (_vertexColorMeshNodes.find(childName) != _vertexColorMeshNodes.end()) {
-					_vertexColorMeshNodes.erase(childName);
+			auto graphics = child->second->graphicsComponent();
+			if (graphics != nullptr) {
+				if (graphics->transparent()) {
+					_transparentGraphicsNodes.erase(childName);
 				}
 				else {
-					_alphaVertexColorMeshNodes.erase(childName);
+					_graphicsNodes.erase(childName);
 				}
-			}
-			if (typeid(*child->second) == typeid(PrimitiveNode)) {
-				_primitiveNodes.erase(childName);
 			}
 
 			// Remove child from parent
@@ -146,19 +98,14 @@ bool Scene::removeNode(const std::string& name)
 		}
 
 		// Remove this from cache
-		if (typeid(*_nodes[name]) == typeid(RenderMeshNode)) { 
-			_meshNodes.erase(name);
-		}
-		if (typeid(*_nodes[name]) == typeid(VertexColorMeshNode)) {
-			if (_vertexColorMeshNodes.find(name) != _vertexColorMeshNodes.end()) {
-				_vertexColorMeshNodes.erase(name);
+		auto graphics = _nodes[name]->graphicsComponent();
+		if (graphics != nullptr) {
+			if (graphics->transparent()) {
+				_transparentGraphicsNodes.erase(name);
 			}
 			else {
-				_alphaVertexColorMeshNodes.erase(name);
+				_graphicsNodes.erase(name);
 			}
-		}
-		if (typeid(*_nodes[name]) == typeid(PrimitiveNode)) {
-			_primitiveNodes.erase(name);
 		}
 
 		// Remove this
@@ -167,85 +114,60 @@ bool Scene::removeNode(const std::string& name)
 	}
 }
 
-void Scene::addLight(const QVector3D& position_w, const QVector3D& color)
-{
-	if (_lightCount < KLEIN_MAX_LIGHTS) {
-		_lights[_lightCount++] = { position_w, color };
-	}
-	else {
-		KLEIN_LOG_WARNING(QString("Can't add more than %1 light sources").arg(KLEIN_MAX_LIGHTS));
-	}
-}
-
-void Scene::setCamera(const QVector3D& eye_w, const QVector3D& center_w, const QVector3D& up_w, float fov)
-{
-	_camera = std::make_unique<Camera>(eye_w, center_w, up_w, fov, _screenAspect);
-}
-
 Camera* Scene::camera()
 {
 	return _camera.get();
 }
 
-SceneNode* Scene::rootNode()
+void Scene::setCamera(const QVector3D& eye_w, const QVector3D& center_w, const QVector3D& up_w, float fov, float aspect)
 {
-	return _root;
+	_camera = std::make_unique<Camera>(eye_w, center_w, up_w, fov, aspect);
 }
 
-void Scene::setShadingMethod(ShadingMethod method)
+bool Scene::setLight(int lightID, const QVector3D& position_w, const QVector3D& color)
 {
-	_method = method;
+	if (lightID > KLEIN_MAX_LIGHTS) {
+		KLEIN_LOG_CRITICAL(QString("The maximum light number is ").append(KLEIN_MAX_LIGHTS));
+		return false;
+	}
+	else {
+		_lights[lightID] = { position_w, color };
+		return true;
+	}
+}
+
+void Scene::setShadingMethod(ShadingMethod shading)
+{
+	for (auto&& node : _graphicsNodes) {
+		node.second->graphicsComponent()->setShadingMethod(shading);
+	}
+	for (auto&& node : _transparentGraphicsNodes) {
+		node.second->graphicsComponent()->setShadingMethod(shading);
+	}
+}
+
+void Scene::setUnlit(bool unlit)
+{
+	for (auto&& node : _graphicsNodes) {
+		node.second->graphicsComponent()->setUnlit(unlit);
+	}
+	for (auto&& node : _transparentGraphicsNodes) {
+		node.second->graphicsComponent()->setUnlit(unlit);
+	}
 }
 
 void Scene::render(RenderPass renderPass)
 {
-	auto meshShader = ResourceManager::instance().shaderProgram("KLEIN_CookTorrance");
-	meshShader->bind();
-	for (const auto& node : _meshNodes) {
-		if (node.second->visible() && node.second->renderPass() & renderPass) {
-			if (node.second->shadingMethod() == ShadingMethod::global) {
-				node.second->render(*meshShader, *_camera.get(), _lights, _method);
-			}
-			else {
-				node.second->render(*meshShader, *_camera.get(), _lights, node.second->shadingMethod());
-			}
+	for (const auto& node : _graphicsNodes) {
+		auto graphics = node.second->graphicsComponent();
+		if (graphics->visible() && (graphics->renderPass() || renderPass)) {
+			graphics->render(*_camera, _lights);
 		}
 	}
-	meshShader->release();
-
-	auto vertexColorMeshShader = ResourceManager::instance().shaderProgram("KLEIN_VertexColorMesh");
-	vertexColorMeshShader->bind();
-	for (const auto& node : _vertexColorMeshNodes) {
-		if (node.second->visible() && node.second->renderPass() & renderPass) {
-			if (node.second->shadingMethod() == ShadingMethod::global) {
-				node.second->render(*vertexColorMeshShader, *_camera.get(), _method);
-			}
-			else {
-				node.second->render(*vertexColorMeshShader, *_camera.get(), node.second->shadingMethod());
-			}
+	for (const auto& node : _transparentGraphicsNodes) {
+		auto graphics = node.second->graphicsComponent();
+		if (graphics->visible() && (graphics->renderPass() || renderPass)) {
+			graphics->render(*_camera, _lights);
 		}
 	}
-	vertexColorMeshShader->release();
-
-	auto primitiveShader = ResourceManager::instance().shaderProgram("KLEIN_Primitive");
-	primitiveShader->bind();
-	for (const auto& node : _primitiveNodes) {
-		if (node.second->visible() && node.second->renderPass() & renderPass) {
-			node.second->render(*primitiveShader, *_camera.get());
-		}
-	}
-	primitiveShader->release();
-
-	vertexColorMeshShader->bind();
-	for (const auto& node : _alphaVertexColorMeshNodes) {
-		if (node.second->visible() && node.second->renderPass() & renderPass) {
-			if (node.second->shadingMethod() == ShadingMethod::global) {
-				node.second->render(*vertexColorMeshShader, *_camera.get(), _method);
-			}
-			else {
-				node.second->render(*vertexColorMeshShader, *_camera.get(), _method);
-			}
-		}
-	}
-	vertexColorMeshShader->release();
 }

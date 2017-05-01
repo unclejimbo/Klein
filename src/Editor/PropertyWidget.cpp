@@ -1,15 +1,16 @@
 #include "Editor/PropertyWidget.h"
-#include "Core/Color.h"
-#include "Core/PrimitiveNode.h"
 #include "Core/ResourceManager.h"
+#include "Core/PrimitiveGraphics.h"
+#include "Core/PBRMeshVColorGraphics.h"
+#include "Core/Color.h"
 #include "Core/Util.h"
-#include "Core/VertexColorMeshNode.h"
-#include <Euclid/Analysis/OBB.h>
 
+#include <Euclid/Analysis/OBB.h>
 #include <Eigen/Dense>
 #include <vector>
+#include <memory>
 
-PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
+PropertyWidget::PropertyWidget(QWidget* parent, QOpenGLWidget* glWidget)
 	: ProcessWidget(parent, glWidget)
 {
 	auto layout = new QVBoxLayout(this);
@@ -91,14 +92,15 @@ void PropertyWidget::onImportMesh(MeshInfo* info)
 	if (info != nullptr) {
 		_valid = true;
 
-		auto aabbNode = dynamic_cast<PrimitiveNode*>(
-			_scene->addNode(_scene->node("MainMesh"), SceneNodeType::primitiveNode, "AABB"));
-		aabbNode->addBox(QVector3D(info->minX, info->minY, info->minZ),
+		auto aabbNode = _scene->addNode("MainMesh", "AABB");
+		auto aabbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+		aabbGraphics->addBox(QVector3D(info->minX, info->minY, info->minZ),
 			info->maxX - info->minX, info->maxY - info->minY, info->maxZ - info->minZ);
-		aabbNode->setVisible(false);
+		aabbGraphics->setVisible(false);
+		aabbNode->addGraphicsComponent(std::move(aabbGraphics));
 
-		auto obbNode = dynamic_cast<PrimitiveNode*>(
-			_scene->addNode(_scene->node("MainMesh"), SceneNodeType::primitiveNode, "OBB"));
+		auto obbNode = _scene->addNode("MainMesh", "OBB");
+		auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
 		if (auto cMesh = ResourceManager::instance().mesh("MainMesh").first->cMesh()) {
 			Euclid::OBB<CMesh> obb(*cMesh);
 			auto lbb = eigenToQt(obb.lbb());
@@ -109,7 +111,7 @@ void PropertyWidget::onImportMesh(MeshInfo* info)
 			auto rbf = eigenToQt(obb.rbf());
 			auto rtb = eigenToQt(obb.rtb());
 			auto rtf = eigenToQt(obb.rtf());
-			obbNode->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
+			obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
 		}
 		else {
 			Euclid::OBB<CMesh>
@@ -122,14 +124,16 @@ void PropertyWidget::onImportMesh(MeshInfo* info)
 			auto rbf = eigenToQt(obb.rbf());
 			auto rtb = eigenToQt(obb.rtb());
 			auto rtf = eigenToQt(obb.rtf());
-			obbNode->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
+			obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
 		}
-		obbNode->setVisible(false);
+		obbGraphics->setVisible(false);
+		obbNode->addGraphicsComponent(std::move(obbGraphics));
 
-		auto sphereNode = dynamic_cast<PrimitiveNode*>(
-			_scene->addNode(_scene->node("MainMesh"), SceneNodeType::primitiveNode, "Sphere"));
-		sphereNode->addSphere(info->center, info->radius);
-		sphereNode->setVisible(false);
+		auto sphereNode = _scene->addNode("MainMesh", "Sphere");
+		auto sphereGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+		sphereGraphics->addSphere(info->center, info->radius);
+		sphereGraphics->setVisible(false);
+		sphereNode->addGraphicsComponent(std::move(sphereGraphics));
 
 		_fileName->setText(info->fileName);
 		_nVertices->setNum(static_cast<int>(info->nVertices));
@@ -185,10 +189,10 @@ void PropertyWidget::showAABB(int state)
 {
 	if (_valid) {
 		if (state == Qt::Checked) {
-			_scene->node("AABB")->setVisible(true);
+			_scene->node("AABB")->graphicsComponent()->setVisible(true);
 		}
 		else {
-			_scene->node("AABB")->setVisible(false);
+			_scene->node("AABB")->graphicsComponent()->setVisible(false);
 		}
 		_glWidget->update();
 	}
@@ -198,10 +202,10 @@ void PropertyWidget::showOBB(int state)
 {
 	if (_valid) {
 		if (state == Qt::Checked) {
-			_scene->node("OBB")->setVisible(true);
+			_scene->node("OBB")->graphicsComponent()->setVisible(true);
 		} 
 		else {
-			_scene->node("OBB")->setVisible(false);
+			_scene->node("OBB")->graphicsComponent()->setVisible(false);
 		}
 		_glWidget->update();
 	}
@@ -211,10 +215,10 @@ void PropertyWidget::showSphere(int state)
 {
 	if (_valid) {
 		if (state == Qt::Checked) {
-			_scene->node("Sphere")->setVisible(true);
+			_scene->node("Sphere")->graphicsComponent()->setVisible(true);
 		} 
 		else {
-			_scene->node("Sphere")->setVisible(false);
+			_scene->node("Sphere")->graphicsComponent()->setVisible(false);
 		}
 		_glWidget->update();
 	}
@@ -223,16 +227,16 @@ void PropertyWidget::showSphere(int state)
 void PropertyWidget::onColorChanged(int state)
 {
 	if (state == 0) { // Material
-		_scene->node("MainMesh")->setVisible(true);
+		_scene->node("MainMesh")->graphicsComponent()->setVisible(true);
 		if (_scene->node("MainMeshValence") != nullptr) {
-			_scene->node("MainMeshValence")->setVisible(false);
+			_scene->node("MainMeshValence")->graphicsComponent()->setVisible(false);
 		}
 	}
 	
 	if (state == 1) { // Valence
-		_scene->node("MainMesh")->setVisible(false);
+		_scene->node("MainMesh")->graphicsComponent()->setVisible(false);
 		if (_scene->node("MainMeshValence") != nullptr) {
-			_scene->node("MainMeshValence")->setVisible(true);
+			_scene->node("MainMeshValence")->graphicsComponent()->setVisible(true);
 		}
 		else {
 			auto cMesh = ResourceManager::instance().mesh("MainMesh").first->cMesh();
@@ -244,12 +248,15 @@ void PropertyWidget::onColorChanged(int state)
 					valences.push_back(static_cast<unsigned>(v->vertex_degree()));
 				} while (++v != f->facet_begin());
 			}
-			auto colors = temperature(valences, QVector4D(1.0f, 0.0f, 0.0f, 1.0f), QVector4D(0.0f, 0.0f, 1.0f, 1.0f));
+			auto colors = temperature(valences, QVector3D(1.0f, 0.0f, 0.0f), QVector3D(0.0f, 0.0f, 1.0f));
 			ResourceManager::instance().addGLBuffer("MainMeshValence", colors);
 
-			auto valenceNode = dynamic_cast<VertexColorMeshNode*>(_scene->addNode(_scene->rootNode(),
-				SceneNodeType::vertexColorMeshNode, "MainMeshValence", _scene->node("MainMesh")->transform()));
-			valenceNode->attachMesh("MainMesh_VertexBuffer", "MainMeshValence");
+			auto valenceNode = _scene->addNode(_scene->rootNode(), "MainMeshValence", _scene->node("MainMesh")->transform());
+			auto graphics = std::make_unique<PBRMeshVColorGraphics>(valenceNode, *_glWidget);
+			graphics->setPositionBuffer("MainMesh_VertexBuffer");
+			graphics->setNormalBuffer("MainMesh_NormalBuffer");
+			graphics->setColorBuffer("MainMeshValence");
+			valenceNode->addGraphicsComponent(std::move(graphics));
 		}
 	}
 

@@ -15,7 +15,7 @@
 
 using MeshMap = std::unordered_map<std::string, std::pair<std::unique_ptr<Polyhedron_3>, std::string>>; // <Polyhedron_3, GLBuffer>
 using GLBufferMap = std::unordered_map<std::string, QOpenGLBuffer>;
-using MaterialMap = std::unordered_map<std::string, Material>;
+using PBRMaterialMap = std::unordered_map<std::string, PBRMaterial>;
 using ShaderMap = std::unordered_map<std::string, std::unique_ptr<QOpenGLShaderProgram>>;
 
 class ResourceManager
@@ -46,10 +46,10 @@ public:
 	QOpenGLBuffer* glBuffer(const std::string& name);
 	bool removeGLBuffer(const std::string& name);
 
-	void addMaterial(const std::string& name, const QVector3D& albedo,
+	void addPBRMaterial(const std::string& name, const QVector3D& albedo,
 		const float roughness, const float metallic, float ao);
-	Material* material(const std::string& name);
-	bool removeMaterial(const std::string& name);
+	PBRMaterial* pbrMaterial(const std::string& name);
+	bool removePBRMaterial(const std::string& name);
 
 	void addShaderProgram(const std::string& name,
 		const std::string& vertexShader, const std::string& fragmentShader);
@@ -63,6 +63,6 @@ private:
 	QOpenGLWidget* _context = nullptr;
 	MeshMap _meshMap;
 	GLBufferMap _bufferMap;
-	MaterialMap _materialMap;
+	PBRMaterialMap _pbrMaterialMap;
 	ShaderMap _shaderMap;
 };

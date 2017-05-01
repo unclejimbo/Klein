@@ -25,27 +25,24 @@ void initializeResourceSystem()
 	OBJMeshIO objIO;
 	offIO.readMesh(QString(KLEIN_MESH_PATH).append("Cube.off"), "KLEIN_Cube", false, nullptr);
 	objIO.readMesh(QString(KLEIN_MESH_PATH).append("UVSphere.obj"), "KLEIN_UVSphere", false, nullptr);
-		
-	auto color = QColor(255, 0, 0);
-	ResourceManager::instance().addMaterial("KLEIN_Red",
-		QVector3D(static_cast<float>(color.redF()), static_cast<float>(color.greenF()), static_cast<float>(color.blueF())),
-		0.8f, 0.4f, 10.0f);
+	
+	ResourceManager::instance().addPBRMaterial("KLEIN_PBR_Default",
+		QVector3D(1.0f, 1.0f, 1.0f), 0.8f, 0.4f, 10.0f);
+	ResourceManager::instance().addPBRMaterial("KLEIN_PBR_Red",
+		QVector3D(1.0f, 0.0f, 0.0f), 0.8f, 0.4f, 10.0f);
 
-	ResourceManager::instance().addShaderProgram("KLEIN_ColorMesh",
-		QString(KLEIN_SHADER_PATH).append("Mesh.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("ColorMesh.frag").toStdString());
 	ResourceManager::instance().addShaderProgram("KLEIN_CookTorrance",
 		QString(KLEIN_SHADER_PATH).append("Mesh.vert").toStdString(),
 		QString(KLEIN_SHADER_PATH).append("CookTorrance.frag").toStdString());
-	ResourceManager::instance().addShaderProgram("KLEIN_VertexColorMesh",
-		QString(KLEIN_SHADER_PATH).append("VertexColorMesh.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("VertexColorMesh.frag").toStdString());
-	ResourceManager::instance().addShaderProgram("KLEIN_Primitive",
-		QString(KLEIN_SHADER_PATH).append("Primitive.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("Primitive.frag").toStdString());
-	ResourceManager::instance().addShaderProgram("KLEIN_VertexColorPrimitive",
-		QString(KLEIN_SHADER_PATH).append("VertexColorPrimitive.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("VertexColorPrimitive.frag").toStdString());
+	ResourceManager::instance().addShaderProgram("KLEIN_CookTorrance_VColor",
+		QString(KLEIN_SHADER_PATH).append("MeshVColor.vert").toStdString(),
+		QString(KLEIN_SHADER_PATH).append("CookTorranceVColor.frag").toStdString());
+	ResourceManager::instance().addShaderProgram("KLEIN_Unlit",
+		QString(KLEIN_SHADER_PATH).append("Unlit.vert").toStdString(),
+		QString(KLEIN_SHADER_PATH).append("Unlit.frag").toStdString());
+	ResourceManager::instance().addShaderProgram("KLEIN_Unlit_VColor",
+		QString(KLEIN_SHADER_PATH).append("UnlitVColor.vert").toStdString(),
+		QString(KLEIN_SHADER_PATH).append("UnlitVColor.frag").toStdString());
 }
 
 int main(int argc, char *argv[])

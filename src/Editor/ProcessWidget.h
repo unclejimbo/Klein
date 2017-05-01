@@ -2,16 +2,17 @@
 
 #include "Core/MeshIO.h"
 #include "Core/Scene.h"
-#include "Editor/GLWidget.h"
+#include "Core/SceneNode.h"
 
 #include <QtWidgets>
+#include <QOpenGLWidget>
 
 class ProcessWidget : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit ProcessWidget(QWidget* parent, GLWidget* glWidget);
+	explicit ProcessWidget(QWidget* parent, QOpenGLWidget* glWidget);
 	virtual ~ProcessWidget();
 
 public Q_SLOTS:
@@ -19,6 +20,6 @@ public Q_SLOTS:
 	void onInitializeScene(Scene* scene);
 
 protected:
-	GLWidget* _glWidget;
+	QOpenGLWidget* _glWidget;
 	Scene* _scene;
 };

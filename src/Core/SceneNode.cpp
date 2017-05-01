@@ -1,10 +1,10 @@
 #include "Core/SceneNode.h"
-#include "Core/Logger.h"
-#include "Core/RenderMeshNode.h"
 #include "Core/Scene.h"
+#include "Core/GraphicsComponent.h"
+#include "Core/Logger.h"
 
-SceneNode::SceneNode(Scene* scene, SceneNode* parent, const QMatrix4x4& transform)
-	: _scene(scene), _parent(parent)
+SceneNode::SceneNode(const std::string& name, Scene& scene, SceneNode* parent, const QMatrix4x4& transform)
+	: _name(name), _scene(scene), _parent(parent)
 {
 	if (parent != nullptr) {
 		_transform = transform;
@@ -19,7 +19,7 @@ SceneNode::~SceneNode() = default;
 
 void SceneNode::setTransDirty(bool dirty)
 {
-	_dirty = dirty;
+	_transDirty = dirty;
 	if (dirty) {
 		for (auto&& c : _children) {
 			c.second->setTransDirty(true);
@@ -29,9 +29,9 @@ void SceneNode::setTransDirty(bool dirty)
 
 QMatrix4x4 SceneNode::transform() const
 {
-	if (_dirty) {
+	if (_transDirty) {
 		_toWorld = _parent->transform() * _transform;
-		_dirty = false;
+		_transDirty = false;
 	}
 	return _toWorld;
 }
@@ -52,52 +52,22 @@ void SceneNode::setTransform(const QMatrix4x4& transform)
 	}
 }
 
-bool SceneNode::visible() const
+GraphicsComponent* SceneNode::graphicsComponent()
 {
-	if (!_visible) {
-		return false;
+	return _graphics.get();
+}
+
+void SceneNode::addGraphicsComponent(std::unique_ptr<GraphicsComponent> graphics)
+{
+	if (_graphics != nullptr) {
+		KLEIN_LOG_WARNING("Existing graphics component is replaced");
+	}
+	_graphics = std::move(graphics);
+	_graphics->attachTo(this);
+	if (_graphics->transparent()) {
+		_scene._transparentGraphicsNodes[_name] = this;
 	}
 	else {
-		if (_parent != nullptr && !_parent->visible()) {
-			return false;
-		}
-		else {
-			return true;
-		}
+		_scene._graphicsNodes[_name] = this;
 	}
-}
-
-void SceneNode::setVisible(bool visible)
-{
-	_visible = visible;
-}
-
-ShadingMethod SceneNode::shadingMethod() const
-{
-	return _method;
-}
-
-void SceneNode::setShadingMethod(ShadingMethod method)
-{
-	_method = method;
-}
-
-int SceneNode::renderPass() const
-{
-	return _renderPass;
-}
-
-void SceneNode::addRenderPass(int renderPass)
-{
-	_renderPass = _renderPass | renderPass;
-}
-
-void SceneNode::removeRenderPass(int renderPass)
-{
-	_renderPass = _renderPass & (~renderPass);
-}
-
-void SceneNode::setRenderPass(int renderPass)
-{
-	_renderPass = renderPass;
 }
