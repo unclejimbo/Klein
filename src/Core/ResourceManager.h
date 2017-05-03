@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-using MeshMap = std::unordered_map<std::string, std::pair<std::unique_ptr<Polyhedron_3>, std::string>>; // <Polyhedron_3, GLBuffer>
+using MeshMap = std::unordered_map<std::string, std::pair<std::unique_ptr<Mesh>, std::string>>; // <Mesh, GLBuffer>
 using GLBufferMap = std::unordered_map<std::string, QOpenGLBuffer>;
 using PBRMaterialMap = std::unordered_map<std::string, PBRMaterial>;
 using ShaderMap = std::unordered_map<std::string, std::unique_ptr<QOpenGLShaderProgram>>;
@@ -28,7 +28,7 @@ public:
 
 	void addMesh(const std::string& name, const std::vector<QVector3D>& vertices,
 		const std::vector<unsigned>& indices, const std::string& bufferName);
-	std::pair<Polyhedron_3*, std::string> mesh(const std::string& name);
+	std::pair<Mesh*, std::string> mesh(const std::string& name);
 	bool removeMesh(const std::string& name);
 
 	void addGLBuffer(const std::string& name, const std::vector<float>& data,

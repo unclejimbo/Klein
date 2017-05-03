@@ -14,13 +14,13 @@ using CMesh = CGAL::Polyhedron_3<Kernel, CGAL::Polyhedron_items_with_id_3>;
 
 /*
 	Warning: The user is ultimately responsible for keeping raw mesh data
-	and cgal mesh data in sychronization when changed by the caller
+	and cgal mesh data in synchronization when changed by the caller
 */
-class Polyhedron_3
+class Mesh
 {
 public:
-	Polyhedron_3(const std::vector<QVector3D>& vertices, const std::vector<unsigned>& indices);
-	~Polyhedron_3();
+	Mesh(const std::vector<QVector3D>& vertices, const std::vector<unsigned>& indices);
+	~Mesh();
 
 	std::vector<Eigen::Vector3f>& vertices();
 	std::vector<unsigned>& indices();

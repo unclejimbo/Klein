@@ -22,14 +22,14 @@ void ResourceManager::initialize(QOpenGLWidget* context)
 void ResourceManager::addMesh(const std::string& name, const std::vector<QVector3D>& vertices,
 	const std::vector<unsigned>& indices, const std::string& bufferName)
 {
-	auto mesh = std::make_unique<Polyhedron_3>(vertices, indices);
+	auto mesh = std::make_unique<Mesh>(vertices, indices);
 
 	if (!_meshMap.insert_or_assign(name, std::make_pair(std::move(mesh), bufferName)).second) {
 		KLEIN_LOG_WARNING(QString("Mesh %1 already exists and is replaced").arg(name.c_str()));
 	}
 }
 
-std::pair<Polyhedron_3*, std::string> ResourceManager::mesh(const std::string& name)
+std::pair<Mesh*, std::string> ResourceManager::mesh(const std::string& name)
 {
 	if (_meshMap.find(name) != _meshMap.end()) {
 		return std::make_pair(_meshMap[name].first.get(), _meshMap[name].second);

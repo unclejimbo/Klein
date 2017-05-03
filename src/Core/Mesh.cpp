@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cmath>
 
-Polyhedron_3::Polyhedron_3(const std::vector<QVector3D>& vertices, const std::vector<unsigned>& indices)
+Mesh::Mesh(const std::vector<QVector3D>& vertices, const std::vector<unsigned>& indices)
 	: _indices(indices)
 {
 	_vertices.resize(vertices.size());
@@ -37,19 +37,19 @@ Polyhedron_3::Polyhedron_3(const std::vector<QVector3D>& vertices, const std::ve
 	}
 }
 
-Polyhedron_3::~Polyhedron_3() = default;
+Mesh::~Mesh() = default;
 
-std::vector<Eigen::Vector3f>& Polyhedron_3::vertices()
+std::vector<Eigen::Vector3f>& Mesh::vertices()
 {
 	return _vertices;
 }
 
-std::vector<unsigned>& Polyhedron_3::indices()
+std::vector<unsigned>& Mesh::indices()
 {
 	return _indices;
 }
 
-CMesh* Polyhedron_3::cMesh()
+CMesh* Mesh::cMesh()
 {
 	return _cMesh.get();
 }
