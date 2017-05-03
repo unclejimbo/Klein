@@ -1,11 +1,5 @@
 #pragma once
 
-#ifdef _WIN32
-#include <CodeAnalysis/Warnings.h>
-#pragma warning(push)
-#pragma warning(disable : ALL_CODE_ANALYSIS_WARNINGS)
-#endif
-
 #include <QVector3D>
 #include <CGAL/Polyhedron_3.h>
 #include <CGAL/Polyhedron_items_with_id_3.h>
@@ -14,10 +8,6 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 using Kernel = CGAL::Simple_cartesian<float>;
 using CMesh = CGAL::Polyhedron_3<Kernel, CGAL::Polyhedron_items_with_id_3>;
