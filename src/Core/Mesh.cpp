@@ -7,52 +7,37 @@
 #include <algorithm>
 #include <cmath>
 
-Mesh::Mesh(const std::vector<QVector3D>& vertices, const std::vector<unsigned>& indices)
-	: _indices(indices)
+Mesh::Mesh(const std::vector<QVector3D>& rawVertices, const std::vector<unsigned>& rawIndices)
+	: indices(rawIndices)
 {
-	_vertices.resize(vertices.size());
-	std::transform(vertices.begin(), vertices.end(), _vertices.begin(),
+	vertices.resize(rawVertices.size());
+	std::transform(rawVertices.begin(), rawVertices.end(), vertices.begin(),
 		[](const QVector3D& v) {
 			return qtToEigen<float>(v);
 		}
 	);
 
-	_cMesh = std::make_unique<CMesh>();
-	Euclid::TriMeshBuilder<CMesh> meshBuilder(_vertices, indices);
+	cMesh = std::make_unique<CMesh>();
+	Euclid::TriMeshBuilder<CMesh> meshBuilder(vertices, indices);
 	try {
-		_cMesh->delegate(meshBuilder);
+		cMesh->delegate(meshBuilder);
 
 		size_t i = 0;
-		for (auto v = _cMesh->vertices_begin(); v != _cMesh->vertices_end(); ++v) {
+		for (auto v = cMesh->vertices_begin(); v != cMesh->vertices_end(); ++v) {
 			v->id() = i++;
 		}
 		i = 0;
-		for (auto f = _cMesh->facets_begin(); f != _cMesh->facets_end(); ++f) {
+		for (auto f = cMesh->facets_begin(); f != cMesh->facets_end(); ++f) {
 			f->id() = i++;
 		}
 	}
 	catch (...) {
 		KLEIN_LOG_WARNING("The provided mesh is non-manifold, thus cgal-mesh will be unavailable");
-		_cMesh = nullptr;
+		cMesh = nullptr;
 	}
 }
 
 Mesh::~Mesh() = default;
-
-std::vector<Eigen::Vector3f>& Mesh::vertices()
-{
-	return _vertices;
-}
-
-std::vector<unsigned>& Mesh::indices()
-{
-	return _indices;
-}
-
-CMesh* Mesh::cMesh()
-{
-	return _cMesh.get();
-}
 
 void addGLBuffer(const std::string& name, const CMesh& cMesh)
 {

@@ -19,17 +19,12 @@ using CMesh = CGAL::Polyhedron_3<Kernel, CGAL::Polyhedron_items_with_id_3>;
 class Mesh
 {
 public:
-	Mesh(const std::vector<QVector3D>& vertices, const std::vector<unsigned>& indices);
+	Mesh(const std::vector<QVector3D>& rawVertices, const std::vector<unsigned>& rawIndices);
 	~Mesh();
 
-	std::vector<Eigen::Vector3f>& vertices();
-	std::vector<unsigned>& indices();
-	CMesh* cMesh();
-
-private:
-	std::vector<Eigen::Vector3f> _vertices;
-	std::vector<unsigned> _indices;
-	std::unique_ptr<CMesh> _cMesh;
+	std::vector<Eigen::Vector3f> vertices;
+	std::vector<unsigned> indices;
+	std::unique_ptr<CMesh> cMesh;
 };
 
 
