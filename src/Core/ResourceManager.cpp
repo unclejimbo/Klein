@@ -52,6 +52,38 @@ bool ResourceManager::removeMesh(const std::string& name)
 	}
 }
 
+void ResourceManager::addPointCloud(const std::string& name, const std::vector<QVector3D>& vertices,
+	const std::vector<QVector3D>& normals, const std::string& vertexBufferID)
+{
+	auto pc = std::make_unique<PointCloud>(vertices, normals, vertexBufferID);
+
+	if (!_pointCloudMap.insert_or_assign(name, std::move(pc)).second) {
+		KLEIN_LOG_WARNING(QString("PointCloud %1 already exists and is replaced").arg(name.c_str()));
+	}
+}
+
+PointCloud* ResourceManager::pointCloud(const std::string& name)
+{
+	if (_pointCloudMap.find(name) != _pointCloudMap.end()) {
+		return _pointCloudMap[name].get();
+	}
+	else {
+		KLEIN_LOG_CRITICAL(QString("Can't find PointCloud %1").arg(name.c_str()));
+		return nullptr;
+	}
+}
+
+bool ResourceManager::removePointCloud(const std::string& name)
+{
+	if (_pointCloudMap.erase(name) == 0) {
+		KLEIN_LOG_WARNING(QString("Can't find PointCloud %1, nothing removed").arg(name.c_str()));
+		return false;
+	}
+	else {
+		return true;
+	}
+}
+
 void ResourceManager::addGLBuffer(const std::string& name, const std::vector<float>& data,
 	QOpenGLBuffer::Type type, QOpenGLBuffer::UsagePattern usage)
 {

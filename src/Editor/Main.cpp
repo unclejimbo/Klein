@@ -1,7 +1,7 @@
 #include "Core/Common.h"
 #include "Core/Logger.h"
-#include "Core/OBJMeshIO.h"
-#include "Core/OFFMeshIO.h"
+#include "Core/ObjIO.h"
+#include "Core/OffIO.h"
 #include "Core/ResourceManager.h"
 #include "Editor/MainWindow.h"
 
@@ -21,8 +21,8 @@
 void initializeResourceSystem()
 {
 	// Load default contents
-	OFFMeshIO offIO;
-	OBJMeshIO objIO;
+	OffIO offIO;
+	ObjIO objIO;
 	offIO.readMesh(QString(KLEIN_MESH_PATH).append("Cube.off"), "KLEIN_Cube", false, nullptr);
 	objIO.readMesh(QString(KLEIN_MESH_PATH).append("UVSphere.obj"), "KLEIN_UVSphere", false, nullptr);
 	

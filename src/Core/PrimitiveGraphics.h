@@ -5,6 +5,8 @@
 #include <QVector3D>
 #include <vector>
 
+class QOpenGLBuffer;
+
 class PrimitiveGraphics : public GraphicsComponent
 {
 public:
@@ -20,6 +22,8 @@ public:
 		const QVector3D& ltb, const QVector3D& ltf, const QVector3D& rbb,
 		const QVector3D& rbf, const QVector3D& rtb, const QVector3D& rtf);
 	void addSphere(const QVector3D& center, float radius);
+	bool setPointPositionBuffer(const std::string& pointPosBufID);
+	bool setLinePositionBuffer(const std::string& linePosBufID);
 	void setColor(const QVector3D& color);
 
 private:
@@ -30,5 +34,7 @@ private:
 	std::vector<QVector3D> _points;
 	std::vector<QVector3D> _lines;
 	std::vector<std::vector<QVector3D>> _lineLoops;
+	QOpenGLBuffer* _pointPosBuf = nullptr;
+	QOpenGLBuffer* _linePosBuf = nullptr;
 	QVector3D _color = QVector3D(1.0f, 1.0f, 1.0f);
 };

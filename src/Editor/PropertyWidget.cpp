@@ -81,7 +81,7 @@ PropertyWidget::PropertyWidget(QWidget* parent, QOpenGLWidget* glWidget)
 
 PropertyWidget::~PropertyWidget() = default;
 
-void PropertyWidget::onImportMesh(MeshInfo* info)
+void PropertyWidget::onImport(GeomInfo* info)
 {
 	_scene->removeNode("AABB");
 	_scene->removeNode("OBB");
@@ -89,7 +89,7 @@ void PropertyWidget::onImportMesh(MeshInfo* info)
 	_scene->removeNode("MainMeshValence");
 	ResourceManager::instance().removeGLBuffer("MainMeshValence");
 
-	if (info != nullptr) {
+	if (info != nullptr && info->type == GeomType::mesh) {
 		_valid = true;
 
 		auto aabbNode = _scene->addNode("MainMesh", "AABB");
@@ -101,7 +101,9 @@ void PropertyWidget::onImportMesh(MeshInfo* info)
 
 		auto obbNode = _scene->addNode("MainMesh", "OBB");
 		auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-		if (auto cMesh = ResourceManager::instance().mesh("MainMesh")->cMesh.get()) {
+		auto mesh = ResourceManager::instance().mesh("MainMesh");
+		if (mesh != nullptr) {
+			auto cMesh = mesh->cMesh.get();
 			Euclid::OBB<CMesh> obb(*cMesh);
 			auto lbb = eigenToQt(obb.lbb());
 			auto lbf = eigenToQt(obb.lbf());

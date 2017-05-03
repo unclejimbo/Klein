@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/MeshIO.h"
+#include "Core/GeomIO.h"
 #include "Core/Scene.h"
 #include "Core/SceneNode.h"
 
@@ -16,7 +16,7 @@ public:
 	virtual ~ProcessWidget();
 
 public Q_SLOTS:
-	virtual void onImportMesh(MeshInfo* info) = 0; // Clear all states and info
+	virtual void onImport(GeomInfo* info) = 0; // Clear all states and info
 	void onInitializeScene(Scene* scene);
 
 protected:

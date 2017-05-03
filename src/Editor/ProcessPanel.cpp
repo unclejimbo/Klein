@@ -37,6 +37,6 @@ void ProcessPanel::_initializePanel(MainWindow* parent, GLWidget* glWidget)
 
 	connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
 		stackedWidget, &QStackedWidget::setCurrentIndex);
-	connect(parent, &MainWindow::meshImported, propertyWidget, &PropertyWidget::onImportMesh);
+	connect(parent, &MainWindow::geomImported, propertyWidget, &PropertyWidget::onImport);
 	connect(parent, &MainWindow::sceneInitialized, propertyWidget, &PropertyWidget::onInitializeScene);
 }

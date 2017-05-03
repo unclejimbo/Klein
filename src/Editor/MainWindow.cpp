@@ -1,11 +1,12 @@
 #include "Editor/MainWindow.h"
 #include "Core/Logger.h"
-#include "Core/OBJMeshIO.h"
-#include "Core/OFFMeshIO.h"
+#include "Core/ObjIO.h"
+#include "Core/OffIO.h"
 #include "Core/ResourceManager.h"
 #include "Core/Scene.h"
 #include "Core/SceneNode.h"
 #include "Core/PBRMeshGraphics.h"
+#include "Core/PrimitiveGraphics.h"
 
 #include <QMatrix4x4>
 #include <memory>
@@ -61,8 +62,11 @@ void MainWindow::_createActions()
 	_aQuit = new QAction("Quit", this);
 	connect(_aQuit, &QAction::triggered, this, &MainWindow::close);
 
-	_aOpen = new QAction("Open", this);
-	connect(_aOpen, &QAction::triggered, this, &MainWindow::_importMesh);
+	_aImportMesh = new QAction("Import Mesh", this);
+	connect(_aImportMesh, &QAction::triggered, this, &MainWindow::_importMesh);
+
+	_aImportPointCloud = new QAction("Import Point Cloud", this);
+	connect(_aImportPointCloud, &QAction::triggered, this, &MainWindow::_importPointCloud);
 
 	_aClear = new QAction("Clear All", this);
 	connect(_aClear, &QAction::triggered, this, &MainWindow::_clearAll);
@@ -97,7 +101,8 @@ void MainWindow::_createMenuBar()
 	this->setMenuBar(_menuBar);
 
 	auto file = _menuBar->addMenu("File");
-	file->addAction(_aOpen);
+	file->addAction(_aImportMesh);
+	file->addAction(_aImportPointCloud);
 	file->addAction(_aClear);
 	file->addSeparator();
 	file->addAction(_aScreenShot);
@@ -153,21 +158,23 @@ void MainWindow::_importMesh()
 	if (path.length() != 0) {
 		_statusBar->showMessage("Reading mesh...");
 
-		std::unique_ptr<MeshIO> meshIO = nullptr;
+		std::unique_ptr<GeomIO> geomIO = nullptr;
 		if (QFileInfo(path).suffix() == "off") {
-			meshIO = std::make_unique<OFFMeshIO>();
+			geomIO = std::make_unique<OffIO>();
 		}
 		if (QFileInfo(path).suffix() == "obj") {
-			meshIO = std::make_unique<OBJMeshIO>();
+			geomIO = std::make_unique<ObjIO>();
 		}
 
-		if (meshIO->readMesh(path, "MainMesh", true, &_meshInfo)) {
+		if (geomIO->readMesh(path, "MainMesh", true, &_geomInfo)) {
+			_geomInfo.type = GeomType::mesh;
+
 			_scene.removeNode("MainMesh");
 			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
 
 			QMatrix4x4 transform;
-			transform.scale(1.0f / _meshInfo.radius);
-			transform.translate(-_meshInfo.center);
+			transform.scale(1.0f / _geomInfo.radius);
+			transform.translate(-_geomInfo.center);
 			node->setTransform(transform);
 
 			auto graphics = std::make_unique<PBRMeshGraphics>(*_glWidget);
@@ -182,8 +189,52 @@ void MainWindow::_importMesh()
 
 			_lastOpenFile = QFileInfo(path).path();
 			_changeTitle(QFileInfo(path).fileName());
-			_updateStatusLabel(_meshInfo.nVertices, _meshInfo.nFaces);
-			Q_EMIT meshImported(&_meshInfo);
+			_updateStatusLabel(_geomInfo.nVertices, _geomInfo.nFaces);
+			Q_EMIT geomImported(&_geomInfo);
+		}
+
+		_glWidget->update();
+		_statusBar->clearMessage();
+	}
+}
+
+void MainWindow::_importPointCloud()
+{
+	auto path = QFileDialog::getOpenFileName(nullptr, "Import PointCloud",
+		_lastOpenFile, "PointCloud Files(*.off *.obj)");
+	if (path.length() != 0) {
+		_statusBar->showMessage("Reading point cloud...");
+
+		std::unique_ptr<GeomIO> geomIO = nullptr;
+		if (QFileInfo(path).suffix() == "off") {
+			geomIO = std::make_unique<OffIO>();
+		}
+		if (QFileInfo(path).suffix() == "obj") {
+			geomIO = std::make_unique<ObjIO>();
+		}
+
+		if (geomIO->readPointCloud(path, "MainMesh", &_geomInfo)) {
+			_geomInfo.type = GeomType::pointCloud;
+
+			_scene.removeNode("MainMesh");
+			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
+
+			QMatrix4x4 transform;
+			transform.scale(1.0f / _geomInfo.radius);
+			transform.translate(-_geomInfo.center);
+			node->setTransform(transform);
+
+			auto graphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+			graphics->setPointPositionBuffer("MainMesh_VertexBuffer");
+			graphics->setColor(QVector3D(1.0f, 1.0f, 1.0f));
+			node->addGraphicsComponent(std::move(graphics));
+
+			_scene.camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
+
+			_lastOpenFile = QFileInfo(path).path();
+			_changeTitle(QFileInfo(path).fileName());
+			_updateStatusLabel(_geomInfo.nVertices, _geomInfo.nFaces);
+			Q_EMIT geomImported(&_geomInfo);
 		}
 
 		_glWidget->update();
@@ -194,7 +245,7 @@ void MainWindow::_importMesh()
 void MainWindow::_clearAll()
 {
 	_scene.removeNode("MainMesh");
-	Q_EMIT meshImported(nullptr);
+	Q_EMIT geomImported(nullptr);
 	_glWidget->update();
 }
 

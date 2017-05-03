@@ -2,6 +2,7 @@
 
 #include "Core/Material.h"
 #include "Core/Mesh.h"
+#include "Core/PointCloud.h"
 
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
@@ -14,6 +15,7 @@
 #include <vector>
 
 using MeshMap = std::unordered_map<std::string, std::unique_ptr<Mesh>>;
+using PointCloudMap = std::unordered_map<std::string, std::unique_ptr<PointCloud>>;
 using GLBufferMap = std::unordered_map<std::string, QOpenGLBuffer>;
 using PBRMaterialMap = std::unordered_map<std::string, PBRMaterial>;
 using ShaderMap = std::unordered_map<std::string, std::unique_ptr<QOpenGLShaderProgram>>;
@@ -31,6 +33,11 @@ public:
 		const std::string& vertexBufferID, const std::string& normalBufferID);
 	Mesh* mesh(const std::string& name);
 	bool removeMesh(const std::string& name);
+
+	void addPointCloud(const std::string& name, const std::vector<QVector3D>& vertices,
+		const std::vector<QVector3D>& normals, const std::string& vertexBufferID);
+	PointCloud* pointCloud(const std::string& name);
+	bool removePointCloud(const std::string& name);
 
 	void addGLBuffer(const std::string& name, const std::vector<float>& data,
 		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
@@ -63,6 +70,7 @@ private:
 private:
 	QOpenGLWidget* _context = nullptr;
 	MeshMap _meshMap;
+	PointCloudMap _pointCloudMap;
 	GLBufferMap _bufferMap;
 	PBRMaterialMap _pbrMaterialMap;
 	ShaderMap _shaderMap;

@@ -2,7 +2,7 @@
 
 #include "Core/Scene.h"
 #include "Core/Common.h"
-#include "Core/MeshIO.h"
+#include "Core/GeomIO.h"
 #include "Editor/GLWidget.h"
 #include "Editor/ProcessPanel.h"
 
@@ -21,7 +21,7 @@ public:
 	void initializeScene();
 
 Q_SIGNALS:
-	void meshImported(MeshInfo*);
+	void geomImported(GeomInfo*);
 	void sceneInitialized(Scene*);
 
 private:
@@ -36,6 +36,7 @@ private:
 
 private Q_SLOTS:
 	void _importMesh();
+	void _importPointCloud();
 	void _clearAll();
 	void _screenShot();
 	void _shaded();
@@ -51,7 +52,8 @@ private:
 	QLabel* _statusLabel;
 
 	QAction* _aQuit;
-	QAction* _aOpen;
+	QAction* _aImportMesh;
+	QAction* _aImportPointCloud;
 	QAction* _aClear;
 	QAction* _aScreenShot;
 	QAction* _aShaded;
@@ -60,6 +62,6 @@ private:
 	QAction* _aUnlit;
 
 	Scene _scene;
-	MeshInfo _meshInfo;
+	GeomInfo _geomInfo;
 	QString _lastOpenFile = KLEIN_IMPORT_PATH;
 };

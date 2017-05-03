@@ -13,7 +13,7 @@ public:
 	~PropertyWidget();
 
 public Q_SLOTS:
-	void onImportMesh(MeshInfo* info) override;
+	void onImport(GeomInfo* info) override;
 	void showAABB(int state);
 	void showOBB(int state);
 	void showSphere(int state);
