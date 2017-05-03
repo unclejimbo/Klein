@@ -2,16 +2,27 @@
 #include "Core/Logger.h"
 #include "Core/ResourceManager.h"
 #include "Core/Util.h"
-#include <Euclid/Geometry/Polyhedron_3.h>
 
+#include <Euclid/Geometry/Polyhedron_3.h>
 #include <algorithm>
 #include <cmath>
 
-Mesh::Mesh(const std::vector<QVector3D>& rawVertices, const std::vector<unsigned>& rawIndices)
-	: indices(rawIndices)
+Mesh::Mesh(const std::vector<QVector3D>& rawVertices,
+	const std::vector<QVector3D>& rawFNormals,
+	const std::vector<unsigned>& rawIndices,
+	const std::string& positionBuffer,
+	const std::string& normalBuffer)
+	: indices(rawIndices), positionBufferID(positionBuffer), normalBufferID(normalBuffer)
 {
 	vertices.resize(rawVertices.size());
 	std::transform(rawVertices.begin(), rawVertices.end(), vertices.begin(),
+		[](const QVector3D& v) {
+			return qtToEigen<float>(v);
+		}
+	);
+
+	fNormals.resize(rawFNormals.size());
+	std::transform(rawFNormals.begin(), rawFNormals.end(), fNormals.begin(),
 		[](const QVector3D& v) {
 			return qtToEigen<float>(v);
 		}
@@ -39,30 +50,23 @@ Mesh::Mesh(const std::vector<QVector3D>& rawVertices, const std::vector<unsigned
 
 Mesh::~Mesh() = default;
 
-void addGLBuffer(const std::string& name, const CMesh& cMesh)
+void Mesh::updateGLBuffer() const
 {
-	std::vector<typename Kernel::Point_3> positions;
-	positions.reserve((cMesh.size_of_facets() * 3));
-	for (auto f = cMesh.facets_begin(); f != cMesh.facets_end(); ++f) {
-		auto v = f->facet_begin();
-		do {
-			positions.push_back(v->vertex()->point());
-		} while (++v != f->facet_begin());
-	}
-	auto vertexBuffer = name + "_VertexBuffer";
-	ResourceManager::instance().addGLBuffer(vertexBuffer, positions);
-
-	std::vector<typename Kernel::Point_3> normals(cMesh.size_of_facets() * 3);
-	std::transform(cMesh.facets_begin(), cMesh.facets_end(), normals.begin(),
-		[](decltype(cMesh.facets_begin())::value_type f) {
-			auto h = f.halfedge();
-			auto n = CGAL::normal(h->vertex()->point(),
-				h->next()->vertex()->point(),
-				h->next()->next()->vertex()->point());
-			auto invLen = 1.0 / std::sqrt(n.squared_length());
-			return typename Kernel::Point_3(n.x() * invLen, n.y() * invLen, n.z() * invLen);
+	std::vector<QVector3D> positions(indices.size());
+	std::transform(indices.begin(), indices.end(), positions.begin(),
+		[&vertices = vertices](unsigned idx) {
+			return eigenToQt(vertices[idx]);
 		}
 	);
-	auto normalBuffer = name + "_NormalBuffer";
-	ResourceManager::instance().addGLBuffer(normalBuffer, normals);
+
+	std::vector<QVector3D> normals;
+	normals.reserve(indices.size());
+	for (const auto& fn : fNormals) {
+		normals.push_back(eigenToQt(fn));
+		normals.push_back(eigenToQt(fn));
+		normals.push_back(eigenToQt(fn));
+	}
+
+	ResourceManager::instance().addGLBuffer(positionBufferID, positions);
+	ResourceManager::instance().addGLBuffer(normalBufferID, normals);
 }

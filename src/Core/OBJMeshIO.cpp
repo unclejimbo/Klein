@@ -13,7 +13,7 @@ OBJMeshIO::~OBJMeshIO() = default;
 bool OBJMeshIO::_readMesh(QTextStream& stream, const QString& name, bool buildMesh, MeshInfo* meshInfo)
 {
 	std::vector<QVector3D> vertices;
-	std::vector<QVector3D> normals;
+	std::vector<QVector3D> fnormals;
 	std::vector<unsigned> indices;
 	std::vector<QVector3D> vertexBuffer;
 	std::vector<QVector3D> normalBuffer;
@@ -42,7 +42,7 @@ bool OBJMeshIO::_readMesh(QTextStream& stream, const QString& name, bool buildMe
 			auto x = lineList[1].toFloat();
 			auto y = lineList[2].toFloat();
 			auto z = lineList[3].toFloat();
-			normals.emplace_back(x, y, z);
+			fnormals.emplace_back(x, y, z);
 		}
 
 		if (lineList[0] == "f") {
@@ -57,7 +57,7 @@ bool OBJMeshIO::_readMesh(QTextStream& stream, const QString& name, bool buildMe
 				// Ommit texcoord
 				auto normalIndex = numList[2].toInt() - 1;
 				vertexBuffer.push_back(vertices[vertexIndex]);
-				normalBuffer.push_back(normals[normalIndex]);
+				normalBuffer.push_back(fnormals[normalIndex]);
 			}
 		}
 	}
@@ -68,7 +68,8 @@ bool OBJMeshIO::_readMesh(QTextStream& stream, const QString& name, bool buildMe
 	ResourceManager::instance().addGLBuffer(normalBufferName.toStdString(), normalBuffer);
 
 	if (buildMesh) {
-		ResourceManager::instance().addMesh(name.toStdString(), vertices, indices, name.toStdString());
+		ResourceManager::instance().addMesh(name.toStdString(), vertices, fnormals, indices,
+			vertexBufferName.toStdString(), normalBufferName.toStdString());
 	}
 
 	if (meshInfo != nullptr) {

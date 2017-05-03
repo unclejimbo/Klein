@@ -101,7 +101,7 @@ void PropertyWidget::onImportMesh(MeshInfo* info)
 
 		auto obbNode = _scene->addNode("MainMesh", "OBB");
 		auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-		if (auto cMesh = ResourceManager::instance().mesh("MainMesh").first->cMesh.get()) {
+		if (auto cMesh = ResourceManager::instance().mesh("MainMesh")->cMesh.get()) {
 			Euclid::OBB<CMesh> obb(*cMesh);
 			auto lbb = eigenToQt(obb.lbb());
 			auto lbf = eigenToQt(obb.lbf());
@@ -115,7 +115,7 @@ void PropertyWidget::onImportMesh(MeshInfo* info)
 		}
 		else {
 			Euclid::OBB<CMesh>
-				obb(ResourceManager::instance().mesh("MainMesh").first->vertices);
+				obb(ResourceManager::instance().mesh("MainMesh")->vertices);
 			auto lbb = eigenToQt(obb.lbb());
 			auto lbf = eigenToQt(obb.lbf());
 			auto ltb = eigenToQt(obb.ltb());
@@ -154,7 +154,7 @@ void PropertyWidget::onImportMesh(MeshInfo* info)
 		_sphere->setChecked(false);
 		_sphere->setCheckable(true);
 		_color->setCurrentIndex(0);
-		if (ResourceManager::instance().mesh("MainMesh").first->cMesh.get() == nullptr) {
+		if (ResourceManager::instance().mesh("MainMesh")->cMesh.get() == nullptr) {
 			_color->removeItem(1);
 		}
 		else {
@@ -239,7 +239,7 @@ void PropertyWidget::onColorChanged(int state)
 			_scene->node("MainMeshValence")->graphicsComponent()->setVisible(true);
 		}
 		else {
-			auto cMesh = ResourceManager::instance().mesh("MainMesh").first->cMesh.get();
+			auto cMesh = ResourceManager::instance().mesh("MainMesh")->cMesh.get();
 			std::vector<unsigned> valences;
 			valences.reserve(cMesh->size_of_facets() * 3);
 			for (auto f = cMesh->facets_begin(); f != cMesh->facets_end(); ++f) {

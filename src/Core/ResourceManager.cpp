@@ -20,23 +20,24 @@ void ResourceManager::initialize(QOpenGLWidget* context)
 }
 
 void ResourceManager::addMesh(const std::string& name, const std::vector<QVector3D>& vertices,
-	const std::vector<unsigned>& indices, const std::string& bufferName)
+	const std::vector<QVector3D>& normals, const std::vector<unsigned>& indices,
+	const std::string& vertexBufferID, const std::string& normalBufferID)
 {
-	auto mesh = std::make_unique<Mesh>(vertices, indices);
+	auto mesh = std::make_unique<Mesh>(vertices, normals, indices, vertexBufferID, normalBufferID);
 
-	if (!_meshMap.insert_or_assign(name, std::make_pair(std::move(mesh), bufferName)).second) {
+	if (!_meshMap.insert_or_assign(name, std::move(mesh)).second) {
 		KLEIN_LOG_WARNING(QString("Mesh %1 already exists and is replaced").arg(name.c_str()));
 	}
 }
 
-std::pair<Mesh*, std::string> ResourceManager::mesh(const std::string& name)
+Mesh* ResourceManager::mesh(const std::string& name)
 {
 	if (_meshMap.find(name) != _meshMap.end()) {
-		return std::make_pair(_meshMap[name].first.get(), _meshMap[name].second);
+		return _meshMap[name].get();
 	}
 	else {
 		KLEIN_LOG_CRITICAL(QString("Can't find Mesh %1").arg(name.c_str()));
-		return std::make_pair(nullptr, "");
+		return nullptr;
 	}
 }
 

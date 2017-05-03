@@ -39,6 +39,7 @@ bool OFFMeshIO::_readMesh(QTextStream& stream, const QString& name, bool buildMe
 
 	// Read mesh data
 	std::vector<QVector3D> vertices(vCount);
+	std::vector<QVector3D> fnormals(fCount);
 	std::vector<unsigned> indices(fCount * 3);
 	std::vector<QVector3D> vertexBuffer(fCount * 3);
 	std::vector<QVector3D> normalBuffer(fCount * 3);
@@ -83,6 +84,7 @@ bool OFFMeshIO::_readMesh(QTextStream& stream, const QString& name, bool buildMe
 		indices[i * 3 + 2] = v3;
 		// Compute normal
 		auto norm = QVector3D::crossProduct(vertices[v2] - vertices[v1], vertices[v3] - vertices[v2]).normalized();
+		fnormals[i] = norm;
 		normalBuffer[i * 3] = norm;
 		normalBuffer[i * 3 + 1] = norm;
 		normalBuffer[i * 3 + 2] = norm;
@@ -98,7 +100,8 @@ bool OFFMeshIO::_readMesh(QTextStream& stream, const QString& name, bool buildMe
 	ResourceManager::instance().addGLBuffer(normalBufferName.toStdString(), normalBuffer);
 
 	if (buildMesh) {
-		ResourceManager::instance().addMesh(name.toStdString(), vertices, indices, name.toStdString());
+		ResourceManager::instance().addMesh(name.toStdString(), vertices, fnormals, indices,
+			vertexBufferName.toStdString(), normalBufferName.toStdString());
 	}
 	
 	if (meshInfo != nullptr) {
