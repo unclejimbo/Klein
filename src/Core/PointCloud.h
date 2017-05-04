@@ -11,6 +11,8 @@ public:
 	PointCloud(const std::vector<QVector3D>& rawVertices,
 		const std::vector<QVector3D>& rawNormals,
 		const std::string& positionBuffer);
+	PointCloud(const std::vector<QVector3D>& rawVertices,
+		const std::string& positionBuffer);
 	~PointCloud();
 
 	void updateGLBuffer() const;

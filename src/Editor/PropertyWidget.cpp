@@ -89,80 +89,135 @@ void PropertyWidget::onImport(GeomInfo* info)
 	_scene->removeNode("MainMeshValence");
 	ResourceManager::instance().removeGLBuffer("MainMeshValence");
 
-	if (info != nullptr && info->type == GeomType::mesh) {
+	if (info != nullptr) {
 		_valid = true;
 
-		auto aabbNode = _scene->addNode("MainMesh", "AABB");
-		auto aabbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-		aabbGraphics->addBox(QVector3D(info->minX, info->minY, info->minZ),
-			info->maxX - info->minX, info->maxY - info->minY, info->maxZ - info->minZ);
-		aabbGraphics->setVisible(false);
-		aabbNode->addGraphicsComponent(std::move(aabbGraphics));
+		if (info->type == GeomType::mesh) {
+			auto aabbNode = _scene->addNode("MainMesh", "AABB");
+			auto aabbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+			aabbGraphics->addBox(QVector3D(info->minX, info->minY, info->minZ),
+				info->maxX - info->minX, info->maxY - info->minY, info->maxZ - info->minZ);
+			aabbGraphics->setVisible(false);
+			aabbNode->addGraphicsComponent(std::move(aabbGraphics));
 
-		auto obbNode = _scene->addNode("MainMesh", "OBB");
-		auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-		auto mesh = ResourceManager::instance().mesh("MainMesh");
-		if (mesh != nullptr) {
-			auto cMesh = mesh->cMesh.get();
-			Euclid::OBB<CMesh> obb(*cMesh);
-			auto lbb = eigenToQt(obb.lbb());
-			auto lbf = eigenToQt(obb.lbf());
-			auto ltb = eigenToQt(obb.ltb());
-			auto ltf = eigenToQt(obb.ltf());
-			auto rbb = eigenToQt(obb.rbb());
-			auto rbf = eigenToQt(obb.rbf());
-			auto rtb = eigenToQt(obb.rtb());
-			auto rtf = eigenToQt(obb.rtf());
-			obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
-		}
-		else {
-			Euclid::OBB<CMesh>
-				obb(ResourceManager::instance().mesh("MainMesh")->vertices);
-			auto lbb = eigenToQt(obb.lbb());
-			auto lbf = eigenToQt(obb.lbf());
-			auto ltb = eigenToQt(obb.ltb());
-			auto ltf = eigenToQt(obb.ltf());
-			auto rbb = eigenToQt(obb.rbb());
-			auto rbf = eigenToQt(obb.rbf());
-			auto rtb = eigenToQt(obb.rtb());
-			auto rtf = eigenToQt(obb.rtf());
-			obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
-		}
-		obbGraphics->setVisible(false);
-		obbNode->addGraphicsComponent(std::move(obbGraphics));
-
-		auto sphereNode = _scene->addNode("MainMesh", "Sphere");
-		auto sphereGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-		sphereGraphics->addSphere(info->center, info->radius);
-		sphereGraphics->setVisible(false);
-		sphereNode->addGraphicsComponent(std::move(sphereGraphics));
-
-		_fileName->setText(info->fileName);
-		_nVertices->setNum(static_cast<int>(info->nVertices));
-		_nFaces->setNum(static_cast<int>(info->nFaces));
-		_center->setText(QString("(%1, %2, %3)").arg(info->center.x()).
-			arg(info->center.y()).arg(info->center.z()));
-		_radius->setNum(info->radius);
-		_minX->setNum(info->minX);
-		_maxX->setNum(info->maxX);
-		_minY->setNum(info->minY);
-		_maxY->setNum(info->maxY);
-		_minZ->setNum(info->minZ);
-		_maxZ->setNum(info->maxZ);
-		_aabb->setChecked(false);
-		_aabb->setCheckable(true);
-		_obb->setChecked(false);
-		_obb->setCheckable(true);
-		_sphere->setChecked(false);
-		_sphere->setCheckable(true);
-		_color->setCurrentIndex(0);
-		if (ResourceManager::instance().mesh("MainMesh")->cMesh.get() == nullptr) {
-			_color->removeItem(1);
-		}
-		else {
-			if (_color->count() == 1) {
-				_color->addItem("Valence");
+			auto obbNode = _scene->addNode("MainMesh", "OBB");
+			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+			auto mesh = ResourceManager::instance().mesh("MainMesh");
+			if (mesh != nullptr) {
+				auto cMesh = mesh->cMesh.get();
+				Euclid::OBB<CMesh> obb(*cMesh);
+				auto lbb = eigenToQt(obb.lbb());
+				auto lbf = eigenToQt(obb.lbf());
+				auto ltb = eigenToQt(obb.ltb());
+				auto ltf = eigenToQt(obb.ltf());
+				auto rbb = eigenToQt(obb.rbb());
+				auto rbf = eigenToQt(obb.rbf());
+				auto rtb = eigenToQt(obb.rtb());
+				auto rtf = eigenToQt(obb.rtf());
+				obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
 			}
+			else {
+				Euclid::OBB<CMesh>
+					obb(ResourceManager::instance().mesh("MainMesh")->vertices);
+				auto lbb = eigenToQt(obb.lbb());
+				auto lbf = eigenToQt(obb.lbf());
+				auto ltb = eigenToQt(obb.ltb());
+				auto ltf = eigenToQt(obb.ltf());
+				auto rbb = eigenToQt(obb.rbb());
+				auto rbf = eigenToQt(obb.rbf());
+				auto rtb = eigenToQt(obb.rtb());
+				auto rtf = eigenToQt(obb.rtf());
+				obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
+			}
+			obbGraphics->setVisible(false);
+			obbNode->addGraphicsComponent(std::move(obbGraphics));
+
+			auto sphereNode = _scene->addNode("MainMesh", "Sphere");
+			auto sphereGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+			sphereGraphics->addSphere(info->center, info->radius);
+			sphereGraphics->setVisible(false);
+			sphereNode->addGraphicsComponent(std::move(sphereGraphics));
+
+			_fileName->setText(info->fileName);
+			_nVertices->setNum(static_cast<int>(info->nVertices));
+			_nFaces->setNum(static_cast<int>(info->nFaces));
+			_center->setText(QString("(%1, %2, %3)").arg(info->center.x()).
+				arg(info->center.y()).arg(info->center.z()));
+			_radius->setNum(info->radius);
+			_minX->setNum(info->minX);
+			_maxX->setNum(info->maxX);
+			_minY->setNum(info->minY);
+			_maxY->setNum(info->maxY);
+			_minZ->setNum(info->minZ);
+			_maxZ->setNum(info->maxZ);
+			_aabb->setChecked(false);
+			_aabb->setCheckable(true);
+			_obb->setChecked(false);
+			_obb->setCheckable(true);
+			_sphere->setChecked(false);
+			_sphere->setCheckable(true);
+			_color->setCurrentIndex(0);
+			if (ResourceManager::instance().mesh("MainMesh")->cMesh.get() == nullptr) {
+				_color->removeItem(1);
+			}
+			else {
+				if (_color->count() == 1) {
+					_color->addItem("Valence");
+				}
+			}
+		}
+		
+		if (info->type == GeomType::pointCloud) {
+			auto aabbNode = _scene->addNode("MainMesh", "AABB");
+			auto aabbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+			aabbGraphics->addBox(QVector3D(info->minX, info->minY, info->minZ),
+				info->maxX - info->minX, info->maxY - info->minY, info->maxZ - info->minZ);
+			aabbGraphics->setVisible(false);
+			aabbNode->addGraphicsComponent(std::move(aabbGraphics));
+
+			auto obbNode = _scene->addNode("MainMesh", "OBB");
+			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+			Euclid::OBB<CMesh>
+				obb(ResourceManager::instance().pointCloud("MainMesh")->vertices);
+			auto lbb = eigenToQt(obb.lbb());
+			auto lbf = eigenToQt(obb.lbf());
+			auto ltb = eigenToQt(obb.ltb());
+			auto ltf = eigenToQt(obb.ltf());
+			auto rbb = eigenToQt(obb.rbb());
+			auto rbf = eigenToQt(obb.rbf());
+			auto rtb = eigenToQt(obb.rtb());
+			auto rtf = eigenToQt(obb.rtf());
+			obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
+
+			obbGraphics->setVisible(false);
+			obbNode->addGraphicsComponent(std::move(obbGraphics));
+
+			auto sphereNode = _scene->addNode("MainMesh", "Sphere");
+			auto sphereGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+			sphereGraphics->addSphere(info->center, info->radius);
+			sphereGraphics->setVisible(false);
+			sphereNode->addGraphicsComponent(std::move(sphereGraphics));
+
+			_fileName->setText(info->fileName);
+			_nVertices->setNum(static_cast<int>(info->nVertices));
+			_nFaces->setNum(static_cast<int>(info->nFaces));
+			_center->setText(QString("(%1, %2, %3)").arg(info->center.x()).
+				arg(info->center.y()).arg(info->center.z()));
+			_radius->setNum(info->radius);
+			_minX->setNum(info->minX);
+			_maxX->setNum(info->maxX);
+			_minY->setNum(info->minY);
+			_maxY->setNum(info->maxY);
+			_minZ->setNum(info->minZ);
+			_maxZ->setNum(info->maxZ);
+			_aabb->setChecked(false);
+			_aabb->setCheckable(true);
+			_obb->setChecked(false);
+			_obb->setCheckable(true);
+			_sphere->setChecked(false);
+			_sphere->setCheckable(true);
+			_color->setCurrentIndex(0);
+			_color->removeItem(1);
 		}
 	}
 	else { // if (info != nullptr)

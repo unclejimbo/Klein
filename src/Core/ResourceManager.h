@@ -36,6 +36,8 @@ public:
 
 	void addPointCloud(const std::string& name, const std::vector<QVector3D>& vertices,
 		const std::vector<QVector3D>& normals, const std::string& vertexBufferID);
+	void addPointCloud(const std::string& name, const std::vector<QVector3D>& vertices,
+		const std::string& vertexBufferID);
 	PointCloud* pointCloud(const std::string& name);
 	bool removePointCloud(const std::string& name);
 

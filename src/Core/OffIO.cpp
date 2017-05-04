@@ -192,6 +192,8 @@ bool OffIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* 
 		auto vertexBufferName = QString(name).append("_VertexBuffer");
 		ResourceManager::instance().addGLBuffer(vertexBufferName.toStdString(), vertexBuffer);
 
+		ResourceManager::instance().addPointCloud(name.toStdString(), vertices, vertexBufferName.toStdString());
+
 		recordGeomInfo(geomInfo, vertices, -1, -1);
 
 		return true;

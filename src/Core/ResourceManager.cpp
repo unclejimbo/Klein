@@ -62,6 +62,16 @@ void ResourceManager::addPointCloud(const std::string& name, const std::vector<Q
 	}
 }
 
+void ResourceManager::addPointCloud(const std::string& name, const std::vector<QVector3D>& vertices,
+	const std::string & vertexBufferID)
+{
+	auto pc = std::make_unique<PointCloud>(vertices, vertexBufferID);
+
+	if (!_pointCloudMap.insert_or_assign(name, std::move(pc)).second) {
+		KLEIN_LOG_WARNING(QString("PointCloud %1 already exists and is replaced").arg(name.c_str()));
+	}
+}
+
 PointCloud* ResourceManager::pointCloud(const std::string& name)
 {
 	if (_pointCloudMap.find(name) != _pointCloudMap.end()) {

@@ -24,6 +24,17 @@ PointCloud::PointCloud(const std::vector<QVector3D>& rawVertices,
 	);
 }
 
+PointCloud::PointCloud(const std::vector<QVector3D>& rawVertices, const std::string& positionBuffer)
+	: positionBufferID(positionBuffer)
+{
+	vertices.resize(rawVertices.size());
+	std::transform(rawVertices.begin(), rawVertices.end(), vertices.begin(),
+		[](const QVector3D& v) {
+			return qtToEigen<float>(v);
+		}
+	);
+}
+
 PointCloud::~PointCloud() = default;
 
 void PointCloud::updateGLBuffer() const
