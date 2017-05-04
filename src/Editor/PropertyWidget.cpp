@@ -102,9 +102,8 @@ void PropertyWidget::onImport(GeomInfo* info)
 
 			auto obbNode = _scene->addNode("MainMesh", "OBB");
 			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			auto mesh = ResourceManager::instance().mesh("MainMesh");
-			if (mesh != nullptr) {
-				auto cMesh = mesh->cMesh.get();
+			auto cMesh = ResourceManager::instance().mesh("MainMesh")->cMesh.get();
+			if (cMesh != nullptr) {
 				Euclid::OBB<CMesh> obb(*cMesh);
 				auto lbb = eigenToQt(obb.lbb());
 				auto lbf = eigenToQt(obb.lbf());
