@@ -44,19 +44,39 @@ inline void readObjFile(QTextStream& stream, std::vector<QVector3D>& vertices, s
 			if (lineList.size() > 4) { // Only support triangle mesh for now
 				KLEIN_LOG_CRITICAL("Klein only supports triangle mesh");
 			}
+
+			// Record vertex indices if normals are not provided in order to compute face normal
+			std::vector<unsigned> vertexIndices;
 			for (auto i = 0; i < 3; ++i) {
 				auto v = lineList[i + 1];
 				auto numList = v.split("/");
+
 				auto vertexIndex = numList[0].toInt() - 1;
-				// Ommit texcoord
-				auto normalIndex = numList[2].toInt() - 1;
 				vertexBuffer.push_back(vertices[vertexIndex]);
 				if (indices != nullptr) {
 					indices->push_back(vertexIndex);
 				}
+
+				// Ommit texcoord
+
 				if (normalBuffer != nullptr) {
-					normalBuffer->push_back((*fnormals)[normalIndex]);
+					if (numList.length() == 3) { // Normals are provided
+						auto normalIndex = numList[2].toInt() - 1;
+						normalBuffer->push_back((*fnormals)[normalIndex]);
+					}
+					else {
+						vertexIndices.push_back(vertexIndex);
+					}
 				}
+			}
+			if (!vertexIndices.empty()) { // Compute normals
+				auto v1 = vertices[vertexIndices[1]] - vertices[vertexIndices[0]];
+				auto v2 = vertices[vertexIndices[2]] - vertices[vertexIndices[0]];
+				auto fnormal = QVector3D::crossProduct(v1, v2);
+				fnormals->push_back(fnormal);
+				normalBuffer->push_back(fnormal);
+				normalBuffer->push_back(fnormal);
+				normalBuffer->push_back(fnormal);
 			}
 		}
 	}
