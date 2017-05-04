@@ -30,6 +30,17 @@ void ResourceManager::addMesh(const std::string& name, const std::vector<QVector
 	}
 }
 
+void ResourceManager::addMesh(const std::string& name, const std::vector<QVector3D>& vertices,
+	const std::vector<unsigned>& indices,
+	const std::string& vertexBufferID, const std::string& normalBufferID)
+{
+	auto mesh = std::make_unique<Mesh>(vertices, indices, vertexBufferID, normalBufferID);
+
+	if (!_meshMap.insert_or_assign(name, std::move(mesh)).second) {
+		KLEIN_LOG_WARNING(QString("Mesh %1 already exists and is replaced").arg(name.c_str()));
+	}
+}
+
 Mesh* ResourceManager::mesh(const std::string& name)
 {
 	if (_meshMap.find(name) != _meshMap.end()) {

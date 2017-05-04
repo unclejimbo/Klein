@@ -11,8 +11,11 @@ ObjIO::ObjIO() = default;
 ObjIO::~ObjIO() = default;
 
 inline void readObjFile(QTextStream& stream, std::vector<QVector3D>& vertices, std::vector<QVector3D>& vertexBuffer,
-	std::vector<QVector3D>* fnormals, std::vector<unsigned>* indices, std::vector<QVector3D>* normalBuffer)
+	std::vector<QVector3D>* normals, int* faceCount, std::vector<unsigned>* indices, std::vector<QVector3D>* normalBuffer)
 {
+	if (faceCount != 0) {
+		*faceCount = 0;
+	}
 	while (!stream.atEnd()) {
 		auto line = stream.readLine();
 
@@ -33,16 +36,20 @@ inline void readObjFile(QTextStream& stream, std::vector<QVector3D>& vertices, s
 
 		}
 
-		if (lineList[0] == "vn" && fnormals != nullptr) {
+		if (lineList[0] == "vn" && normals != nullptr) {
 			auto x = lineList[1].toFloat();
 			auto y = lineList[2].toFloat();
 			auto z = lineList[3].toFloat();
-			fnormals->emplace_back(x, y, z);
+			normals->emplace_back(x, y, z);
 		}
 
 		if (lineList[0] == "f") {
 			if (lineList.size() > 4) { // Only support triangle mesh for now
 				KLEIN_LOG_CRITICAL("Klein only supports triangle mesh");
+			}
+
+			if (faceCount != nullptr) {
+				++*faceCount;
 			}
 
 			// Record vertex indices if normals are not provided in order to compute face normal
@@ -64,8 +71,8 @@ inline void readObjFile(QTextStream& stream, std::vector<QVector3D>& vertices, s
 					if (numList.length() == 3) { // Normals are provided
 						auto normalIndex = numList[2].toInt();
 						normalIndex = normalIndex > 0 ?
-							normalIndex - 1 : fnormals->size() + normalIndex;
-						normalBuffer->push_back((*fnormals)[normalIndex]);
+							normalIndex - 1 : normals->size() + normalIndex;
+						normalBuffer->push_back((*normals)[normalIndex]);
 					}
 					else {
 						vertexIndices.push_back(vertexIndex);
@@ -76,7 +83,7 @@ inline void readObjFile(QTextStream& stream, std::vector<QVector3D>& vertices, s
 				auto v1 = vertices[vertexIndices[1]] - vertices[vertexIndices[0]];
 				auto v2 = vertices[vertexIndices[2]] - vertices[vertexIndices[0]];
 				auto fnormal = QVector3D::crossProduct(v1, v2);
-				fnormals->push_back(fnormal);
+				normals->push_back(fnormal);
 				normalBuffer->push_back(fnormal);
 				normalBuffer->push_back(fnormal);
 				normalBuffer->push_back(fnormal);
@@ -131,12 +138,13 @@ inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<QVector3D>& ver
 bool ObjIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh, GeomInfo* geomInfo)
 {
 	std::vector<QVector3D> vertices;
-	std::vector<QVector3D> fnormals;
+	std::vector<QVector3D> normals;
 	std::vector<unsigned> indices;
 	std::vector<QVector3D> vertexBuffer;
 	std::vector<QVector3D> normalBuffer;
+	int faceCount = 0;
 
-	readObjFile(stream, vertices, vertexBuffer, &fnormals, &indices, &normalBuffer);
+	readObjFile(stream, vertices, vertexBuffer, &normals, &faceCount, &indices, &normalBuffer);
 
 	auto vertexBufferName = QString(name).append("_VertexBuffer");
 	auto normalBufferName = QString(name).append("_NormalBuffer");
@@ -144,11 +152,17 @@ bool ObjIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 	ResourceManager::instance().addGLBuffer(normalBufferName.toStdString(), normalBuffer);
 
 	if (recordMesh) {
-		ResourceManager::instance().addMesh(name.toStdString(), vertices, fnormals, indices,
-			vertexBufferName.toStdString(), normalBufferName.toStdString());
+		if (faceCount = normals.size()) { // Normals are per-face normals
+			ResourceManager::instance().addMesh(name.toStdString(), vertices, normals, indices,
+				vertexBufferName.toStdString(), normalBufferName.toStdString());
+		}
+		else {
+			ResourceManager::instance().addMesh(name.toStdString(), vertices, indices,
+				vertexBufferName.toStdString(), normalBufferName.toStdString());
+		}
 	}
 
-	recordGeomInfo(geomInfo, vertices, -1, static_cast<int>(fnormals.size()));
+	recordGeomInfo(geomInfo, vertices, -1, faceCount);
 	
 	return true;
 }
@@ -158,7 +172,7 @@ bool ObjIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* 
 	std::vector<QVector3D> vertices;
 	std::vector<QVector3D> vertexBuffer;
 
-	readObjFile(stream, vertices, vertexBuffer, nullptr, nullptr, nullptr);
+	readObjFile(stream, vertices, vertexBuffer, nullptr, nullptr, nullptr, nullptr);
 
 	auto vertexBufferName = QString(name).append("_VertexBuffer");
 	ResourceManager::instance().addGLBuffer(vertexBufferName.toStdString(), vertexBuffer);

@@ -19,8 +19,14 @@ using CMesh = CGAL::Polyhedron_3<Kernel, CGAL::Polyhedron_items_with_id_3>;
 class Mesh
 {
 public:
+	// Read in face normals
 	Mesh(const std::vector<QVector3D>& rawVertices,
 		const std::vector<QVector3D>& rawFNormals,
+		const std::vector<unsigned>& rawIndices,
+		const std::string& positionBuffer,
+		const std::string& normalBuffer);
+	// Compute face normals
+	Mesh(const std::vector<QVector3D>& rawVertices,
 		const std::vector<unsigned>& rawIndices,
 		const std::string& positionBuffer,
 		const std::string& normalBuffer);
