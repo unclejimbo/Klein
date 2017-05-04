@@ -12,7 +12,7 @@ class ProcessWidget : public QWidget
 	Q_OBJECT
 
 public:
-	explicit ProcessWidget(QWidget* parent, QOpenGLWidget* glWidget);
+	ProcessWidget(QWidget* parent, QOpenGLWidget* glWidget);
 	virtual ~ProcessWidget();
 
 public Q_SLOTS:
