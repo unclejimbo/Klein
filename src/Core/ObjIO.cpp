@@ -51,7 +51,8 @@ inline void readObjFile(QTextStream& stream, std::vector<QVector3D>& vertices, s
 				auto v = lineList[i + 1];
 				auto numList = v.split("/");
 
-				auto vertexIndex = numList[0].toInt() - 1;
+				auto vertexIndex = numList[0].toInt();
+				vertexIndex = vertexIndex > 0 ? vertexIndex - 1 : vertices.size() + vertexIndex;
 				vertexBuffer.push_back(vertices[vertexIndex]);
 				if (indices != nullptr) {
 					indices->push_back(vertexIndex);
@@ -61,7 +62,9 @@ inline void readObjFile(QTextStream& stream, std::vector<QVector3D>& vertices, s
 
 				if (normalBuffer != nullptr) {
 					if (numList.length() == 3) { // Normals are provided
-						auto normalIndex = numList[2].toInt() - 1;
+						auto normalIndex = numList[2].toInt();
+						normalIndex = normalIndex > 0 ?
+							normalIndex - 1 : fnormals->size() + normalIndex;
 						normalBuffer->push_back((*fnormals)[normalIndex]);
 					}
 					else {
