@@ -40,7 +40,6 @@ inline bool readOffFile(QTextStream& stream, std::vector<QVector3D>& vertices, s
 
 	// Read mesh data
 	vertices.resize(vCount);
-	vertexBuffer.resize(fCount * 3);
 	if (fnormals != nullptr) {
 		fnormals->resize(fCount);
 	}
@@ -106,8 +105,15 @@ inline bool readOffFile(QTextStream& stream, std::vector<QVector3D>& vertices, s
 		++i;
 	}
 
-	std::transform((*indices).begin(), (*indices).end(), vertexBuffer.begin(),
-		[&vertices](unsigned i) { return vertices[i]; });
+	if (indices != nullptr) {
+		vertexBuffer.resize(fCount * 3);
+		std::transform((*indices).begin(), (*indices).end(), vertexBuffer.begin(),
+			[&vertices](unsigned i) { return vertices[i]; });
+	}
+	else {
+		vertexBuffer.resize(vCount);
+		std::copy(vertices.begin(), vertices.end(), vertexBuffer.begin());
+	}
 
 	return true;
 }
