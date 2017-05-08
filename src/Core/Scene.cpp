@@ -160,13 +160,13 @@ void Scene::render(RenderPass renderPass)
 {
 	for (const auto& node : _graphicsNodes) {
 		auto graphics = node.second->graphicsComponent();
-		if (graphics->visible() && (graphics->renderPass() || renderPass)) {
+		if (graphics->visible() && (graphics->renderPass() && renderPass)) {
 			graphics->render(*_camera, _lights);
 		}
 	}
 	for (const auto& node : _transparentGraphicsNodes) {
 		auto graphics = node.second->graphicsComponent();
-		if (graphics->visible() && (graphics->renderPass() || renderPass)) {
+		if (graphics->visible() && (graphics->renderPass() && renderPass)) {
 			graphics->render(*_camera, _lights);
 		}
 	}
