@@ -19,9 +19,9 @@ enum class ShadingMethod
 
 enum RenderPass : int
 {
-	none = 0x0,
-	onscreen = 0x1,
-	offscreen = 0x10
+	RENDER_NONE = 0x0,
+	RENDER_ONSCREEN = 0x1,
+	RENDER_OFFSCREEN = 0x10
 };
 
 class GraphicsComponent : public Component, public QOpenGLFunctions_4_3_Core
@@ -67,5 +67,5 @@ private:
 	bool _visible = true;
 	bool _unlit = false;
 	ShadingMethod _shading = ShadingMethod::shaded;
-	int _renderPass = onscreen;
+	int _renderPass = RENDER_ONSCREEN;
 };

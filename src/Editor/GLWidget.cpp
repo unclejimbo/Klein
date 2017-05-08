@@ -44,7 +44,7 @@ void GLWidget::readColorBuffer(QImage& img)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	if (_scene != nullptr) {
-		_scene->render(RenderPass::offscreen); // Models in offscreen pass got rendered, see renderToTexture for difference
+		_scene->render(RENDER_OFFSCREEN); // Models in offscreen pass got rendered, see renderToTexture for difference
 	}
 	img = offscreen.toImage();
 
@@ -78,7 +78,7 @@ void GLWidget::readDepthBuffer(std::vector<float>& depth)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	if (_scene != nullptr) {
-		_scene->render(RenderPass::offscreen);
+		_scene->render(RENDER_OFFSCREEN);
 	}
 	auto buf = new GLfloat[this->width() * this->height()];
 	glReadPixels(0, 0, this->width(), this->height(), GL_DEPTH_COMPONENT, GL_FLOAT, buf);
@@ -109,7 +109,7 @@ void GLWidget::renderToTexture(QImage& img)
 		static_cast<float>(bgColor.blueF()), static_cast<float>(bgColor.alphaF()));
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	if (_scene != nullptr) {
-		_scene->render(RenderPass::onscreen); // Models in shading pass got rendered to texture, see readColorBuffer for difference
+		_scene->render(RENDER_ONSCREEN); // Models in shading pass got rendered to texture, see readColorBuffer for difference
 	}
 	img = offscreen.toImage();
 
@@ -140,7 +140,7 @@ void GLWidget::paintGL()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (_scene != nullptr) {
-		_scene->render(RenderPass::onscreen);
+		_scene->render(RENDER_ONSCREEN);
 		_paintAxis();
 	}
 }

@@ -43,6 +43,16 @@ bool GraphicsComponent::setTransparency(float transparency)
 	}
 }
 
+int GraphicsComponent::layer() const
+{
+	return _layer;
+}
+
+void GraphicsComponent::setLayer(bool layer)
+{
+	_layer = layer;
+}
+
 bool GraphicsComponent::visible() const
 {
 	return _visible;
@@ -125,14 +135,4 @@ void GraphicsComponent::render(const Camera& camera, const std::array<Light, KLE
 	else {
 		_renderUnlit(camera);
 	}
-}
-
-int GraphicsComponent::layer() const
-{
-	return _layer;
-}
-
-void GraphicsComponent::setLayer(bool layer)
-{
-	_layer = layer;
 }
