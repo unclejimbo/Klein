@@ -39,6 +39,10 @@ private Q_SLOTS:
 	void _importPointCloud();
 	void _clearAll();
 	void _screenShot();
+	void _pickNothing();
+	void _pickVertex();
+	void _pickLine();
+	void _pickFace();
 	void _shaded();
 	void _wireframe();
 	void _hiddenline();
@@ -56,6 +60,10 @@ private:
 	QAction* _aImportPointCloud;
 	QAction* _aClear;
 	QAction* _aScreenShot;
+	QAction* _aPickNothing;
+	QAction* _aPickVertex;
+	QAction* _aPickLine;
+	QAction* _aPickFace;
 	QAction* _aShaded;
 	QAction* _aWireframe;
 	QAction* _aHiddenline;
