@@ -12,6 +12,7 @@ bool GeomIO::readMesh(const QString& filename, const QString& name, bool recordM
 	QFile file(filename);
 	if (file.open(QIODevice::ReadOnly)) {
 		if (geomInfo != nullptr) {
+			geomInfo->type = GEOM_TYPE_MESH;
 			geomInfo->fileName = filename;
 		}
 		QTextStream stream(&file);
@@ -28,6 +29,7 @@ bool GeomIO::readPointCloud(const QString& filename, const QString& name, GeomIn
 	QFile file(filename);
 	if (file.open(QIODevice::ReadOnly)) {
 		if (geomInfo != nullptr) {
+			geomInfo->type = GEOM_TYPE_POINTCLOUD;
 			geomInfo->fileName = filename;
 		}
 		QTextStream stream(&file);

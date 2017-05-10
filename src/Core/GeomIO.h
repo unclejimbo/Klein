@@ -5,10 +5,11 @@
 #include <QVector3D>
 #include <vector>
 
-enum class GeomType
+enum GeomType : int
 {
-	mesh,
-	pointCloud
+	GEOM_TYPE_NONE,
+	GEOM_TYPE_MESH,
+	GEOM_TYPE_POINTCLOUD
 };
 
 struct GeomInfo

@@ -92,7 +92,7 @@ void PropertyWidget::onImport(GeomInfo* info)
 	if (info != nullptr) {
 		_valid = true;
 
-		if (info->type == GeomType::mesh) {
+		if (info->type == GEOM_TYPE_MESH) {
 			auto aabbNode = _scene->addNode("MainMesh", "AABB");
 			auto aabbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
 			aabbGraphics->addBox(QVector3D(info->minX, info->minY, info->minZ),
@@ -166,7 +166,7 @@ void PropertyWidget::onImport(GeomInfo* info)
 			}
 		}
 		
-		if (info->type == GeomType::pointCloud) {
+		if (info->type == GEOM_TYPE_POINTCLOUD) {
 			auto aabbNode = _scene->addNode("MainMesh", "AABB");
 			auto aabbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
 			aabbGraphics->addBox(QVector3D(info->minX, info->minY, info->minZ),

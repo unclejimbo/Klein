@@ -192,8 +192,6 @@ void MainWindow::_importMesh()
 		}
 
 		if (geomIO->readMesh(path, "MainMesh", true, &_geomInfo)) {
-			_geomInfo.type = GeomType::mesh;
-
 			_scene.removeNode("MainMesh");
 			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
 
@@ -239,8 +237,6 @@ void MainWindow::_importPointCloud()
 		}
 
 		if (geomIO->readPointCloud(path, "MainMesh", &_geomInfo)) {
-			_geomInfo.type = GeomType::pointCloud;
-
 			_scene.removeNode("MainMesh");
 			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
 
