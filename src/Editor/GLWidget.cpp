@@ -157,12 +157,6 @@ PickingInfo GLWidget::pick(int x, int y)
 	info.primitiveType = static_cast<PickingPrimitive>(buf[2]);
 	info.primitiveID = buf[3];
 
-	// Vertex id for mesh is drawing id rather than true vertex id
-	if (info.geomType == GEOM_TYPE_MESH && info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
-		auto mesh = ResourceManager::instance().mesh(info.geomID);
-		info.primitiveID = mesh->indices[info.primitiveID];
-	}
-
 	delete[] buf;
 	return info;
 }
@@ -324,7 +318,7 @@ void GLWidget::_paintPicked(PickingInfo info)
 		if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
 			auto node = _scene->addNode(parent, "PickedNode");
 			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
-			graphics->addPoint(eigenToQt(mesh->vertices[info.primitiveID]));
+			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID]]));
 			node->addGraphicsComponent(std::move(graphics));
 		}
 
