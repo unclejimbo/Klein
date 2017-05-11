@@ -209,9 +209,6 @@ void PBRMeshGraphics::_renderPickVertex(const Camera& camera)
 	auto gtLocation = shaderPicking->uniformLocation("geomType"); // Use native calls since Qt doesn't support uniform1ui
 	auto gidLocation = shaderPicking->uniformLocation("geomID");
 	auto ptLocation = shaderPicking->uniformLocation("primitiveType");
-	glUniform1ui(gtLocation, _geomType);
-	glUniform1ui(gidLocation, _geomID);
-	glUniform1ui(ptLocation, PICKING_PRIMITIVE_VERTEX);
 
 	QOpenGLVertexArrayObject vao;
 	vao.create();
@@ -222,10 +219,26 @@ void PBRMeshGraphics::_renderPickVertex(const Camera& camera)
 	auto bufferSize = _posBuf->size();
 	_posBuf->release();
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-	glPointSize(10);
-	glDrawArrays(GL_POINTS, 0, bufferSize / sizeof(QVector3D));
+	// Draw triangles first in order to cull points on the back faces
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glUniform1ui(gtLocation, GEOM_TYPE_NONE);
+	glUniform1ui(gidLocation, 0);
+	glUniform1ui(ptLocation, PICKING_PRIMITIVE_NONE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(1.0f, 1.0f);
+	glDrawArrays(GL_TRIANGLES, 0, bufferSize / sizeof(QVector3D));
+	glDisable(GL_POLYGON_OFFSET_FILL);
+	glDisable(GL_CULL_FACE);
 
+	// Then draw points
+	glUniform1ui(gtLocation, _geomType);
+	glUniform1ui(gidLocation, _geomID);
+	glUniform1ui(ptLocation, PICKING_PRIMITIVE_VERTEX);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	glDrawArrays(GL_POINTS, 0, bufferSize / sizeof(QVector3D));
+	
 	vao.release();
 	shaderPicking->release();
 }
@@ -260,9 +273,11 @@ void PBRMeshGraphics::_renderPickFace(const Camera& camera)
 	auto bufferSize = _posBuf->size();
 	_posBuf->release();
 
-	glPointSize(10);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDrawArrays(GL_TRIANGLES, 0, bufferSize / sizeof(QVector3D));
+	glDisable(GL_CULL_FACE);
 
 	vao.release();
 	shaderPicking->release();
