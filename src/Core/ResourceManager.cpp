@@ -52,6 +52,16 @@ Mesh* ResourceManager::mesh(const std::string& name)
 	}
 }
 
+Mesh * ResourceManager::mesh(unsigned id)
+{
+	for (const auto& m : _meshMap) {
+		if (m.second->meshID == id) {
+			return m.second.get();
+		}
+	}
+	return nullptr;
+}
+
 bool ResourceManager::removeMesh(const std::string& name)
 {
 	if (_meshMap.erase(name) == 0) {

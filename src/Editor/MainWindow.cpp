@@ -91,7 +91,7 @@ void MainWindow::_createActions()
 
 	_aPickFace = new QAction("Pick Face", pickActions);
 	_aPickFace->setCheckable(true);
-	connect(_aPickLine, &QAction::triggered, this, &MainWindow::_pickFace);
+	connect(_aPickFace, &QAction::triggered, this, &MainWindow::_pickFace);
 
 	auto shadingActions = new QActionGroup(this);
 
@@ -200,12 +200,14 @@ void MainWindow::_importMesh()
 			transform.translate(-_geomInfo.center);
 			node->setTransform(transform);
 
-			auto graphics = std::make_unique<PBRMeshGraphics>(*_glWidget);
+			auto id = ResourceManager::instance().mesh("MainMesh")->meshID;
+			auto graphics = std::make_unique<PBRMeshGraphics>(*_glWidget, GEOM_TYPE_MESH, id);
 			graphics->setShaderLit("KLEIN_CookTorrance");
 			graphics->setShaderUnlit("KLEIN_Unlit");
 			graphics->setPositionBuffer("MainMesh_VertexBuffer");
 			graphics->setNormalBuffer("MainMesh_NormalBuffer");
 			graphics->setMaterial("KLEIN_PBR_Default");
+			graphics->addRenderPass(RENDER_PICK);
 			node->addGraphicsComponent(std::move(graphics));
 
 			_scene.camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
@@ -283,18 +285,22 @@ void MainWindow::_screenShot()
 
 void MainWindow::_pickNothing()
 {
+	_scene.setPickingPrimitive(PICKING_PRIMITIVE_NONE);
 }
 
 void MainWindow::_pickVertex()
 {
+	_scene.setPickingPrimitive(PICKING_PRIMITIVE_VERTEX);
 }
 
 void MainWindow::_pickLine()
 {
+	_scene.setPickingPrimitive(PICKING_PRIMITIVE_LINE);
 }
 
 void MainWindow::_pickFace()
 {
+	_scene.setPickingPrimitive(PICKING_PRIMITIVE_FACE);
 }
 
 void MainWindow::_shaded()

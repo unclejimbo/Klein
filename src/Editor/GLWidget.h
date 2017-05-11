@@ -11,6 +11,7 @@
 class Scene;
 class CameraController;
 class QOpenGLDebugLogger;
+struct PickingInfo;
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
 {
@@ -24,6 +25,10 @@ public:
 	void readColorBuffer(QImage& img); // Read offscreen-pass nodes
 	void readDepthBuffer(std::vector<float>& depth);
 	void renderToTexture(QImage& img); // Read render-pass nodes
+	PickingInfo pick(int x, int y);
+
+Q_SIGNALS:
+	void picked(const PickingInfo& info);
 
 protected:
 	void initializeGL() override;
@@ -38,6 +43,7 @@ protected:
 
 private:
 	void _paintAxis();
+	void _paintPicked(PickingInfo info);
 
 private Q_SLOTS:
 	void _logOpenGLMsg(const QOpenGLDebugMessage& msg);

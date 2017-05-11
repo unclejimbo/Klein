@@ -11,6 +11,22 @@ GraphicsComponent::GraphicsComponent(QOpenGLWidget& context, bool transparent, i
 	_context.doneCurrent();
 }
 
+GraphicsComponent::GraphicsComponent(QOpenGLWidget& context,
+	GeomType geomType, unsigned geomID, bool transparent, int layer)
+	: _context(context), _geomType(geomType), _geomID(geomID),
+	_transparent(transparent), _layer(layer)
+{
+	if (geomType == GEOM_TYPE_MESH) {
+		ResourceManager::instance().mesh(geomID)->attachTo(this);
+	}
+	if (geomType == GEOM_TYPE_POINTCLOUD) {
+		
+	}
+	_context.makeCurrent();
+	this->initializeOpenGLFunctions();
+	_context.doneCurrent();
+}
+
 GraphicsComponent::GraphicsComponent(SceneNode* node, QOpenGLWidget& context, bool transparent, int layer)
 	: Component(node), _context(context), _transparent(transparent), _layer(layer)
 {
@@ -135,4 +151,29 @@ void GraphicsComponent::render(const Camera& camera, const std::array<Light, KLE
 	else {
 		_renderUnlit(camera);
 	}
+}
+
+void GraphicsComponent::renderPick(PickingPrimitive primitive, Camera& camera)
+{
+	if (primitive == PICKING_PRIMITIVE_VERTEX) {
+		_renderPickVertex(camera);
+	}
+	if (primitive == PICKING_PRIMITIVE_LINE) {
+		_renderPickLine(camera);
+	}
+	if (primitive == PICKING_PRIMITIVE_FACE) {
+		_renderPickFace(camera);
+	}
+}
+
+void GraphicsComponent::_renderPickVertex(const Camera& camera)
+{
+}
+
+void GraphicsComponent::_renderPickLine(const Camera& camera)
+{
+}
+
+void GraphicsComponent::_renderPickFace(const Camera& camera)
+{
 }

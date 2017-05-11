@@ -9,6 +9,8 @@ class PBRMeshGraphics : public GraphicsComponent
 {
 public:
 	PBRMeshGraphics(QOpenGLWidget& context, bool transparent = false, int layer = 0);
+	PBRMeshGraphics(QOpenGLWidget& context, GeomType geomType, unsigned geomID,
+		bool transparent = false, int layer = 0);
 	PBRMeshGraphics(SceneNode* node, QOpenGLWidget& context, bool transparent = false, int layer = 0);
 	~PBRMeshGraphics();
 
@@ -19,6 +21,8 @@ public:
 private:
 	void _renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights) override;
 	void _renderUnlit(const Camera& camera) override;
+	void _renderPickVertex(const Camera& camera) override;
+	void _renderPickFace(const Camera& camera) override;
 	
 private:
 	QOpenGLBuffer* _posBuf = nullptr;

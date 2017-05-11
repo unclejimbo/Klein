@@ -1,8 +1,11 @@
 #include "Editor/GLWidget.h"
 #include "Editor/ArcballController.h"
 #include "Core/Scene.h"
+#include "Core/SceneNode.h"
+#include "Core/PrimitiveGraphics.h"
 #include "Core/ResourceManager.h"
 #include "Core/Logger.h"
+#include "Core/Util.h"
 
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
@@ -117,6 +120,53 @@ void GLWidget::renderToTexture(QImage& img)
 	this->doneCurrent();
 }
 
+PickingInfo GLWidget::pick(int x, int y)
+{
+	this->makeCurrent();
+	GLuint fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	GLuint colorBuffer;
+	glGenRenderbuffers(1, &colorBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA32UI, this->width(), this->height());
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBuffer);
+	GLuint depthBuffer;
+	glGenRenderbuffers(1, &depthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->width(), this->height());
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	glViewport(0, 0, this->width(), this->height());
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (_scene != nullptr) {
+		_scene->render(RENDER_PICK);
+	}
+	auto buf = new GLuint[4];
+	glReadPixels(x, this->height() - y, 1, 1, GL_RGBA_INTEGER, GL_UNSIGNED_INT, buf);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	this->doneCurrent();
+
+	PickingInfo info;
+	info.geomType = static_cast<GeomType>(buf[0]);
+	info.geomID = buf[1];
+	info.primitiveType = static_cast<PickingPrimitive>(buf[2]);
+	info.primitiveID = buf[3];
+
+	// Vertex id for mesh is drawing id rather than true vertex id
+	if (info.geomType == GEOM_TYPE_MESH && info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
+		auto mesh = ResourceManager::instance().mesh(info.geomID);
+		info.primitiveID = mesh->indices[info.primitiveID];
+	}
+
+	delete[] buf;
+	return info;
+}
+
 void GLWidget::initializeGL()
 {
 	this->initializeOpenGLFunctions();
@@ -174,6 +224,13 @@ void GLWidget::mouseMoveEvent(QMouseEvent* event)
 
 void GLWidget::mousePressEvent(QMouseEvent* event)
 {
+	if (event->button() == Qt::LeftButton) {
+		auto info = pick(event->x(), event->y());
+		if (info.geomType != GEOM_TYPE_NONE) {
+			_paintPicked(info);
+			Q_EMIT(picked(info));
+		}
+	}
 	_cameraController->mousePressEvent(event);
 	this->update();
 }
@@ -252,6 +309,27 @@ void GLWidget::_paintAxis()
 	glEnable(GL_DEPTH_TEST);
 
 	vao.release();
+}
+
+void GLWidget::_paintPicked(PickingInfo info)
+{
+	_scene->removeNode("PickedNode");
+
+	this->makeCurrent();
+	
+	if (info.geomType == GEOM_TYPE_MESH) {
+		auto mesh = ResourceManager::instance().mesh(info.geomID);
+		auto parent = mesh->attachedGraphics()->sceneNode();
+		if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
+			auto node = _scene->addNode(parent, "PickedNode");
+			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
+			graphics->addPoint(eigenToQt(mesh->vertices[info.primitiveID]));
+			node->addGraphicsComponent(std::move(graphics));
+		}
+	}
+
+	this->doneCurrent();
+	this->update();
 }
 
 void GLWidget::_logOpenGLMsg(const QOpenGLDebugMessage& msg)

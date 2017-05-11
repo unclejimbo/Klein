@@ -146,6 +146,11 @@ void Scene::setShadingMethod(ShadingMethod shading)
 	}
 }
 
+void Scene::setPickingPrimitive(PickingPrimitive picking)
+{
+	_picking = picking;
+}
+
 void Scene::setUnlit(bool unlit)
 {
 	for (auto&& node : _graphicsNodes) {
@@ -160,14 +165,24 @@ void Scene::render(RenderPass renderPass)
 {
 	for (const auto& node : _graphicsNodes) {
 		auto graphics = node.second->graphicsComponent();
-		if (graphics->visible() && (graphics->renderPass() && renderPass)) {
-			graphics->render(*_camera, _lights);
+		if (graphics->visible() && (graphics->renderPass() & renderPass)) {
+			if (renderPass & RENDER_PICK) {
+				graphics->renderPick(_picking, *_camera);
+			}
+			else {
+				graphics->render(*_camera, _lights);
+			}
 		}
 	}
 	for (const auto& node : _transparentGraphicsNodes) {
 		auto graphics = node.second->graphicsComponent();
-		if (graphics->visible() && (graphics->renderPass() && renderPass)) {
-			graphics->render(*_camera, _lights);
+		if (graphics->visible() && (graphics->renderPass() & renderPass)) {
+			if (renderPass & RENDER_PICK) {
+				graphics->renderPick(_picking, *_camera);
+			}
+			else {
+				graphics->render(*_camera, _lights);
+			}
 		}
 	}
 }

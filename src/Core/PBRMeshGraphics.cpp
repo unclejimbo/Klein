@@ -14,6 +14,15 @@ PBRMeshGraphics::PBRMeshGraphics(QOpenGLWidget& context, bool transparent, int l
 	_material = ResourceManager::instance().pbrMaterial("KLEIN_PBR_Default");
 }
 
+PBRMeshGraphics::PBRMeshGraphics(QOpenGLWidget& context,
+	GeomType geomType, unsigned geomID, bool transparent, int layer)
+	: GraphicsComponent(context, geomType, geomID, transparent, layer)
+{
+	this->setShaderLit("KLEIN_CookTorrance");
+	this->setShaderUnlit("KLEIN_Unlit");
+	_material = ResourceManager::instance().pbrMaterial("KLEIN_PBR_Default");
+}
+
 PBRMeshGraphics::PBRMeshGraphics(SceneNode* node, QOpenGLWidget& context, bool transparent, int layer)
 	: GraphicsComponent(node, context, transparent, layer)
 {
@@ -181,4 +190,80 @@ void PBRMeshGraphics::_renderUnlit(const Camera & camera)
 
 	vao.release();
 	_shaderUnlit->release();
+}
+
+void PBRMeshGraphics::_renderPickVertex(const Camera& camera)
+{
+	if (_posBuf == nullptr) {
+		KLEIN_LOG_CRITICAL("Please set a valid position buffer before rendering");
+		return;
+	}
+
+	auto shaderPicking = ResourceManager::instance().shaderProgram("KLEIN_Picking");
+	shaderPicking->bind();
+	QMatrix4x4 projection;
+	projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+	auto transform = this->sceneNode()->transform();
+	auto mvp = projection * camera.view() * transform;
+	shaderPicking->setUniformValue("mvp", mvp);
+	auto gtLocation = shaderPicking->uniformLocation("geomType"); // Use native calls since Qt doesn't support uniform1ui
+	auto gidLocation = shaderPicking->uniformLocation("geomID");
+	auto ptLocation = shaderPicking->uniformLocation("primitiveType");
+	glUniform1ui(gtLocation, _geomType);
+	glUniform1ui(gidLocation, _geomID);
+	glUniform1ui(ptLocation, PICKING_PRIMITIVE_VERTEX);
+
+	QOpenGLVertexArrayObject vao;
+	vao.create();
+	vao.bind();
+	_posBuf->bind();
+	shaderPicking->setAttributeBuffer(0, GL_FLOAT, 0, 3);
+	shaderPicking->enableAttributeArray(0);
+	auto bufferSize = _posBuf->size();
+	_posBuf->release();
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	glPointSize(10);
+	glDrawArrays(GL_POINTS, 0, bufferSize / sizeof(QVector3D));
+
+	vao.release();
+	shaderPicking->release();
+}
+
+void PBRMeshGraphics::_renderPickFace(const Camera& camera)
+{
+	if (_posBuf == nullptr) {
+		KLEIN_LOG_CRITICAL("Please set a valid position buffer before rendering");
+		return;
+	}
+
+	auto shaderPicking = ResourceManager::instance().shaderProgram("KLEIN_Picking");
+	shaderPicking->bind();
+	QMatrix4x4 projection;
+	projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+	auto transform = this->sceneNode()->transform();
+	auto mvp = projection * camera.view() * transform;
+	shaderPicking->setUniformValue("mvp", mvp);
+	auto gtLocation = shaderPicking->uniformLocation("geomType"); // Use native calls since Qt doesn't support uniform1ui
+	auto gidLocation = shaderPicking->uniformLocation("geomID");
+	auto ptLocation = shaderPicking->uniformLocation("primitiveType");
+	glUniform1ui(gtLocation, _geomType);
+	glUniform1ui(gidLocation, _geomID);
+	glUniform1ui(ptLocation, PICKING_PRIMITIVE_FACE);
+
+	QOpenGLVertexArrayObject vao;
+	vao.create();
+	vao.bind();
+	_posBuf->bind();
+	shaderPicking->setAttributeBuffer(0, GL_FLOAT, 0, 3);
+	shaderPicking->enableAttributeArray(0);
+	auto bufferSize = _posBuf->size();
+	_posBuf->release();
+
+	glPointSize(10);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDrawArrays(GL_TRIANGLES, 0, bufferSize / sizeof(QVector3D));
+
+	vao.release();
+	shaderPicking->release();
 }

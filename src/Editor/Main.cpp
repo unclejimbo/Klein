@@ -43,6 +43,9 @@ void initializeResourceSystem()
 	ResourceManager::instance().addShaderProgram("KLEIN_Unlit_VColor",
 		QString(KLEIN_SHADER_PATH).append("UnlitVColor.vert").toStdString(),
 		QString(KLEIN_SHADER_PATH).append("UnlitVColor.frag").toStdString());
+	ResourceManager::instance().addShaderProgram("KLEIN_Picking",
+		QString(KLEIN_SHADER_PATH).append("Unlit.vert").toStdString(),
+		QString(KLEIN_SHADER_PATH).append("Picking.frag").toStdString());
 }
 
 int main(int argc, char *argv[])

@@ -11,6 +11,7 @@
 
 using Kernel = CGAL::Simple_cartesian<float>;
 using CMesh = CGAL::Polyhedron_3<Kernel, CGAL::Polyhedron_items_with_id_3>;
+class GraphicsComponent;
 
 /*
 	Warning: The user is ultimately responsible for keeping raw mesh data
@@ -33,6 +34,8 @@ public:
 	~Mesh();
 
 	void updateGLBuffer() const;
+	bool attachTo(GraphicsComponent* graphics);
+	GraphicsComponent* attachedGraphics();
 
 	std::vector<Eigen::Vector3f> vertices;
 	std::vector<Eigen::Vector3f> fNormals;
@@ -41,4 +44,9 @@ public:
 
 	std::string positionBufferID;
 	std::string normalBufferID;
+	unsigned meshID;
+
+private:
+	GraphicsComponent* _graphics = nullptr;
+	static unsigned count;
 };

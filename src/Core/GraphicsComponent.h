@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Component.h"
+#include "Core/GeomIO.h"
 #include "Core/Camera.h"
 #include "Core/Light.h"
 #include "Core/Common.h"
@@ -17,17 +18,43 @@ enum class ShadingMethod
 	hiddenLine
 };
 
-enum RenderPass : int
+enum PickingPrimitive : unsigned
+{
+	PICKING_PRIMITIVE_NONE = 0,
+	PICKING_PRIMITIVE_VERTEX,
+	PICKING_PRIMITIVE_LINE,
+	PICKING_PRIMITIVE_FACE
+};
+
+enum RenderPickType : int
+{
+	RENDER_PICK_INDEX,
+	RENDER_PICK_VERTEX
+};
+
+enum RenderPass : unsigned
 {
 	RENDER_NONE = 0x0,
 	RENDER_ONSCREEN = 0x1,
-	RENDER_OFFSCREEN = 0x10
+	RENDER_OFFSCREEN = 0x10,
+	RENDER_PICK = 0x100
 };
+
+struct PickingInfo
+{
+	GeomType geomType;
+	int geomID;
+	PickingPrimitive primitiveType;
+	int primitiveID;
+};
+Q_DECLARE_METATYPE(PickingInfo);
 
 class GraphicsComponent : public Component, public QOpenGLFunctions_4_3_Core
 {
 public:
 	GraphicsComponent(QOpenGLWidget& context, bool transparent = false, int layer = 0);
+	GraphicsComponent(QOpenGLWidget& context, GeomType geomType, unsigned geomID,
+		bool transparent = false, int layer = 0);
 	GraphicsComponent(SceneNode* node, QOpenGLWidget& context, bool transparent = false, int layer = 0);
 	virtual ~GraphicsComponent();
 
@@ -50,14 +77,20 @@ public:
 	void setRenderPass(int renderPass);
 	
 	void render(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights);
+	void renderPick(PickingPrimitive primitive, Camera& camera);
 
 protected:
 	QOpenGLShaderProgram* _shaderLit;
 	QOpenGLShaderProgram* _shaderUnlit;
+	GLuint _geomType = GEOM_TYPE_NONE;
+	GLuint _geomID = 0;
 
 private:
 	virtual void _renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights) = 0;
 	virtual void _renderUnlit(const Camera& camera) = 0;
+	virtual void _renderPickVertex(const Camera& camera);
+	virtual void _renderPickLine(const Camera& camera);
+	virtual void _renderPickFace(const Camera& camera);
 
 private:
 	QOpenGLWidget& _context;

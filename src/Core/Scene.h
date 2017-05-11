@@ -27,6 +27,7 @@ public:
 	void setCamera(const QVector3D& eye_w, const QVector3D& center_w, const QVector3D& up_w, float fov, float aspect);
 	bool setLight(int lightID, const QVector3D& position_w, const QVector3D& color = QVector3D(1.0f, 1.0f, 1.0f));
 	void setShadingMethod(ShadingMethod shading);
+	void setPickingPrimitive(PickingPrimitive picking);
 	void setUnlit(bool unlit);
 	void render(RenderPass renderPass);
 
@@ -37,4 +38,5 @@ private:
 	std::unordered_map<std::string, SceneNode*> _transparentGraphicsNodes;
 	std::unique_ptr<Camera> _camera = nullptr;
 	std::array<Light, KLEIN_MAX_LIGHTS> _lights;
+	PickingPrimitive _picking = PICKING_PRIMITIVE_NONE;
 };

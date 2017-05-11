@@ -12,7 +12,7 @@ Mesh::Mesh(const std::vector<QVector3D>& rawVertices,
 	const std::vector<unsigned>& rawIndices,
 	const std::string& positionBuffer,
 	const std::string& normalBuffer)
-	: indices(rawIndices), positionBufferID(positionBuffer), normalBufferID(normalBuffer)
+	: indices(rawIndices), positionBufferID(positionBuffer), normalBufferID(normalBuffer), meshID(count++)
 {
 	vertices.resize(rawVertices.size());
 	std::transform(rawVertices.begin(), rawVertices.end(), vertices.begin(),
@@ -52,7 +52,7 @@ Mesh::Mesh(const std::vector<QVector3D>& rawVertices,
 	const std::vector<unsigned>& rawIndices,
 	const std::string& positionBuffer,
 	const std::string& normalBuffer)
-	: indices(rawIndices), positionBufferID(positionBuffer), normalBufferID(normalBuffer)
+	: indices(rawIndices), positionBufferID(positionBuffer), normalBufferID(normalBuffer), meshID(count++)
 {
 	vertices.resize(rawVertices.size());
 	std::transform(rawVertices.begin(), rawVertices.end(), vertices.begin(),
@@ -110,3 +110,22 @@ void Mesh::updateGLBuffer() const
 	ResourceManager::instance().addGLBuffer(positionBufferID, positions);
 	ResourceManager::instance().addGLBuffer(normalBufferID, normals);
 }
+
+bool Mesh::attachTo(GraphicsComponent* graphics)
+{
+	if (_graphics == nullptr) {
+		_graphics = graphics;
+		return true;
+	}
+	else {
+		KLEIN_LOG_CRITICAL("This mesh has already been attached to another GraphicsComponent");
+		return false;
+	}
+}
+
+GraphicsComponent* Mesh::attachedGraphics()
+{
+	return _graphics;
+}
+
+unsigned Mesh::count = 0;

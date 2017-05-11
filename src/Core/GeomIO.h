@@ -5,9 +5,9 @@
 #include <QVector3D>
 #include <vector>
 
-enum GeomType : int
+enum GeomType : unsigned
 {
-	GEOM_TYPE_NONE,
+	GEOM_TYPE_NONE = 0,
 	GEOM_TYPE_MESH,
 	GEOM_TYPE_POINTCLOUD
 };
