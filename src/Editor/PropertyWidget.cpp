@@ -308,7 +308,7 @@ void PropertyWidget::onColorChanged(int state)
 			ResourceManager::instance().addGLBuffer("MainMeshValence", colors);
 
 			auto valenceNode = _scene->addNode(_scene->rootNode(), "MainMeshValence", _scene->node("MainMesh")->transform());
-			auto graphics = std::make_unique<PBRMeshVColorGraphics>(valenceNode, *_glWidget);
+			auto graphics = std::make_unique<PBRMeshVColorGraphics>(*_glWidget);
 			graphics->setPositionBuffer("MainMesh_VertexBuffer");
 			graphics->setNormalBuffer("MainMesh_NormalBuffer");
 			graphics->setColorBuffer("MainMeshValence");

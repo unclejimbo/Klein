@@ -11,7 +11,6 @@ public:
 	PBRMeshGraphics(QOpenGLWidget& context, bool transparent = false, int layer = 0);
 	PBRMeshGraphics(QOpenGLWidget& context, GeomType geomType, unsigned geomID,
 		bool transparent = false, int layer = 0);
-	PBRMeshGraphics(SceneNode* node, QOpenGLWidget& context, bool transparent = false, int layer = 0);
 	~PBRMeshGraphics();
 
 	bool setPositionBuffer(const std::string& posBufID);

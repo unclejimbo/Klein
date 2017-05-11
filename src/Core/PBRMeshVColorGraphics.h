@@ -11,7 +11,6 @@ public:
 	PBRMeshVColorGraphics(QOpenGLWidget& context, bool transparent = false, int layer = 0);
 	PBRMeshVColorGraphics(QOpenGLWidget& context, GeomType geomType,
 		unsigned geomID, bool transparent = false, int layer = 0);
-	PBRMeshVColorGraphics(SceneNode* node, QOpenGLWidget& context, bool transparent = false, int layer = 0);
 	~PBRMeshVColorGraphics();
 
 	bool setPositionBuffer(const std::string& posBufID);

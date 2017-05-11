@@ -23,14 +23,6 @@ PBRMeshVColorGraphics::PBRMeshVColorGraphics(QOpenGLWidget& context,
 	_material = ResourceManager::instance().pbrMaterial("KLEIN_PBR_Default");
 }
 
-PBRMeshVColorGraphics::PBRMeshVColorGraphics(SceneNode* node, QOpenGLWidget& context, bool transparent, int layer)
-	: GraphicsComponent(node, context, transparent, layer)
-{
-	this->setShaderLit("KLEIN_CookTorrance_VColor");
-	this->setShaderUnlit("KLEIN_Unlit_VColor");
-	_material = ResourceManager::instance().pbrMaterial("KLEIN_PBR_Default");
-}
-
 PBRMeshVColorGraphics::~PBRMeshVColorGraphics() = default;
 
 bool PBRMeshVColorGraphics::setPositionBuffer(const std::string& posBufID)

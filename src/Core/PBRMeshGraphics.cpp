@@ -23,14 +23,6 @@ PBRMeshGraphics::PBRMeshGraphics(QOpenGLWidget& context,
 	_material = ResourceManager::instance().pbrMaterial("KLEIN_PBR_Default");
 }
 
-PBRMeshGraphics::PBRMeshGraphics(SceneNode* node, QOpenGLWidget& context, bool transparent, int layer)
-	: GraphicsComponent(node, context, transparent, layer)
-{
-	this->setShaderLit("KLEIN_CookTorrance");
-	this->setShaderUnlit("KLEIN_Unlit");
-	_material = ResourceManager::instance().pbrMaterial("KLEIN_PBR_Default");
-}
-
 PBRMeshGraphics::~PBRMeshGraphics() = default;
 
 bool PBRMeshGraphics::setPositionBuffer(const std::string& posBufID)

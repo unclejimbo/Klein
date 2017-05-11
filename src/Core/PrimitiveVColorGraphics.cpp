@@ -11,13 +11,6 @@ PrimitiveVColorGraphics::PrimitiveVColorGraphics(QOpenGLWidget& context, bool tr
 	this->setShaderUnlit("KLEIN_UnlitVColor");
 }
 
-PrimitiveVColorGraphics::PrimitiveVColorGraphics(SceneNode* node, QOpenGLWidget & context, bool transparent, int layer)
-	: GraphicsComponent(node, context, transparent, layer)
-{
-	this->setShaderLit("KLEIN_UnlitVColor");
-	this->setShaderUnlit("KLEIN_UnlitVColor");
-}
-
 PrimitiveVColorGraphics::~PrimitiveVColorGraphics() = default;
 
 void PrimitiveVColorGraphics::addPoint(const QVector3D& point, const QVector3D& color)

@@ -27,14 +27,6 @@ GraphicsComponent::GraphicsComponent(QOpenGLWidget& context,
 	_context.doneCurrent();
 }
 
-GraphicsComponent::GraphicsComponent(SceneNode* node, QOpenGLWidget& context, bool transparent, int layer)
-	: Component(node), _context(context), _transparent(transparent), _layer(layer)
-{
-	_context.makeCurrent();
-	this->initializeOpenGLFunctions();
-	_context.doneCurrent();
-}
-
 GraphicsComponent::~GraphicsComponent() = default;
 
 bool GraphicsComponent::transparent() const
