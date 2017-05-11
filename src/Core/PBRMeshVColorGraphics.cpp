@@ -14,6 +14,15 @@ PBRMeshVColorGraphics::PBRMeshVColorGraphics(QOpenGLWidget& context, bool transp
 	_material = ResourceManager::instance().pbrMaterial("KLEIN_PBR_Default");
 }
 
+PBRMeshVColorGraphics::PBRMeshVColorGraphics(QOpenGLWidget& context,
+	GeomType geomType, unsigned geomID, bool transparent, int layer)
+	: GraphicsComponent(context, geomType, geomID, transparent, layer)
+{
+	this->setShaderLit("KLEIN_CookTorrance_VColor");
+	this->setShaderUnlit("KLEIN_Unlit_VColor");
+	_material = ResourceManager::instance().pbrMaterial("KLEIN_PBR_Default");
+}
+
 PBRMeshVColorGraphics::PBRMeshVColorGraphics(SceneNode* node, QOpenGLWidget& context, bool transparent, int layer)
 	: GraphicsComponent(node, context, transparent, layer)
 {
@@ -206,4 +215,95 @@ void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera)
 
 	vao.release();
 	_shaderUnlit->release();
+}
+
+void PBRMeshVColorGraphics::_renderPickVertex(const Camera& camera)
+{
+	if (_posBuf == nullptr) {
+		KLEIN_LOG_CRITICAL("Please set a valid position buffer before rendering");
+		return;
+	}
+
+	auto shaderPicking = ResourceManager::instance().shaderProgram("KLEIN_Picking");
+	shaderPicking->bind();
+	QMatrix4x4 projection;
+	projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+	auto transform = this->sceneNode()->transform();
+	auto mvp = projection * camera.view() * transform;
+	shaderPicking->setUniformValue("mvp", mvp);
+	auto gtLocation = shaderPicking->uniformLocation("geomType"); // Use native calls since Qt doesn't support uniform1ui
+	auto gidLocation = shaderPicking->uniformLocation("geomID");
+	auto ptLocation = shaderPicking->uniformLocation("primitiveType");
+
+	QOpenGLVertexArrayObject vao;
+	vao.create();
+	vao.bind();
+	_posBuf->bind();
+	shaderPicking->setAttributeBuffer(0, GL_FLOAT, 0, 3);
+	shaderPicking->enableAttributeArray(0);
+	auto bufferSize = _posBuf->size();
+	_posBuf->release();
+
+	// Draw triangles first in order to cull points on the back faces
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glUniform1ui(gtLocation, GEOM_TYPE_NONE);
+	glUniform1ui(gidLocation, 0);
+	glUniform1ui(ptLocation, PICKING_PRIMITIVE_NONE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(1.0f, 1.0f);
+	glDrawArrays(GL_TRIANGLES, 0, bufferSize / sizeof(QVector3D));
+	glDisable(GL_POLYGON_OFFSET_FILL);
+	glDisable(GL_CULL_FACE);
+
+	// Then draw points
+	glUniform1ui(gtLocation, _geomType);
+	glUniform1ui(gidLocation, _geomID);
+	glUniform1ui(ptLocation, PICKING_PRIMITIVE_VERTEX);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	glDrawArrays(GL_POINTS, 0, bufferSize / sizeof(QVector3D));
+
+	vao.release();
+	shaderPicking->release();
+}
+
+void PBRMeshVColorGraphics::_renderPickFace(const Camera& camera)
+{
+	if (_posBuf == nullptr) {
+		KLEIN_LOG_CRITICAL("Please set a valid position buffer before rendering");
+		return;
+	}
+
+	auto shaderPicking = ResourceManager::instance().shaderProgram("KLEIN_Picking");
+	shaderPicking->bind();
+	QMatrix4x4 projection;
+	projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+	auto transform = this->sceneNode()->transform();
+	auto mvp = projection * camera.view() * transform;
+	shaderPicking->setUniformValue("mvp", mvp);
+	auto gtLocation = shaderPicking->uniformLocation("geomType"); // Use native calls since Qt doesn't support uniform1ui
+	auto gidLocation = shaderPicking->uniformLocation("geomID");
+	auto ptLocation = shaderPicking->uniformLocation("primitiveType");
+	glUniform1ui(gtLocation, _geomType);
+	glUniform1ui(gidLocation, _geomID);
+	glUniform1ui(ptLocation, PICKING_PRIMITIVE_FACE);
+
+	QOpenGLVertexArrayObject vao;
+	vao.create();
+	vao.bind();
+	_posBuf->bind();
+	shaderPicking->setAttributeBuffer(0, GL_FLOAT, 0, 3);
+	shaderPicking->enableAttributeArray(0);
+	auto bufferSize = _posBuf->size();
+	_posBuf->release();
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDrawArrays(GL_TRIANGLES, 0, bufferSize / sizeof(QVector3D));
+	glDisable(GL_CULL_FACE);
+
+	vao.release();
+	shaderPicking->release();
 }
