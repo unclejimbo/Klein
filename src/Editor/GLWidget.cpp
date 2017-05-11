@@ -320,10 +320,20 @@ void GLWidget::_paintPicked(PickingInfo info)
 	if (info.geomType == GEOM_TYPE_MESH) {
 		auto mesh = ResourceManager::instance().mesh(info.geomID);
 		auto parent = mesh->attachedGraphics()->sceneNode();
+
 		if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
 			auto node = _scene->addNode(parent, "PickedNode");
 			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
 			graphics->addPoint(eigenToQt(mesh->vertices[info.primitiveID]));
+			node->addGraphicsComponent(std::move(graphics));
+		}
+
+		if (info.primitiveType == PICKING_PRIMITIVE_FACE) {
+			auto node = _scene->addNode(parent, "PickedNode");
+			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
+			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID * 3 + 0]]));
+			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID * 3 + 1]]));
+			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID * 3 + 2]]));
 			node->addGraphicsComponent(std::move(graphics));
 		}
 	}
