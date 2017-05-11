@@ -104,6 +104,16 @@ PointCloud* ResourceManager::pointCloud(const std::string& name)
 	}
 }
 
+PointCloud* ResourceManager::pointCloud(unsigned id)
+{
+	for (const auto& p : _pointCloudMap) {
+		if (p.second->pointCloudID == id) {
+			return p.second.get();
+		}
+	}
+	return nullptr;
+}
+
 bool ResourceManager::removePointCloud(const std::string& name)
 {
 	if (_pointCloudMap.erase(name) == 0) {

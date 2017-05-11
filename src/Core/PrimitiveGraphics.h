@@ -11,6 +11,8 @@ class PrimitiveGraphics : public GraphicsComponent
 {
 public:
 	PrimitiveGraphics(QOpenGLWidget& context, bool transparent = false, int layer = 0);
+	PrimitiveGraphics(QOpenGLWidget& context, GeomType geomType,
+		unsigned geomID, bool transparent = false, int layer = 0);
 	~PrimitiveGraphics();
 
 	void addPoint(const QVector3D& point);
@@ -25,10 +27,12 @@ public:
 	bool setPointPositionBuffer(const std::string& pointPosBufID);
 	bool setLinePositionBuffer(const std::string& linePosBufID);
 	void setColor(const QVector3D& color);
+	void setPointSize(short pointSize);
 
 private:
 	void _renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights) override;
 	void _renderUnlit(const Camera& camera) override;
+	void _renderPickVertex(const Camera& camera) override;
 
 private:
 	std::vector<QVector3D> _points;
@@ -37,4 +41,5 @@ private:
 	QOpenGLBuffer* _pointPosBuf = nullptr;
 	QOpenGLBuffer* _linePosBuf = nullptr;
 	QVector3D _color = QVector3D(1.0f, 1.0f, 1.0f);
+	short _pointSize = 1;
 };

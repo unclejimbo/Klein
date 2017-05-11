@@ -318,6 +318,7 @@ void GLWidget::_paintPicked(PickingInfo info)
 		if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
 			auto node = _scene->addNode(parent, "PickedNode");
 			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
+			graphics->setPointSize(10);
 			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID]]));
 			node->addGraphicsComponent(std::move(graphics));
 		}
@@ -325,9 +326,23 @@ void GLWidget::_paintPicked(PickingInfo info)
 		if (info.primitiveType == PICKING_PRIMITIVE_FACE) {
 			auto node = _scene->addNode(parent, "PickedNode");
 			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
+			graphics->setPointSize(10);
 			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID * 3 + 0]]));
 			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID * 3 + 1]]));
 			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID * 3 + 2]]));
+			node->addGraphicsComponent(std::move(graphics));
+		}
+	}
+
+	if (info.geomType == GEOM_TYPE_POINTCLOUD) {
+		auto pc = ResourceManager::instance().pointCloud(info.geomID);
+		auto parent = pc->attachedGraphics()->sceneNode();
+
+		if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
+			auto node = _scene->addNode(parent, "PickedNode");
+			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
+			graphics->setPointSize(10);
+			graphics->addPoint(eigenToQt(pc->vertices[info.primitiveID]));
 			node->addGraphicsComponent(std::move(graphics));
 		}
 	}

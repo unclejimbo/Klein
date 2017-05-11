@@ -43,6 +43,7 @@ public:
 	void addPointCloud(const std::string& name, const std::vector<QVector3D>& vertices,
 		const std::string& vertexBufferID);
 	PointCloud* pointCloud(const std::string& name);
+	PointCloud* pointCloud(unsigned id);
 	bool removePointCloud(const std::string& name);
 
 	void addGLBuffer(const std::string& name, const std::vector<float>& data,

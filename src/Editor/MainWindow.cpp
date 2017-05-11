@@ -247,9 +247,11 @@ void MainWindow::_importPointCloud()
 			transform.translate(-_geomInfo.center);
 			node->setTransform(transform);
 
-			auto graphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+			auto id = ResourceManager::instance().pointCloud("MainMesh")->pointCloudID;
+			auto graphics = std::make_unique<PrimitiveGraphics>(*_glWidget, GEOM_TYPE_POINTCLOUD, id);
 			graphics->setPointPositionBuffer("MainMesh_VertexBuffer");
 			graphics->setColor(QVector3D(1.0f, 1.0f, 1.0f));
+			graphics->addRenderPass(RENDER_PICK);
 			node->addGraphicsComponent(std::move(graphics));
 
 			_scene.camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));

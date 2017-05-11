@@ -1,13 +1,15 @@
 #include "Core/PointCloud.h"
+#include "Core/GraphicsComponent.h"
 #include "Core/ResourceManager.h"
 #include "Core/Util.h"
+#include "Core/Logger.h"
 
 #include <algorithm>
 
 PointCloud::PointCloud(const std::vector<QVector3D>& rawVertices, 
 	const std::vector<QVector3D>& rawNormals, 
 	const std::string & positionBuffer)
-	: positionBufferID(positionBuffer)
+	: positionBufferID(positionBuffer), pointCloudID(_count++)
 {
 	vertices.resize(rawVertices.size());
 	std::transform(rawVertices.begin(), rawVertices.end(), vertices.begin(),
@@ -48,3 +50,22 @@ void PointCloud::updateGLBuffer() const
 
 	ResourceManager::instance().addGLBuffer(positionBufferID, positions);
 }
+
+bool PointCloud::attachTo(GraphicsComponent* graphics)
+{
+	if (_graphics == nullptr) {
+		_graphics = graphics;
+		return true;
+	}
+	else {
+		KLEIN_LOG_CRITICAL("This mesh has already been attached to another GraphicsComponent");
+		return false;
+	}
+}
+
+GraphicsComponent * PointCloud::attachedGraphics()
+{
+	return _graphics;
+}
+
+unsigned PointCloud::_count = 0;

@@ -20,7 +20,7 @@ GraphicsComponent::GraphicsComponent(QOpenGLWidget& context,
 		ResourceManager::instance().mesh(geomID)->attachTo(this);
 	}
 	if (geomType == GEOM_TYPE_POINTCLOUD) {
-		
+		ResourceManager::instance().pointCloud(geomID)->attachTo(this);
 	}
 	_context.makeCurrent();
 	this->initializeOpenGLFunctions();
