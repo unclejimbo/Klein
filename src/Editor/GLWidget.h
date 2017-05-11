@@ -22,9 +22,9 @@ public:
 	~GLWidget();
 
 	void bindScene(Scene* scene);
+	void renderToTexture(QImage& img); // Read render-pass nodes
 	void readColorBuffer(QImage& img); // Read offscreen-pass nodes
 	void readDepthBuffer(std::vector<float>& depth);
-	void renderToTexture(QImage& img); // Read render-pass nodes
 	PickingInfo pick(int x, int y);
 
 Q_SIGNALS:
@@ -52,4 +52,7 @@ private:
 	Scene* _scene = nullptr;
 	std::unique_ptr<CameraController> _cameraController = nullptr;
 	QOpenGLDebugLogger* _glDebugLogger = nullptr;
+	std::unique_ptr<QOpenGLFramebufferObject> _fboOffscreen = nullptr;
+	GLuint _fboDepth;
+	GLuint _fboPick;
 };

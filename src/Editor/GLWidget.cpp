@@ -32,24 +32,35 @@ void GLWidget::bindScene(Scene* scene)
 	}
 }
 
+void GLWidget::renderToTexture(QImage& img)
+{
+	this->makeCurrent();
+	_fboOffscreen->bind();
+
+	auto bgColor = QColor(112, 128, 144);
+	glClearColor(static_cast<float>(bgColor.redF()), static_cast<float>(bgColor.greenF()),
+		static_cast<float>(bgColor.blueF()), static_cast<float>(bgColor.alphaF()));
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	if (_scene != nullptr) {
+		_scene->render(RENDER_ONSCREEN); // Models in shading pass got rendered to texture, see readColorBuffer for difference
+	}
+	img = _fboOffscreen->toImage();
+
+	QOpenGLFramebufferObject::bindDefault();
+	this->doneCurrent();
+}
+
 void GLWidget::readColorBuffer(QImage& img)
 {
 	this->makeCurrent();
-	QOpenGLFramebufferObjectFormat format;
-	format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-	format.setInternalTextureFormat(GL_RGBA);
-	format.setMipmap(true);
-	format.setSamples(4);
-	format.setTextureTarget(GL_TEXTURE_2D);
-	QOpenGLFramebufferObject offscreen(this->width(), this->height(), format);
-	offscreen.bind();
+	_fboOffscreen->bind();
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	if (_scene != nullptr) {
 		_scene->render(RENDER_OFFSCREEN); // Models in offscreen pass got rendered, see renderToTexture for difference
 	}
-	img = offscreen.toImage();
+	img = _fboOffscreen->toImage();
 
 	QOpenGLFramebufferObject::bindDefault();
 	this->doneCurrent();
@@ -58,31 +69,14 @@ void GLWidget::readColorBuffer(QImage& img)
 void GLWidget::readDepthBuffer(std::vector<float>& depth)
 {
 	this->makeCurrent();
-
-	// Use native OpenGL calls because QOpenGLFrameBufferObject has bugs
-	GLuint fbo;
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	GLuint colorBuffer;
-	glGenRenderbuffers(1, &colorBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, this->width(), this->height());
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBuffer);
-	GLuint depthBuffer;
-	glGenRenderbuffers(1, &depthBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->width(), this->height());
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glViewport(0, 0, this->width(), this->height());
+	glBindFramebuffer(GL_FRAMEBUFFER, _fboDepth);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	if (_scene != nullptr) {
 		_scene->render(RENDER_OFFSCREEN);
 	}
+
 	auto buf = new GLfloat[this->width() * this->height()];
 	glReadPixels(0, 0, this->width(), this->height(), GL_DEPTH_COMPONENT, GL_FLOAT, buf);
 	depth.reserve(this->width() * this->height());
@@ -95,50 +89,10 @@ void GLWidget::readDepthBuffer(std::vector<float>& depth)
 	this->doneCurrent();
 }
 
-void GLWidget::renderToTexture(QImage& img)
-{
-	this->makeCurrent();
-	QOpenGLFramebufferObjectFormat format;
-	format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-	format.setInternalTextureFormat(GL_RGBA);
-	format.setMipmap(true);
-	format.setSamples(4);
-	format.setTextureTarget(GL_TEXTURE_2D);
-	QOpenGLFramebufferObject offscreen(this->width(), this->height(), format);
-	offscreen.bind();
-
-	auto bgColor = QColor(112, 128, 144);
-	glClearColor(static_cast<float>(bgColor.redF()), static_cast<float>(bgColor.greenF()),
-		static_cast<float>(bgColor.blueF()), static_cast<float>(bgColor.alphaF()));
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	if (_scene != nullptr) {
-		_scene->render(RENDER_ONSCREEN); // Models in shading pass got rendered to texture, see readColorBuffer for difference
-	}
-	img = offscreen.toImage();
-
-	QOpenGLFramebufferObject::bindDefault();
-	this->doneCurrent();
-}
-
 PickingInfo GLWidget::pick(int x, int y)
 {
 	this->makeCurrent();
-	GLuint fbo;
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	GLuint colorBuffer;
-	glGenRenderbuffers(1, &colorBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA32UI, this->width(), this->height());
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBuffer);
-	GLuint depthBuffer;
-	glGenRenderbuffers(1, &depthBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->width(), this->height());
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-	glViewport(0, 0, this->width(), this->height());
+	glBindFramebuffer(GL_FRAMEBUFFER, _fboPick);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -174,6 +128,48 @@ void GLWidget::initializeGL()
 	else {
 		KLEIN_LOG_WARNING("OpenGL debug logger failed to initialize");
 	}
+
+	QOpenGLFramebufferObjectFormat format;
+	format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+	format.setInternalTextureFormat(GL_RGBA);
+	format.setMipmap(true);
+	format.setSamples(4);
+	format.setTextureTarget(GL_TEXTURE_2D);
+	_fboOffscreen = std::make_unique<QOpenGLFramebufferObject>(this->width(), this->height(), format);
+
+	GLuint _fboDepth;
+	glGenFramebuffers(1, &_fboDepth);
+	glBindFramebuffer(GL_FRAMEBUFFER, _fboDepth);
+	GLuint colorBuffer;
+	glGenRenderbuffers(1, &colorBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, this->width(), this->height());
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBuffer);
+	GLuint depthBuffer;
+	glGenRenderbuffers(1, &depthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->width(), this->height());
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	glBindFramebuffer(GL_FRAMEBUFFER, _fboDepth);
+	glViewport(0, 0, this->width(), this->height());
+
+	glGenFramebuffers(1, &_fboPick);
+	glBindFramebuffer(GL_FRAMEBUFFER, _fboPick);
+	GLuint colorBuffer1;
+	glGenRenderbuffers(1, &colorBuffer1);
+	glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer1);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA32UI, this->width(), this->height());
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBuffer1);
+	GLuint depthBuffer1;
+	glGenRenderbuffers(1, &depthBuffer1);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer1);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->width(), this->height());
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer1);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	glViewport(0, 0, this->width(), this->height());
 }
 
 void GLWidget::paintGL()
