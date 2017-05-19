@@ -3,16 +3,16 @@
 #include "Core/GeomIO.h"
 #include "Core/Scene.h"
 #include "Core/SceneNode.h"
+#include "Editor/GLWidget.h"
 
 #include <QtWidgets>
-#include <QOpenGLWidget>
 
 class ProcessWidget : public QWidget
 {
 	Q_OBJECT
 
 public:
-	ProcessWidget(QWidget* parent, QOpenGLWidget* glWidget);
+	ProcessWidget(QWidget* parent, GLWidget* glWidget);
 	virtual ~ProcessWidget();
 
 public Q_SLOTS:
@@ -20,6 +20,6 @@ public Q_SLOTS:
 	void onInitializeScene(Scene* scene);
 
 protected:
-	QOpenGLWidget* _glWidget;
+	GLWidget* _glWidget;
 	Scene* _scene;
 };

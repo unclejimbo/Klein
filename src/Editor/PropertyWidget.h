@@ -7,7 +7,7 @@ class PropertyWidget : public ProcessWidget
 	Q_OBJECT
 
 public:
-	PropertyWidget(QWidget* parent, QOpenGLWidget* glWidget);
+	PropertyWidget(QWidget* parent, GLWidget* glWidget);
 	~PropertyWidget();
 
 public Q_SLOTS:

@@ -10,7 +10,7 @@
 #include <vector>
 #include <memory>
 
-PropertyWidget::PropertyWidget(QWidget* parent, QOpenGLWidget* glWidget)
+PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
 	: ProcessWidget(parent, glWidget)
 {
 	auto layout = new QVBoxLayout(this);
