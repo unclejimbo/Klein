@@ -137,7 +137,7 @@ bool ObjIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 	ResourceManager::instance().addGLBuffer(normalBufferName.toStdString(), normalBuffer);
 
 	if (recordMesh) {
-		if (faceCount = normals.size()) { // Normals are per-face normals
+		if (faceCount == normals.size()) { // Normals are per-face normals
 			ResourceManager::instance().addMesh(name.toStdString(), vertices, normals, indices,
 				vertexBufferName.toStdString(), normalBufferName.toStdString());
 		}
