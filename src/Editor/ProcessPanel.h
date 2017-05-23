@@ -5,6 +5,7 @@
 
 class MainWindow;
 class GLWidget;
+class QStackedWidget;
 
 class ProcessPanel : public QDockWidget
 {
@@ -15,6 +16,14 @@ public:
 	ProcessPanel(const QString& title, MainWindow* parent, GLWidget* glWidget);
 	~ProcessPanel();
 
+public Q_SLOTS:
+	void onCurrentWidgetChanged(int id);
+
 private:
 	void _initializePanel(MainWindow* parent, GLWidget* glWidget);
+
+private:
+	GLWidget* _glWidget;
+	QStackedWidget* _stackedWidget;
+	int _prevWidgetID = 0;
 };

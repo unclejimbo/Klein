@@ -54,6 +54,23 @@ PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
 	_maxZ = new QLabel(infoGroup);
 	infoLayout->addWidget(_maxZ, 5, 3);
 
+	auto pickGroup = new QGroupBox("Picked Primitive", this);
+	layout->addWidget(pickGroup);
+	auto pickLayout = new QGridLayout(pickGroup);
+	pickGroup->setLayout(pickLayout);
+	pickLayout->addWidget(new QLabel("GeomType:"), 0, 0);
+	_geomType = new QLabel(pickGroup);
+	pickLayout->addWidget(_geomType, 0, 1);
+	pickLayout->addWidget(new QLabel("GeomID:  "), 1, 0);
+	_geomID = new QLabel(pickGroup);
+	pickLayout->addWidget(_geomID, 1, 1);
+	pickLayout->addWidget(new QLabel("PrimType:"), 2, 0);
+	_primType = new QLabel(pickGroup);
+	pickLayout->addWidget(_primType, 2, 1);
+	pickLayout->addWidget(new QLabel("PrimID  :"), 3, 0);
+	_primID = new QLabel(pickGroup);
+	pickLayout->addWidget(_primID, 3, 1);
+
 	auto visGroup = new QGroupBox("Visualization", this);
 	layout->addWidget(visGroup);
 	auto visLayout = new QGridLayout(visGroup);
@@ -317,4 +334,25 @@ void PropertyWidget::onColorChanged(int state)
 	}
 
 	_glWidget->update();
+}
+
+void PropertyWidget::_onPickedImp(const PickingInfo& info)
+{
+	if (info.geomType == GEOM_TYPE_MESH) {
+		_geomType->setText("Mesh");
+	}
+	if (info.geomType == GEOM_TYPE_POINTCLOUD) {
+		_geomType->setText("Point Cloud");
+	}
+	_geomID->setNum(info.geomID);
+	if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
+		_primType->setText("Vertex");
+	}
+	if (info.primitiveType == PICKING_PRIMITIVE_LINE) {
+		_primType->setText("Line");
+	}
+	if (info.primitiveType == PICKING_PRIMITIVE_FACE) {
+		_primType->setText("Face");
+	}
+	_primID->setNum(info.primitiveID);
 }
