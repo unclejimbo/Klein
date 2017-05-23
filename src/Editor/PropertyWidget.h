@@ -16,6 +16,9 @@ public Q_SLOTS:
 	void showOBB(int state);
 	void showSphere(int state);
 	void onColorChanged(int state);
+
+private:
+	void _onPickedImp(const PickingInfo& info) override;
 	 
 private:
 	bool _valid = false;
@@ -31,6 +34,10 @@ private:
 	QLabel* _maxY;
 	QLabel* _minZ;
 	QLabel* _maxZ;
+	QLabel* _geomType;
+	QLabel* _geomID;
+	QLabel* _primType;
+	QLabel* _primID;
 	QCheckBox* _aabb;
 	QCheckBox* _obb;
 	QCheckBox* _sphere;
