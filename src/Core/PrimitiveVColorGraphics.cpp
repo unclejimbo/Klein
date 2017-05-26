@@ -7,8 +7,8 @@
 PrimitiveVColorGraphics::PrimitiveVColorGraphics(QOpenGLWidget& context, bool transparent, int layer)
 	: GraphicsComponent(context, transparent, layer)
 {
-	this->setShaderLit("KLEIN_UnlitVColor");
-	this->setShaderUnlit("KLEIN_UnlitVColor");
+	this->setShaderLit("KLEIN_Unlit_VColor");
+	this->setShaderUnlit("KLEIN_Unlit_VColor");
 }
 
 PrimitiveVColorGraphics::~PrimitiveVColorGraphics() = default;
@@ -55,6 +55,7 @@ void PrimitiveVColorGraphics::_renderUnlit(const Camera& camera)
 	vboPointPosition.create();
 	vboPointPosition.bind();
 	vboPointPosition.allocate(_pointPositions.data(), static_cast<int>(_pointPositions.size() * sizeof(QVector3D)));
+	_shaderUnlit->enableAttributeArray(0);
 	_shaderUnlit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
 	vboPointPosition.release();
 
@@ -63,7 +64,7 @@ void PrimitiveVColorGraphics::_renderUnlit(const Camera& camera)
 	vboPointColor.create();
 	vboPointColor.bind();
 	vboPointColor.allocate(_pointColors.data(), static_cast<int>(_pointColors.size() * sizeof(QVector3D)));
-	_shaderUnlit->enableAttributeArray(0);
+	_shaderUnlit->enableAttributeArray(1);
 	_shaderUnlit->setAttributeBuffer(1, GL_FLOAT, 0, 3);
 	vboPointColor.release();
 
