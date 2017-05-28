@@ -57,7 +57,8 @@ bool ObjIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 {
 	std::vector<QVector3D> vertices;
 	std::vector<QVector3D> normals;
-	std::vector<unsigned> indices;
+	std::vector<unsigned> vIndices;
+	std::vector<unsigned> fIndices;
 	std::vector<QVector3D> vertexBuffer;
 	std::vector<QVector3D> normalBuffer;
 	int faceCount = 0;
@@ -106,7 +107,7 @@ bool ObjIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 				vertexIndex = vertexIndex > 0 ?
 					vertexIndex - 1 : static_cast<int>(vertices.size()) + vertexIndex;
 				vertexBuffer.push_back(vertices[vertexIndex]);
-				indices.push_back(vertexIndex);
+				vIndices.push_back(vertexIndex);
 
 				// Ommit texcoord
 
@@ -115,6 +116,9 @@ bool ObjIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 					normalIndex = normalIndex > 0 ?
 						normalIndex - 1 : static_cast<int>(normals.size()) + normalIndex;
 					normalBuffer.push_back(normals[normalIndex]);
+					if (i == 0) { // Record normal index in case normals are less than faces
+						fIndices.push_back(normalIndex);
+					}
 				}
 				else {
 					vertexIndices.push_back(vertexIndex);
@@ -139,11 +143,15 @@ bool ObjIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 
 	if (recordMesh) {
 		if (faceCount == normals.size()) { // Normals are per-face normals
-			ResourceManager::instance().addMesh(name.toStdString(), vertices, normals, indices,
+			ResourceManager::instance().addMesh(name.toStdString(), vertices, normals, vIndices,
 				vertexBufferName.toStdString(), normalBufferName.toStdString());
 		}
 		else {
-			ResourceManager::instance().addMesh(name.toStdString(), vertices, indices,
+			std::vector<QVector3D> faceNormals(faceCount);
+			for (auto i = 0; i < faceCount; ++i) {
+				faceNormals[i] = normals[fIndices[i]];
+			}
+			ResourceManager::instance().addMesh(name.toStdString(), vertices, faceNormals, vIndices,
 				vertexBufferName.toStdString(), normalBufferName.toStdString());
 		}
 	}

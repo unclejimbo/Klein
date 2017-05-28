@@ -31,9 +31,6 @@ public:
 	void addMesh(const std::string& name, const std::vector<QVector3D>& vertices,
 		const std::vector<QVector3D>& normals, const std::vector<unsigned>& indices, 
 		const std::string& vertexBufferID, const std::string& normalBufferID);
-	void addMesh(const std::string& name, const std::vector<QVector3D>& vertices,
-		const std::vector<unsigned>& indices, 
-		const std::string& vertexBufferID, const std::string& normalBufferID);
 	Mesh* mesh(const std::string& name);
 	Mesh* mesh(unsigned id);
 	bool removeMesh(const std::string& name);

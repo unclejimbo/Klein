@@ -48,46 +48,6 @@ Mesh::Mesh(const std::vector<QVector3D>& rawVertices,
 	}
 }
 
-Mesh::Mesh(const std::vector<QVector3D>& rawVertices,
-	const std::vector<unsigned>& rawIndices,
-	const std::string& positionBuffer,
-	const std::string& normalBuffer)
-	: indices(rawIndices), positionBufferID(positionBuffer), normalBufferID(normalBuffer), meshID(count++)
-{
-	vertices.resize(rawVertices.size());
-	std::transform(rawVertices.begin(), rawVertices.end(), vertices.begin(),
-		[](const QVector3D& v) {
-			return qtToEigen<float>(v);
-		}
-	);
-
-	fNormals.resize(indices.size() / 3);
-	for (size_t i = 0; i < fNormals.size(); ++i) {
-		auto v1 = vertices[indices[i * 3 + 1]] - vertices[indices[i]];
-		auto v2 = vertices[indices[i * 3 + 2]] - vertices[indices[i]];
-		fNormals[i] = v1.cross(v2).normalized();
-	}
-
-	cMesh = std::make_unique<CMesh>();
-	Euclid::TriMeshBuilder<CMesh> meshBuilder(vertices, indices);
-	try {
-		cMesh->delegate(meshBuilder);
-
-		size_t i = 0;
-		for (auto v = cMesh->vertices_begin(); v != cMesh->vertices_end(); ++v) {
-			v->id() = i++;
-		}
-		i = 0;
-		for (auto f = cMesh->facets_begin(); f != cMesh->facets_end(); ++f) {
-			f->id() = i++;
-		}
-	}
-	catch (...) {
-		KLEIN_LOG_WARNING("The provided mesh is non-manifold, thus cgal-mesh will be unavailable");
-		cMesh = nullptr;
-	}
-}
-
 Mesh::~Mesh() = default;
 
 void Mesh::updateGLBuffer() const

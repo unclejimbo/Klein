@@ -20,14 +20,8 @@ class GraphicsComponent;
 class Mesh
 {
 public:
-	// Read in face normals
 	Mesh(const std::vector<QVector3D>& rawVertices,
 		const std::vector<QVector3D>& rawFNormals,
-		const std::vector<unsigned>& rawIndices,
-		const std::string& positionBuffer,
-		const std::string& normalBuffer);
-	// Compute face normals
-	Mesh(const std::vector<QVector3D>& rawVertices,
 		const std::vector<unsigned>& rawIndices,
 		const std::string& positionBuffer,
 		const std::string& normalBuffer);
