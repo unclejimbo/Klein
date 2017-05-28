@@ -179,7 +179,14 @@ bool ObjIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* 
 	auto vertexBufferName = QString(name).append("_VertexBuffer");
 	ResourceManager::instance().addGLBuffer(vertexBufferName.toStdString(), vertices);
 
-	ResourceManager::instance().addPointCloud(name.toStdString(), vertices, vertexBufferName.toStdString());
+	if (vertices.size() == normals.size()) { // Per-vertex normals
+		ResourceManager::instance().addPointCloud(name.toStdString(),
+			vertices, normals, vertexBufferName.toStdString());
+	}
+	else {
+		ResourceManager::instance().addPointCloud(name.toStdString(),
+			vertices, vertexBufferName.toStdString());
+	}
 
 	recordGeomInfo(geomInfo, vertices, -1, -1);
 
