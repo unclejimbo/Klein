@@ -2,6 +2,7 @@
 #include "Core/Logger.h"
 #include "Core/ObjIO.h"
 #include "Core/OffIO.h"
+#include "Core/XyzIO.h"
 #include "Core/ResourceManager.h"
 #include "Core/Scene.h"
 #include "Core/SceneNode.h"
@@ -226,7 +227,7 @@ void MainWindow::_importMesh()
 void MainWindow::_importPointCloud()
 {
 	auto path = QFileDialog::getOpenFileName(nullptr, "Import PointCloud",
-		_lastOpenFile, "PointCloud Files(*.off *.obj)");
+		_lastOpenFile, "PointCloud Files(*.off *.obj *xyz)");
 	if (path.length() != 0) {
 		_statusBar->showMessage("Reading point cloud...");
 
@@ -236,6 +237,9 @@ void MainWindow::_importPointCloud()
 		}
 		if (QFileInfo(path).suffix() == "obj") {
 			geomIO = std::make_unique<ObjIO>();
+		}
+		if (QFileInfo(path).suffix() == "xyz") {
+			geomIO = std::make_unique<XyzIO>();
 		}
 
 		if (geomIO->readPointCloud(path, "MainMesh", &_geomInfo)) {
