@@ -10,6 +10,78 @@ ObjIO::ObjIO() = default;
 
 ObjIO::~ObjIO() = default;
 
+inline void readOBJFile(QTextStream& stream, std::vector<QVector3D>& vertices, std::vector<QVector3D>& normals,
+	std::vector<unsigned>& vIndices, std::vector<unsigned>& nIndices)
+{
+	int faceCount = 0;
+
+	while (!stream.atEnd()) {
+		auto line = stream.readLine();
+
+		if (line.isEmpty()) {
+			continue;
+		}
+
+		auto lineList = line.split(QRegExp("\\s+"));
+
+		if (lineList[0] == "v") {
+			auto x = lineList[1].toFloat();
+			auto y = lineList[2].toFloat();
+			auto z = lineList[3].toFloat();
+			vertices.emplace_back(x, y, z);
+		}
+
+		if (lineList[0] == "vt") {
+			// TODO: support texcoords
+		}
+
+		if (lineList[0] == "vn") {
+			auto x = lineList[1].toFloat();
+			auto y = lineList[2].toFloat();
+			auto z = lineList[3].toFloat();
+			normals.emplace_back(x, y, z);
+		}
+
+		if (lineList[0] == "f") {
+			if (lineList.size() > 4) { // Only support triangle mesh for now
+				KLEIN_LOG_CRITICAL("Klein only supports triangle mesh");
+			}
+
+			++faceCount;
+			std::vector<unsigned> vertexIndices;
+
+			for (auto i = 0; i < 3; ++i) {
+				auto v = lineList[i + 1];
+				auto numList = v.split("/");
+
+				auto vertexIndex = numList[0].toInt();
+				vertexIndex = vertexIndex > 0 ?
+					vertexIndex - 1 : static_cast<int>(vertices.size()) + vertexIndex;
+				vIndices.push_back(vertexIndex);
+
+				// Ommit texcoord
+
+				if (numList.length() == 3 && !numList[2].isEmpty()) { // Normals are provided
+					auto normalIndex = numList[2].toInt();
+					normalIndex = normalIndex > 0 ?
+						normalIndex - 1 : static_cast<int>(normals.size()) + normalIndex;
+					nIndices.push_back(normalIndex);
+				}
+				else {
+					vertexIndices.push_back(vertexIndex);
+				}
+			}
+
+			if (!vertexIndices.empty()) { // Compute normals
+				auto v1 = vertices[vertexIndices[1]] - vertices[vertexIndices[0]];
+				auto v2 = vertices[vertexIndices[2]] - vertices[vertexIndices[0]];
+				auto fnormal = QVector3D::crossProduct(v1, v2);
+				normals.push_back(fnormal);
+			}
+		}
+	}
+}
+
 inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<QVector3D>& vertices, int nEdges, int nFaces)
 {
 	if (geomInfo != nullptr) {
@@ -58,104 +130,38 @@ bool ObjIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 	std::vector<QVector3D> vertices;
 	std::vector<QVector3D> normals;
 	std::vector<unsigned> vIndices;
-	std::vector<unsigned> fIndices;
+	std::vector<unsigned> nIndices;
+	readOBJFile(stream, vertices, normals, vIndices, nIndices);
+
+	// Construct OpenGL buffers
 	std::vector<QVector3D> vertexBuffer;
 	std::vector<QVector3D> normalBuffer;
-	int faceCount = 0;
-
-	while (!stream.atEnd()) {
-		auto line = stream.readLine();
-
-		if (line.isEmpty()) {
-			continue;
-		}
-
-		auto lineList = line.split(QRegExp("\\s+"));
-
-		if (lineList[0] == "v") {
-			auto x = lineList[1].toFloat();
-			auto y = lineList[2].toFloat();
-			auto z = lineList[3].toFloat();
-			vertices.emplace_back(x, y, z);
-		}
-
-		if (lineList[0] == "vt") {
-
-		}
-
-		if (lineList[0] == "vn") {
-			auto x = lineList[1].toFloat();
-			auto y = lineList[2].toFloat();
-			auto z = lineList[3].toFloat();
-			normals.emplace_back(x, y, z);
-		}
-
-		if (lineList[0] == "f") {
-			if (lineList.size() > 4) { // Only support triangle mesh for now
-				KLEIN_LOG_CRITICAL("Klein only supports triangle mesh");
-			}
-
-			++faceCount;
-
-			// Record vertex indices if normals are not provided in order to compute face normal
-			std::vector<unsigned> vertexIndices;
-			for (auto i = 0; i < 3; ++i) {
-				auto v = lineList[i + 1];
-				auto numList = v.split("/");
-
-				auto vertexIndex = numList[0].toInt();
-				vertexIndex = vertexIndex > 0 ?
-					vertexIndex - 1 : static_cast<int>(vertices.size()) + vertexIndex;
-				vertexBuffer.push_back(vertices[vertexIndex]);
-				vIndices.push_back(vertexIndex);
-
-				// Ommit texcoord
-
-				if (numList.length() == 3 && !numList[2].isEmpty()) { // Normals are provided
-					auto normalIndex = numList[2].toInt();
-					normalIndex = normalIndex > 0 ?
-						normalIndex - 1 : static_cast<int>(normals.size()) + normalIndex;
-					normalBuffer.push_back(normals[normalIndex]);
-					if (i == 0) { // Record normal index in case normals are less than faces
-						fIndices.push_back(normalIndex);
-					}
-				}
-				else {
-					vertexIndices.push_back(vertexIndex);
-				}
-			}
-			if (!vertexIndices.empty()) { // Compute normals
-				auto v1 = vertices[vertexIndices[1]] - vertices[vertexIndices[0]];
-				auto v2 = vertices[vertexIndices[2]] - vertices[vertexIndices[0]];
-				auto fnormal = QVector3D::crossProduct(v1, v2);
-				normals.push_back(fnormal);
-				normalBuffer.push_back(fnormal);
-				normalBuffer.push_back(fnormal);
-				normalBuffer.push_back(fnormal);
-			}
+	vertexBuffer.reserve(vIndices.size());
+	normalBuffer.reserve(vIndices.size());
+	std::transform(vIndices.begin(), vIndices.end(), std::back_inserter(vertexBuffer),
+		[&vertices](unsigned i) { return vertices[i]; });
+	if (nIndices.empty()) { // Per-face normals
+		for (const auto& n : normals) {
+			normalBuffer.push_back(n);
+			normalBuffer.push_back(n);
+			normalBuffer.push_back(n);
 		}
 	}
-
+	else {
+		std::transform(nIndices.begin(), nIndices.end(), std::back_inserter(normalBuffer),
+			[&normals](unsigned i) { return normals[i]; });
+	}
 	auto vertexBufferName = QString(name).append("_VertexBuffer");
 	auto normalBufferName = QString(name).append("_NormalBuffer");
 	ResourceManager::instance().addGLBuffer(vertexBufferName.toStdString(), vertexBuffer);
 	ResourceManager::instance().addGLBuffer(normalBufferName.toStdString(), normalBuffer);
 
 	if (recordMesh) {
-		if (faceCount == normals.size()) { // Normals are per-face normals
-			ResourceManager::instance().addMesh(name.toStdString(), vertices, normals, vIndices,
-				vertexBufferName.toStdString(), normalBufferName.toStdString());
-		}
-		else {
-			std::vector<QVector3D> faceNormals(faceCount);
-			for (auto i = 0; i < faceCount; ++i) {
-				faceNormals[i] = normals[fIndices[i]];
-			}
-			ResourceManager::instance().addMesh(name.toStdString(), vertices, faceNormals, vIndices,
-				vertexBufferName.toStdString(), normalBufferName.toStdString());
-		}
+		ResourceManager::instance().addMesh(name.toStdString(), vertices, normals, vIndices,
+			vertexBufferName.toStdString(), normalBufferName.toStdString());
 	}
 
+	auto faceCount = static_cast<int>(vIndices.size()) / 3;
 	recordGeomInfo(geomInfo, vertices, -1, faceCount);
 	
 	return true;
@@ -164,24 +170,12 @@ bool ObjIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 bool ObjIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* geomInfo)
 {
 	std::vector<QVector3D> vertices;
+	std::vector<QVector3D> normals;
+	std::vector<unsigned> vIndices;
+	std::vector<unsigned> nIndices;
+	readOBJFile(stream, vertices, normals, vIndices, nIndices);
 
-	while (!stream.atEnd()) {
-		auto line = stream.readLine();
-
-		if (line.isEmpty()) {
-			continue;
-		}
-
-		auto lineList = line.split(QRegExp("\\s+"));
-
-		if (lineList[0] == "v") {
-			auto x = lineList[1].toFloat();
-			auto y = lineList[2].toFloat();
-			auto z = lineList[3].toFloat();
-			vertices.emplace_back(x, y, z);
-		}
-	}
-
+	// Construct OpenGL buffers
 	auto vertexBufferName = QString(name).append("_VertexBuffer");
 	ResourceManager::instance().addGLBuffer(vertexBufferName.toStdString(), vertices);
 
