@@ -10,14 +10,6 @@ OffIO::OffIO() = default;
 
 OffIO::~OffIO() = default;
 
-inline bool readOffFile(QTextStream& stream, std::vector<QVector3D>& vertices, std::vector<QVector3D>& vertexBuffer,
-	std::vector<QVector3D>* fnormals, std::vector<unsigned>* indices, std::vector<QVector3D>* normalBuffer)
-{
-	
-
-	return true;
-}
-
 inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<QVector3D>& vertices, int nEdges, int nFaces)
 {
 	if (geomInfo != nullptr) {
@@ -164,6 +156,8 @@ bool OffIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 	}
 
 	recordGeomInfo(geomInfo, vertices, -1, static_cast<int>(fnormals.size()));
+
+	return true;
 }
 
 bool OffIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* geomInfo)
@@ -220,4 +214,6 @@ bool OffIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* 
 	ResourceManager::instance().addPointCloud(name.toStdString(), vertices, vertexBufferName.toStdString());
 
 	recordGeomInfo(geomInfo, vertices, -1, -1);
+
+	return true;
 }

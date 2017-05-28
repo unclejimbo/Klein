@@ -103,16 +103,17 @@ bool ObjIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 				auto numList = v.split("/");
 
 				auto vertexIndex = numList[0].toInt();
-				vertexIndex = vertexIndex > 0 ? vertexIndex - 1 : vertices.size() + vertexIndex;
+				vertexIndex = vertexIndex > 0 ?
+					vertexIndex - 1 : static_cast<int>(vertices.size()) + vertexIndex;
 				vertexBuffer.push_back(vertices[vertexIndex]);
 				indices.push_back(vertexIndex);
 
 				// Ommit texcoord
 
-				if (numList.length() == 3) { // Normals are provided
+				if (numList.length() == 3 && !numList[2].isEmpty()) { // Normals are provided
 					auto normalIndex = numList[2].toInt();
 					normalIndex = normalIndex > 0 ?
-						normalIndex - 1 : normals.size() + normalIndex;
+						normalIndex - 1 : static_cast<int>(normals.size()) + normalIndex;
 					normalBuffer.push_back(normals[normalIndex]);
 				}
 				else {
