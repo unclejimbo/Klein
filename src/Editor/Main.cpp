@@ -2,6 +2,7 @@
 #include "Core/Logger.h"
 #include "Core/ObjIO.h"
 #include "Core/OffIO.h"
+#include "Core/PlyIO.h"
 #include "Core/ResourceManager.h"
 #include "Editor/MainWindow.h"
 
@@ -23,8 +24,10 @@ void initializeResourceSystem()
 	// Load default contents
 	OffIO offIO;
 	ObjIO objIO;
+	PlyIO plyIO;
 	offIO.readMesh(QString(KLEIN_MESH_PATH).append("Cube.off"), "KLEIN_Cube", false, nullptr);
 	objIO.readMesh(QString(KLEIN_MESH_PATH).append("UVSphere.obj"), "KLEIN_UVSphere", false, nullptr);
+	plyIO.readMesh(QString(KLEIN_MESH_PATH).append("IcoSphere.ply"), "KLEIN_IcoSphere", false, nullptr);
 	
 	ResourceManager::instance().addPBRMaterial("KLEIN_PBR_Default",
 		QVector3D(1.0f, 1.0f, 1.0f), 0.8f, 0.4f, 10.0f);
