@@ -2,6 +2,7 @@
 #include "Core/Logger.h"
 #include "Core/ObjIO.h"
 #include "Core/OffIO.h"
+#include "Core/PlyIO.h"
 #include "Core/XyzIO.h"
 #include "Core/ResourceManager.h"
 #include "Core/Scene.h"
@@ -180,7 +181,7 @@ void MainWindow::_updateStatusLabel(size_t nVertices, size_t nFaces)
 void MainWindow::_importMesh()
 {
 	auto path = QFileDialog::getOpenFileName(nullptr, "Import Mesh",
-		_lastOpenFile, "Mesh Files(*.off *.obj)");
+		_lastOpenFile, "Mesh Files(*.off *.obj *.ply)");
 	if (path.length() != 0) {
 		_statusBar->showMessage("Reading mesh...");
 
@@ -188,8 +189,14 @@ void MainWindow::_importMesh()
 		if (QFileInfo(path).suffix() == "off") {
 			geomIO = std::make_unique<OffIO>();
 		}
-		if (QFileInfo(path).suffix() == "obj") {
+		else if (QFileInfo(path).suffix() == "obj") {
 			geomIO = std::make_unique<ObjIO>();
+		}
+		else if (QFileInfo(path).suffix() == "ply") {
+			geomIO = std::make_unique<PlyIO>();
+		}
+		else {
+			// Empty
 		}
 
 		if (geomIO->readMesh(path, "MainMesh", true, &_geomInfo)) {
@@ -227,7 +234,7 @@ void MainWindow::_importMesh()
 void MainWindow::_importPointCloud()
 {
 	auto path = QFileDialog::getOpenFileName(nullptr, "Import PointCloud",
-		_lastOpenFile, "PointCloud Files(*.off *.obj *xyz)");
+		_lastOpenFile, "PointCloud Files(*.off *.obj *.ply *xyz)");
 	if (path.length() != 0) {
 		_statusBar->showMessage("Reading point cloud...");
 
@@ -235,11 +242,17 @@ void MainWindow::_importPointCloud()
 		if (QFileInfo(path).suffix() == "off") {
 			geomIO = std::make_unique<OffIO>();
 		}
-		if (QFileInfo(path).suffix() == "obj") {
+		else if (QFileInfo(path).suffix() == "obj") {
 			geomIO = std::make_unique<ObjIO>();
 		}
-		if (QFileInfo(path).suffix() == "xyz") {
+		else if (QFileInfo(path).suffix() == "ply") {
+			geomIO = std::make_unique<PlyIO>();
+		}
+		else if (QFileInfo(path).suffix() == "xyz") {
 			geomIO = std::make_unique<XyzIO>();
+		}
+		else {
+			// Empty
 		}
 
 		if (geomIO->readPointCloud(path, "MainMesh", &_geomInfo)) {
