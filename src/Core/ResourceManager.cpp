@@ -1,12 +1,7 @@
 #include "Core/ResourceManager.h"
 #include "Core/Logger.h"
 
-ResourceManager::~ResourceManager()
-{
-	for (auto&& buf : _bufferMap) {
-		buf.second.destroy();
-	}
-}
+ResourceManager::~ResourceManager() = default;
 
 ResourceManager& ResourceManager::instance()
 {
@@ -119,20 +114,15 @@ void ResourceManager::addGLBuffer(const std::string& name, const std::vector<flo
 {
 	if (_context != nullptr) {
 		_context->makeCurrent();
-		QOpenGLBuffer buffer(type);
-		buffer.create();
-		buffer.setUsagePattern(usage);
-		buffer.bind();
-		buffer.allocate(data.data(), static_cast<int>(data.size()));
-		buffer.release();
+		auto buffer = std::make_unique<GLBuffer>(type);
+		buffer->create();
+		buffer->setUsagePattern(usage);
+		buffer->bind();
+		buffer->allocate(data.data(), static_cast<int>(data.size() * sizeof(float)));
+		buffer->release();
 		_context->doneCurrent();
 
-		if (_bufferMap.find(name) == _bufferMap.end()) {
-			_bufferMap.insert({ name, buffer });
-		}
-		else {
-			_bufferMap[name].destroy();
-			_bufferMap[name] = buffer;
+		if (!_bufferMap.insert_or_assign(name, std::move(buffer)).second) {
 			KLEIN_LOG_WARNING(QString("Buffer %1 already exists and is replaced").arg(name.c_str()));
 		}
 	}
@@ -146,20 +136,15 @@ void ResourceManager::addGLBuffer(const std::string& name, const std::vector<QVe
 {
 	if (_context != nullptr) {
 		_context->makeCurrent();
-		QOpenGLBuffer buffer(type);
-		buffer.create();
-		buffer.setUsagePattern(usage);
-		buffer.bind();
-		buffer.allocate(data.data(), static_cast<int>(data.size() * sizeof(QVector3D)));
-		buffer.release();
+		auto buffer = std::make_unique<GLBuffer>(type);
+		buffer->create();
+		buffer->setUsagePattern(usage);
+		buffer->bind();
+		buffer->allocate(data.data(), static_cast<int>(data.size() * sizeof(QVector3D)));
+		buffer->release();
 		_context->doneCurrent();
 
-		if (_bufferMap.find(name) == _bufferMap.end()) {
-			_bufferMap.insert({ name, buffer });
-		}
-		else {
-			_bufferMap[name].destroy();
-			_bufferMap[name] = buffer;
+		if (!_bufferMap.insert_or_assign(name, std::move(buffer)).second) {
 			KLEIN_LOG_WARNING(QString("Buffer %1 already exists and is replaced").arg(name.c_str()));
 		}
 	}
@@ -173,20 +158,15 @@ void ResourceManager::addGLBuffer(const std::string& name, const std::vector<QVe
 {
 	if (_context != nullptr) {
 		_context->makeCurrent();
-		QOpenGLBuffer buffer(type);
-		buffer.create();
-		buffer.setUsagePattern(usage);
-		buffer.bind();
-		buffer.allocate(data.data(), static_cast<int>(data.size() * sizeof(QVector4D)));
-		buffer.release();
+		auto buffer = std::make_unique<GLBuffer>(type);
+		buffer->create();
+		buffer->setUsagePattern(usage);
+		buffer->bind();
+		buffer->allocate(data.data(), static_cast<int>(data.size() * sizeof(QVector4D)));
+		buffer->release();
 		_context->doneCurrent();
 
-		if (_bufferMap.find(name) == _bufferMap.end()) {
-			_bufferMap.insert({ name, buffer });
-		}
-		else {
-			_bufferMap[name].destroy();
-			_bufferMap[name] = buffer;
+		if (!_bufferMap.insert_or_assign(name, std::move(buffer)).second) {
 			KLEIN_LOG_WARNING(QString("Buffer %1 already exists and is replaced").arg(name.c_str()));
 		}
 	}
@@ -200,20 +180,15 @@ void ResourceManager::addGLBuffer(const std::string& name, const std::vector<typ
 {
 	if (_context != nullptr) {
 		_context->makeCurrent();
-		QOpenGLBuffer buffer(type);
-		buffer.create();
-		buffer.setUsagePattern(usage);
-		buffer.bind();
-		buffer.allocate(data.data(), static_cast<int>(data.size() * sizeof(typename Kernel::Point_3)));
-		buffer.release();
+		auto buffer = std::make_unique<GLBuffer>(type);
+		buffer->create();
+		buffer->setUsagePattern(usage);
+		buffer->bind();
+		buffer->allocate(data.data(), static_cast<int>(data.size() * sizeof(float) * 3));
+		buffer->release();
 		_context->doneCurrent();
 
-		if (_bufferMap.find(name) == _bufferMap.end()) {
-			_bufferMap.insert({ name, buffer });
-		}
-		else {
-			_bufferMap[name].destroy();
-			_bufferMap[name] = buffer;
+		if (!_bufferMap.insert_or_assign(name, std::move(buffer)).second) {
 			KLEIN_LOG_WARNING(QString("Buffer %1 already exists and is replaced").arg(name.c_str()));
 		}
 	}
@@ -222,10 +197,10 @@ void ResourceManager::addGLBuffer(const std::string& name, const std::vector<typ
 	}
 }
 
-QOpenGLBuffer* ResourceManager::glBuffer(const std::string& name)
+GLBuffer* ResourceManager::glBuffer(const std::string& name)
 {
 	if (_bufferMap.find(name) != _bufferMap.end()) {
-		return &_bufferMap[name];
+		return _bufferMap[name].get();
 	}
 	else {
 		KLEIN_LOG_CRITICAL(QString("Can't find OpenGL buffer %1").arg(name.c_str()));

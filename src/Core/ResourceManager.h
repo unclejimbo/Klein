@@ -3,8 +3,8 @@
 #include "Core/Material.h"
 #include "Core/Mesh.h"
 #include "Core/PointCloud.h"
+#include "Core/GLBuffer.h"
 
-#include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLWidget>
 #include <QVector3D>
@@ -16,7 +16,7 @@
 
 using MeshMap = std::unordered_map<std::string, std::unique_ptr<Mesh>>;
 using PointCloudMap = std::unordered_map<std::string, std::unique_ptr<PointCloud>>;
-using GLBufferMap = std::unordered_map<std::string, QOpenGLBuffer>;
+using GLBufferMap = std::unordered_map<std::string, std::unique_ptr<GLBuffer>>;
 using PBRMaterialMap = std::unordered_map<std::string, PBRMaterial>;
 using ShaderMap = std::unordered_map<std::string, std::unique_ptr<QOpenGLShaderProgram>>;
 
@@ -55,7 +55,7 @@ public:
 	void addGLBuffer(const std::string& name, const std::vector<typename Kernel::Point_3>& data,
 		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
 		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
-	QOpenGLBuffer* glBuffer(const std::string& name);
+	GLBuffer* glBuffer(const std::string& name);
 	bool removeGLBuffer(const std::string& name);
 
 	void addPBRMaterial(const std::string& name, const QVector3D& albedo,
