@@ -1,6 +1,6 @@
 #include "Core/Component.h"
 
-int Component::_id = 0;
+unsigned Component::_id = 0;
 
 Component::Component() = default;
 
@@ -21,7 +21,7 @@ SceneNode* Component::sceneNode() const
 	return _node;
 }
 
-int Component::id() const
+unsigned Component::id() const
 {
 	return _id++;
 }

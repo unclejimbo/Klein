@@ -14,9 +14,9 @@
 #include <utility>
 #include <vector>
 
-using MeshMap = std::unordered_map<std::string, std::unique_ptr<Mesh>>;
-using PointCloudMap = std::unordered_map<std::string, std::unique_ptr<PointCloud>>;
-using GLBufferMap = std::unordered_map<std::string, std::unique_ptr<GLBuffer>>;
+using MeshMap = std::unordered_map<unsigned, std::unique_ptr<Mesh>>;
+using PointCloudMap = std::unordered_map<unsigned, std::unique_ptr<PointCloud>>;
+using GLBufferMap = std::unordered_map<unsigned, std::unique_ptr<GLBuffer>>;
 using PBRMaterialMap = std::unordered_map<std::string, PBRMaterial>;
 using ShaderMap = std::unordered_map<std::string, std::unique_ptr<QOpenGLShaderProgram>>;
 
@@ -28,35 +28,32 @@ public:
 
 	void initialize(QOpenGLWidget* context);
 
-	void addMesh(const std::string& name, const std::vector<QVector3D>& vertices,
+	unsigned addMesh(const std::vector<QVector3D>& vertices,
 		const std::vector<QVector3D>& normals, const std::vector<unsigned>& indices, 
-		const std::string& vertexBufferID, const std::string& normalBufferID);
-	Mesh* mesh(const std::string& name);
+		unsigned vertexBufferID, unsigned normalBufferID);
 	Mesh* mesh(unsigned id);
-	bool removeMesh(const std::string& name);
+	bool removeMesh(unsigned id);
 
-	void addPointCloud(const std::string& name, const std::vector<QVector3D>& vertices,
-		const std::vector<QVector3D>& normals, const std::string& vertexBufferID);
-	void addPointCloud(const std::string& name, const std::vector<QVector3D>& vertices,
-		const std::string& vertexBufferID);
-	PointCloud* pointCloud(const std::string& name);
+	unsigned addPointCloud(const std::vector<QVector3D>& vertices,
+		const std::vector<QVector3D>& normals, unsigned vertexBufferID);
+	unsigned addPointCloud(const std::vector<QVector3D>& vertices, unsigned vertexBufferID);
 	PointCloud* pointCloud(unsigned id);
-	bool removePointCloud(const std::string& name);
+	bool removePointCloud(unsigned id);
 
-	void addGLBuffer(const std::string& name, const std::vector<float>& data,
+	unsigned addGLBuffer(const std::vector<float>& data, unsigned bufferSpec,
 		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
 		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
-	void addGLBuffer(const std::string& name, const std::vector<QVector3D>& data,
+	unsigned addGLBuffer(const std::vector<QVector3D>& data, unsigned bufferSpec,
 		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
 		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
-	void addGLBuffer(const std::string& name, const std::vector<QVector4D>& data,
+	unsigned addGLBuffer(const std::vector<QVector4D>& data, unsigned bufferSpec,
 		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
 		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
-	void addGLBuffer(const std::string& name, const std::vector<typename Kernel::Point_3>& data,
+	unsigned addGLBuffer(const std::vector<typename Kernel::Point_3>& data, unsigned bufferSpec,
 		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
 		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
-	GLBuffer* glBuffer(const std::string& name);
-	bool removeGLBuffer(const std::string& name);
+	GLBuffer* glBuffer(unsigned bufferID);
+	bool removeGLBuffer(unsigned bufferID);
 
 	void addPBRMaterial(const std::string& name, const QVector3D& albedo,
 		const float roughness, const float metallic, float ao);

@@ -14,42 +14,33 @@ void ResourceManager::initialize(QOpenGLWidget* context)
 	_context = context;
 }
 
-void ResourceManager::addMesh(const std::string& name, const std::vector<QVector3D>& vertices,
+unsigned ResourceManager::addMesh(const std::vector<QVector3D>& vertices,
 	const std::vector<QVector3D>& normals, const std::vector<unsigned>& indices,
-	const std::string& vertexBufferID, const std::string& normalBufferID)
+	unsigned vertexBufferID, unsigned normalBufferID)
 {
 	auto mesh = std::make_unique<Mesh>(vertices, normals, indices, vertexBufferID, normalBufferID);
-
-	if (!_meshMap.insert_or_assign(name, std::move(mesh)).second) {
-		KLEIN_LOG_WARNING(QString("Mesh %1 already exists and is replaced").arg(name.c_str()));
+	auto id = mesh->id();
+	if (!_meshMap.insert_or_assign(id, std::move(mesh)).second) {
+		KLEIN_LOG_WARNING(QString("Mesh%1 already exists and is replaced").arg(id));
 	}
+	return id;
 }
 
-Mesh* ResourceManager::mesh(const std::string& name)
+Mesh* ResourceManager::mesh(unsigned id)
 {
-	if (_meshMap.find(name) != _meshMap.end()) {
-		return _meshMap[name].get();
+	if (_meshMap.find(id) != _meshMap.end()) {
+		KLEIN_LOG_WARNING(QString("Can't find Mesh%1").arg(id));
+		return _meshMap[id].get();
 	}
 	else {
-		KLEIN_LOG_CRITICAL(QString("Can't find Mesh %1").arg(name.c_str()));
 		return nullptr;
 	}
 }
 
-Mesh * ResourceManager::mesh(unsigned id)
+bool ResourceManager::removeMesh(unsigned id)
 {
-	for (const auto& m : _meshMap) {
-		if (m.second->meshID == id) {
-			return m.second.get();
-		}
-	}
-	return nullptr;
-}
-
-bool ResourceManager::removeMesh(const std::string& name)
-{
-	if (_meshMap.erase(name) == 0) {
-		KLEIN_LOG_WARNING(QString("Can't find Mesh %1, nothing removed").arg(name.c_str()));
+	if (_meshMap.erase(id) == 0) {
+		KLEIN_LOG_WARNING(QString("Can't find Mesh%1, nothing removed").arg(id));
 		return false;
 	}
 	else {
@@ -57,51 +48,42 @@ bool ResourceManager::removeMesh(const std::string& name)
 	}
 }
 
-void ResourceManager::addPointCloud(const std::string& name, const std::vector<QVector3D>& vertices,
-	const std::vector<QVector3D>& normals, const std::string& vertexBufferID)
+unsigned ResourceManager::addPointCloud(const std::vector<QVector3D>& vertices,
+	const std::vector<QVector3D>& normals, unsigned vertexBufferID)
 {
 	auto pc = std::make_unique<PointCloud>(vertices, normals, vertexBufferID);
-
-	if (!_pointCloudMap.insert_or_assign(name, std::move(pc)).second) {
-		KLEIN_LOG_WARNING(QString("PointCloud %1 already exists and is replaced").arg(name.c_str()));
+	auto id = pc->id();
+	if (!_pointCloudMap.insert_or_assign(id, std::move(pc)).second) {
+		KLEIN_LOG_WARNING(QString("PointCloud%1 already exists and is replaced").arg(id));
 	}
+	return id;
 }
 
-void ResourceManager::addPointCloud(const std::string& name, const std::vector<QVector3D>& vertices,
-	const std::string & vertexBufferID)
+unsigned ResourceManager::addPointCloud(const std::vector<QVector3D>& vertices, unsigned vertexBufferID)
 {
 	auto pc = std::make_unique<PointCloud>(vertices, vertexBufferID);
-
-	if (!_pointCloudMap.insert_or_assign(name, std::move(pc)).second) {
-		KLEIN_LOG_WARNING(QString("PointCloud %1 already exists and is replaced").arg(name.c_str()));
+	auto id = pc->id();
+	if (!_pointCloudMap.insert_or_assign(id, std::move(pc)).second) {
+		KLEIN_LOG_WARNING(QString("PointCloud%1 already exists and is replaced").arg(id));
 	}
-}
-
-PointCloud* ResourceManager::pointCloud(const std::string& name)
-{
-	if (_pointCloudMap.find(name) != _pointCloudMap.end()) {
-		return _pointCloudMap[name].get();
-	}
-	else {
-		KLEIN_LOG_CRITICAL(QString("Can't find PointCloud %1").arg(name.c_str()));
-		return nullptr;
-	}
+	return id;
 }
 
 PointCloud* ResourceManager::pointCloud(unsigned id)
 {
-	for (const auto& p : _pointCloudMap) {
-		if (p.second->pointCloudID == id) {
-			return p.second.get();
-		}
+	if (_pointCloudMap.find(id) != _pointCloudMap.end()) {
+		return _pointCloudMap[id].get();
 	}
-	return nullptr;
+	else {
+		KLEIN_LOG_CRITICAL(QString("Can't find PointCloud%1").arg(id));
+		return nullptr;
+	}
 }
 
-bool ResourceManager::removePointCloud(const std::string& name)
+bool ResourceManager::removePointCloud(unsigned id)
 {
-	if (_pointCloudMap.erase(name) == 0) {
-		KLEIN_LOG_WARNING(QString("Can't find PointCloud %1, nothing removed").arg(name.c_str()));
+	if (_pointCloudMap.erase(id) == 0) {
+		KLEIN_LOG_WARNING(QString("Can't find PointCloud%1, nothing removed").arg(id));
 		return false;
 	}
 	else {
@@ -109,12 +91,12 @@ bool ResourceManager::removePointCloud(const std::string& name)
 	}
 }
 
-void ResourceManager::addGLBuffer(const std::string& name, const std::vector<float>& data,
+unsigned ResourceManager::addGLBuffer(const std::vector<float>& data, unsigned bufferSpec,
 	QOpenGLBuffer::Type type, QOpenGLBuffer::UsagePattern usage)
 {
 	if (_context != nullptr) {
 		_context->makeCurrent();
-		auto buffer = std::make_unique<GLBuffer>(type);
+		auto buffer = std::make_unique<GLBuffer>(bufferSpec, type);
 		buffer->create();
 		buffer->setUsagePattern(usage);
 		buffer->bind();
@@ -122,21 +104,24 @@ void ResourceManager::addGLBuffer(const std::string& name, const std::vector<flo
 		buffer->release();
 		_context->doneCurrent();
 
-		if (!_bufferMap.insert_or_assign(name, std::move(buffer)).second) {
-			KLEIN_LOG_WARNING(QString("Buffer %1 already exists and is replaced").arg(name.c_str()));
+		auto id = buffer->bufferId();
+		if (!_bufferMap.insert_or_assign(id, std::move(buffer)).second) {
+			KLEIN_LOG_WARNING(QString("Buffer%1 already exists and is replaced").arg(id));
 		}
+		return id;
 	}
 	else {
 		KLEIN_LOG_CRITICAL("Invalid OpenGL context");
+		return 0;
 	}
 }
 
-void ResourceManager::addGLBuffer(const std::string& name, const std::vector<QVector3D>& data,
+unsigned ResourceManager::addGLBuffer(const std::vector<QVector3D>& data, unsigned bufferSpec,
 	QOpenGLBuffer::Type type, QOpenGLBuffer::UsagePattern usage)
 {
 	if (_context != nullptr) {
 		_context->makeCurrent();
-		auto buffer = std::make_unique<GLBuffer>(type);
+		auto buffer = std::make_unique<GLBuffer>(bufferSpec, type);
 		buffer->create();
 		buffer->setUsagePattern(usage);
 		buffer->bind();
@@ -144,21 +129,24 @@ void ResourceManager::addGLBuffer(const std::string& name, const std::vector<QVe
 		buffer->release();
 		_context->doneCurrent();
 
-		if (!_bufferMap.insert_or_assign(name, std::move(buffer)).second) {
-			KLEIN_LOG_WARNING(QString("Buffer %1 already exists and is replaced").arg(name.c_str()));
+		auto id = buffer->bufferId();
+		if (!_bufferMap.insert_or_assign(id, std::move(buffer)).second) {
+			KLEIN_LOG_WARNING(QString("Buffer%1 already exists and is replaced").arg(id));
 		}
+		return id;
 	}
 	else {
 		KLEIN_LOG_CRITICAL("Invalid OpenGL context");
+		return 0;
 	}
 }
 
-void ResourceManager::addGLBuffer(const std::string& name, const std::vector<QVector4D>& data,
+unsigned ResourceManager::addGLBuffer(const std::vector<QVector4D>& data, unsigned bufferSpec,
 	QOpenGLBuffer::Type type, QOpenGLBuffer::UsagePattern usage)
 {
 	if (_context != nullptr) {
 		_context->makeCurrent();
-		auto buffer = std::make_unique<GLBuffer>(type);
+		auto buffer = std::make_unique<GLBuffer>(bufferSpec, type);
 		buffer->create();
 		buffer->setUsagePattern(usage);
 		buffer->bind();
@@ -166,21 +154,24 @@ void ResourceManager::addGLBuffer(const std::string& name, const std::vector<QVe
 		buffer->release();
 		_context->doneCurrent();
 
-		if (!_bufferMap.insert_or_assign(name, std::move(buffer)).second) {
-			KLEIN_LOG_WARNING(QString("Buffer %1 already exists and is replaced").arg(name.c_str()));
+		auto id = buffer->bufferId();
+		if (!_bufferMap.insert_or_assign(id, std::move(buffer)).second) {
+			KLEIN_LOG_WARNING(QString("Buffer%1 already exists and is replaced").arg(id));
 		}
+		return id;
 	}
 	else {
 		KLEIN_LOG_CRITICAL("Invalid OpenGL context");
+		return 0;
 	}
 }
 
-void ResourceManager::addGLBuffer(const std::string& name, const std::vector<typename Kernel::Point_3>& data,
+unsigned ResourceManager::addGLBuffer(const std::vector<typename Kernel::Point_3>& data, unsigned bufferSpec,
 	QOpenGLBuffer::Type type, QOpenGLBuffer::UsagePattern usage)
 {
 	if (_context != nullptr) {
 		_context->makeCurrent();
-		auto buffer = std::make_unique<GLBuffer>(type);
+		auto buffer = std::make_unique<GLBuffer>(bufferSpec, type);
 		buffer->create();
 		buffer->setUsagePattern(usage);
 		buffer->bind();
@@ -188,30 +179,33 @@ void ResourceManager::addGLBuffer(const std::string& name, const std::vector<typ
 		buffer->release();
 		_context->doneCurrent();
 
-		if (!_bufferMap.insert_or_assign(name, std::move(buffer)).second) {
-			KLEIN_LOG_WARNING(QString("Buffer %1 already exists and is replaced").arg(name.c_str()));
+		auto id = buffer->bufferId();
+		if (!_bufferMap.insert_or_assign(id, std::move(buffer)).second) {
+			KLEIN_LOG_WARNING(QString("Buffer%1 already exists and is replaced").arg(id));
 		}
+		return id;
 	}
 	else {
 		KLEIN_LOG_CRITICAL("Invalid OpenGL context");
+		return 0;
 	}
 }
 
-GLBuffer* ResourceManager::glBuffer(const std::string& name)
+GLBuffer* ResourceManager::glBuffer(unsigned bufferID)
 {
-	if (_bufferMap.find(name) != _bufferMap.end()) {
-		return _bufferMap[name].get();
+	if (_bufferMap.find(bufferID) != _bufferMap.end()) {
+		return _bufferMap[bufferID].get();
 	}
 	else {
-		KLEIN_LOG_CRITICAL(QString("Can't find OpenGL buffer %1").arg(name.c_str()));
+		KLEIN_LOG_CRITICAL(QString("Can't find GLBuffer%1").arg(bufferID));
 		return nullptr;
 	}
 }
 
-bool ResourceManager::removeGLBuffer(const std::string& name)
+bool ResourceManager::removeGLBuffer(unsigned bufferID)
 {
-	if (_bufferMap.erase(name) == 0) {
-		KLEIN_LOG_WARNING(QString("Can't find OpenGL buffer %1, nothing removed").arg(name.c_str()));
+	if (_bufferMap.erase(bufferID) == 0) {
+		KLEIN_LOG_WARNING(QString("Can't find OGLBuffer%1, nothing removed").arg(bufferID));
 		return false;
 	}
 	else {

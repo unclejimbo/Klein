@@ -104,10 +104,11 @@ void PropertyWidget::onImport(GeomInfo* info)
 	_scene->removeNode("OBB");
 	_scene->removeNode("Sphere");
 	_scene->removeNode("MainMeshValence");
-	ResourceManager::instance().removeGLBuffer("MainMeshValence");
+	ResourceManager::instance().removeGLBuffer(_valenceBuffer);
 
 	if (info != nullptr) {
 		_valid = true;
+		_id = info->id;
 
 		if (info->type == GEOM_TYPE_MESH) {
 			auto aabbNode = _scene->addNode("MainMesh", "AABB");
@@ -119,7 +120,7 @@ void PropertyWidget::onImport(GeomInfo* info)
 
 			auto obbNode = _scene->addNode("MainMesh", "OBB");
 			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			auto cMesh = ResourceManager::instance().mesh("MainMesh")->cMesh.get();
+			auto cMesh = ResourceManager::instance().mesh(_id)->cMesh.get();
 			if (cMesh != nullptr) {
 				Euclid::OBB<CMesh> obb(*cMesh);
 				auto lbb = eigenToQt(obb.lbb());
@@ -134,7 +135,7 @@ void PropertyWidget::onImport(GeomInfo* info)
 			}
 			else {
 				Euclid::OBB<CMesh>
-					obb(ResourceManager::instance().mesh("MainMesh")->vertices);
+					obb(ResourceManager::instance().mesh(_id)->vertices);
 				auto lbb = eigenToQt(obb.lbb());
 				auto lbf = eigenToQt(obb.lbf());
 				auto ltb = eigenToQt(obb.ltb());
@@ -173,7 +174,7 @@ void PropertyWidget::onImport(GeomInfo* info)
 			_sphere->setChecked(false);
 			_sphere->setCheckable(true);
 			_color->setCurrentIndex(0);
-			if (ResourceManager::instance().mesh("MainMesh")->cMesh.get() == nullptr) {
+			if (ResourceManager::instance().mesh(_id)->cMesh.get() == nullptr) {
 				_color->removeItem(1);
 			}
 			else {
@@ -194,7 +195,7 @@ void PropertyWidget::onImport(GeomInfo* info)
 			auto obbNode = _scene->addNode("MainMesh", "OBB");
 			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
 			Euclid::OBB<CMesh>
-				obb(ResourceManager::instance().pointCloud("MainMesh")->vertices);
+				obb(ResourceManager::instance().pointCloud(_id)->vertices);
 			auto lbb = eigenToQt(obb.lbb());
 			auto lbf = eigenToQt(obb.lbf());
 			auto ltb = eigenToQt(obb.ltb());
@@ -312,7 +313,7 @@ void PropertyWidget::onColorChanged(int state)
 			_scene->node("MainMeshValence")->graphicsComponent()->setVisible(true);
 		}
 		else {
-			auto cMesh = ResourceManager::instance().mesh("MainMesh")->cMesh.get();
+			auto cMesh = ResourceManager::instance().mesh(_id)->cMesh.get();
 			std::vector<unsigned> valences;
 			valences.reserve(cMesh->size_of_facets() * 3);
 			for (auto f = cMesh->facets_begin(); f != cMesh->facets_end(); ++f) {
@@ -322,13 +323,13 @@ void PropertyWidget::onColorChanged(int state)
 				} while (++v != f->facet_begin());
 			}
 			auto colors = temperature(valences, QVector3D(1.0f, 0.0f, 0.0f), QVector3D(0.0f, 0.0f, 1.0f));
-			ResourceManager::instance().addGLBuffer("MainMeshValence", colors);
+			_valenceBuffer = ResourceManager::instance().addGLBuffer(colors, GL_TRIANGLES);
 
 			auto valenceNode = _scene->addNode(_scene->rootNode(), "MainMeshValence", _scene->node("MainMesh")->transform());
 			auto graphics = std::make_unique<PBRMeshVColorGraphics>(*_glWidget);
-			graphics->setPositionBuffer("MainMesh_VertexBuffer");
-			graphics->setNormalBuffer("MainMesh_NormalBuffer");
-			graphics->setColorBuffer("MainMeshValence");
+			graphics->setPositionBuffer(ResourceManager::instance().mesh(_id)->positionBufferID);
+			graphics->setNormalBuffer(ResourceManager::instance().mesh(_id)->normalBufferID);
+			graphics->setColorBuffer(_valenceBuffer);
 			valenceNode->addGraphicsComponent(std::move(graphics));
 		}
 	}
@@ -338,13 +339,6 @@ void PropertyWidget::onColorChanged(int state)
 
 void PropertyWidget::_onPickedImp(const PickingInfo& info)
 {
-	if (info.geomType == GEOM_TYPE_MESH) {
-		_geomType->setText("Mesh");
-	}
-	if (info.geomType == GEOM_TYPE_POINTCLOUD) {
-		_geomType->setText("Point Cloud");
-	}
-	_geomID->setNum(info.geomID);
 	if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
 		_primType->setText("Vertex");
 	}
@@ -354,5 +348,5 @@ void PropertyWidget::_onPickedImp(const PickingInfo& info)
 	if (info.primitiveType == PICKING_PRIMITIVE_FACE) {
 		_primType->setText("Face");
 	}
-	_primID->setNum(info.primitiveID);
+	_primID->setNum(static_cast<int>(info.primitiveID));
 }

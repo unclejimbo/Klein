@@ -187,7 +187,8 @@ inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<QVector3D>& ver
 	}
 }
 
-bool PlyIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh, GeomInfo* geomInfo)
+bool PlyIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
+	GeomInfo* geomInfo)
 {
 	PlyFormat format;
 	int nVertices = 0;
@@ -245,12 +246,10 @@ bool PlyIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 	}
 
 	// Construct OpenGL buffers
-	auto vertexBufferName = QString(name).append("_VertexBuffer");
-	auto normalBufferName = QString(name).append("_NormalBuffer");
-	ResourceManager::instance().addGLBuffer(vertexBufferName.toStdString(), vertexBuffer);
-	ResourceManager::instance().addGLBuffer(normalBufferName.toStdString(), normalBuffer);
+	positionBufferID = ResourceManager::instance().addGLBuffer(vertexBuffer, GL_TRIANGLES);
+	normalBufferID = ResourceManager::instance().addGLBuffer(normalBuffer, GL_TRIANGLES);
 
-	if (recordMesh) {
+	if (geomInfo != nullptr) {
 		std::vector<QVector3D> fNormals(nFaces);
 		if (!hasNormal) {
 			for (auto i = 0; i < nFaces; ++i) {
@@ -266,16 +265,17 @@ bool PlyIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 				fNormals[i] = n;
 			}
 		}
-		ResourceManager::instance().addMesh(name.toStdString(), vertices, normals, vIndices,
-			vertexBufferName.toStdString(), normalBufferName.toStdString());
-	}
+		geomInfo->id = ResourceManager::instance().addMesh(vertices, normals, vIndices,
+			positionBufferID, normalBufferID);
 
-	recordGeomInfo(geomInfo, vertices, nVertices, nFaces);
+		recordGeomInfo(geomInfo, vertices, nVertices, nFaces);
+	}
 
 	return true;
 }
 
-bool PlyIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* geomInfo)
+bool PlyIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
+	GeomInfo* geomInfo)
 {
 	PlyFormat format;
 	int nVertices = 0;
@@ -310,17 +310,18 @@ bool PlyIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* 
 	}
 
 	// Construct OpenGL buffers
-	auto vertexBufferName = QString(name).append("_VertexBuffer");
-	ResourceManager::instance().addGLBuffer(vertexBufferName.toStdString(), vertices);
+	positionBufferID = ResourceManager::instance().addGLBuffer(vertices, GL_POINTS);
 
-	if (hasNormal) {
-		ResourceManager::instance().addPointCloud(name.toStdString(), vertices, normals, vertexBufferName.toStdString());
-	}
-	else {
-		ResourceManager::instance().addPointCloud(name.toStdString(), vertices, vertexBufferName.toStdString());
-	}
+	if (geomInfo != nullptr) {
+		if (hasNormal) {
+			geomInfo->id = ResourceManager::instance().addPointCloud(vertices, normals, positionBufferID);
+		}
+		else {
+			geomInfo->id = ResourceManager::instance().addPointCloud(vertices, positionBufferID);
+		}
 
-	recordGeomInfo(geomInfo, vertices, nVertices, -1);
+		recordGeomInfo(geomInfo, vertices, nVertices, -1);
+	}
 
 	return true;
 }

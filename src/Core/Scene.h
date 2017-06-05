@@ -19,6 +19,7 @@ public:
 	~Scene();
 
 	SceneNode* node(const std::string& name);
+	SceneNode* node(unsigned id);
 	SceneNode* rootNode();
 	SceneNode* addNode(const std::string& parentName, const std::string& name, const QMatrix4x4& transform = QMatrix4x4());
 	SceneNode* addNode(SceneNode* parent, const std::string& name, const QMatrix4x4& transform = QMatrix4x4());

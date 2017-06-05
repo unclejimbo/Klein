@@ -26,12 +26,6 @@ enum PickingPrimitive : unsigned
 	PICKING_PRIMITIVE_FACE
 };
 
-enum RenderPickType : int
-{
-	RENDER_PICK_INDEX,
-	RENDER_PICK_VERTEX
-};
-
 enum RenderPass : unsigned
 {
 	RENDER_NONE = 0x0,
@@ -42,10 +36,16 @@ enum RenderPass : unsigned
 
 struct PickingInfo
 {
-	GeomType geomType;
-	int geomID;
-	PickingPrimitive primitiveType;
-	int primitiveID;
+	PickingInfo();
+	explicit PickingInfo(unsigned buffer[4]);
+	PickingInfo(const PickingInfo& info);
+	~PickingInfo();
+
+	unsigned bufferSpec;
+	unsigned primitiveType;
+	unsigned nodeID;
+	unsigned bufferID;
+	unsigned primitiveID;
 };
 Q_DECLARE_METATYPE(PickingInfo);
 
@@ -53,8 +53,6 @@ class GraphicsComponent : public Component, public QOpenGLFunctions_4_3_Core
 {
 public:
 	GraphicsComponent(QOpenGLWidget& context, bool transparent = false, int layer = 0);
-	GraphicsComponent(QOpenGLWidget& context, GeomType geomType, unsigned geomID,
-		bool transparent = false, int layer = 0);
 	virtual ~GraphicsComponent();
 
 	bool transparent() const;
@@ -81,8 +79,6 @@ public:
 protected:
 	QOpenGLShaderProgram* _shaderLit;
 	QOpenGLShaderProgram* _shaderUnlit;
-	GLuint _geomType = GEOM_TYPE_NONE;
-	GLuint _geomID = 0;
 
 private:
 	virtual void _renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights) = 0;

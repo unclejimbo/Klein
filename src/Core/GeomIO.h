@@ -3,7 +3,6 @@
 #include <QString>
 #include <QTextStream>
 #include <QVector3D>
-#include <vector>
 
 enum GeomType : unsigned
 {
@@ -15,6 +14,7 @@ enum GeomType : unsigned
 struct GeomInfo
 {
 	GeomType type;
+	unsigned id;
 	QString fileName;
 	int nVertices;
 	int nEdges;
@@ -35,10 +35,14 @@ public:
 	GeomIO();
 	~GeomIO();
 
-	bool readMesh(const QString& filename, const QString& name, bool recordMesh, GeomInfo* geomInfo = nullptr);
-	bool readPointCloud(const QString& filename, const QString& name, GeomInfo* geomInfo = nullptr);
+	bool readMesh(const QString& filename, unsigned& positionBufferID, unsigned& normalBufferID,
+		GeomInfo* geomInfo = nullptr);
+	bool readPointCloud(const QString& filename, unsigned& positionBufferID,
+		GeomInfo* geomInfo = nullptr);
 
 private:
-	virtual bool _readMesh(QTextStream& stream, const QString& name, bool recordMesh, GeomInfo* geomInfo) = 0;
-	virtual bool _readPointCloud(QTextStream& stream, const QString& name, GeomInfo* geomInfo) = 0;
+	virtual bool _readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
+		GeomInfo* geomInfo) = 0;
+	virtual bool _readPointCloud(QTextStream& stream, unsigned& positionBufferID,
+		GeomInfo* geomInfo) = 0;
 };

@@ -11,9 +11,9 @@ public:
 
 	void attachTo(SceneNode* node);
 	SceneNode* sceneNode() const;
-	int id() const;
+	unsigned id() const;
 
 private:
 	SceneNode* _node = nullptr;
-	static int _id;
+	static unsigned _id;
 };

@@ -1,21 +1,19 @@
 #pragma once
 
 #include "Core/GraphicsComponent.h"
-#include "Core/Material.h"
-
-class QOpenGLBuffer;
 
 class PBRMeshGraphics : public GraphicsComponent
 {
 public:
 	PBRMeshGraphics(QOpenGLWidget& context, bool transparent = false, int layer = 0);
-	PBRMeshGraphics(QOpenGLWidget& context, GeomType geomType, unsigned geomID,
-		bool transparent = false, int layer = 0);
 	~PBRMeshGraphics();
 
-	bool setPositionBuffer(const std::string& posBufID);
-	bool setNormalBuffer(const std::string& normBufID);
-	bool setMaterial(const std::string& materialID);
+	unsigned positionBuffer() const;
+	void setPositionBuffer(unsigned posBufID);
+	unsigned normalBuffer() const;
+	void setNormalBuffer(unsigned normBufID);
+	std::string material() const;
+	void setMaterial(const std::string& materialID);
 
 private:
 	void _renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights) override;
@@ -24,7 +22,7 @@ private:
 	void _renderPickFace(const Camera& camera) override;
 	
 private:
-	QOpenGLBuffer* _posBuf = nullptr;
-	QOpenGLBuffer* _normBuf = nullptr;
-	PBRMaterial* _material;
+	unsigned _posBufID = 0;
+	unsigned _normBufID = 0;
+	std::string _materialID;
 };

@@ -11,15 +11,16 @@ class PrimitiveVColorGraphics : public GraphicsComponent
 {
 public:
 	PrimitiveVColorGraphics(QOpenGLWidget& context, bool transparent = false, int layer = 0);
-	PrimitiveVColorGraphics(QOpenGLWidget& context, GeomType geomType,
-		unsigned geomID, bool transparent = false, int layer = 0);
 	~PrimitiveVColorGraphics();
 
 	void addPoint(const QVector3D& point, const QVector3D& color);
 	void addPoint(float x, float y, float z, float r, float g, float b);
 	void addPoints(const std::vector<QVector3D>& points, const std::vector<QVector3D>& colors);
-	bool setPointPositionBuffer(const std::string& bufID);
-	bool setPointColorBuffer(const std::string& bufID);
+	unsigned pointPositionBuffer() const;
+	void setPointPositionBuffer(unsigned bufID);
+	unsigned pointColorBuffer() const;
+	void setPointColorBuffer(unsigned bufID);
+	short pointSize() const;
 	void setPointSize(short pointSize);
 
 private:
@@ -29,7 +30,7 @@ private:
 private:
 	std::vector<QVector3D> _pointPositions;
 	std::vector<QVector3D> _pointColors;
-	QOpenGLBuffer* _pointPositionBuffer = nullptr;
-	QOpenGLBuffer* _pointColorBuffer = nullptr;
+	unsigned _pointPositionBufferID = 0;
+	unsigned _pointColorBufferID = 0;
 	short _pointSize = 1;
 };

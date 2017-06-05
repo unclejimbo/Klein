@@ -12,22 +12,21 @@ class PointCloud
 public:
 	PointCloud(const std::vector<QVector3D>& rawVertices,
 		const std::vector<QVector3D>& rawNormals,
-		const std::string& positionBuffer);
+		unsigned positionBuffer);
 	PointCloud(const std::vector<QVector3D>& rawVertices,
-		const std::string& positionBuffer);
+		unsigned positionBuffer);
 	~PointCloud();
 
+	unsigned id() const;
 	void updateGLBuffer() const;
-	bool attachTo(GraphicsComponent* graphics);
-	GraphicsComponent* attachedGraphics();
 
 	std::vector<Eigen::Vector3f> vertices;
 	std::vector<Eigen::Vector3f> normals;
 
-	std::string positionBufferID;
-	unsigned pointCloudID;
+	unsigned positionBufferID;
 
 private:
 	GraphicsComponent* _graphics = nullptr;
-	static unsigned _count;
+	unsigned _id;
+	static unsigned _inc;
 };

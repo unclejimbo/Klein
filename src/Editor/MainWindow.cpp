@@ -199,7 +199,9 @@ void MainWindow::_importMesh()
 			// Empty
 		}
 
-		if (geomIO->readMesh(path, "MainMesh", true, &_geomInfo)) {
+		unsigned posBufID;
+		unsigned normBufID;
+		if (geomIO->readMesh(path, posBufID, normBufID, &_geomInfo)) {
 			_scene.removeNode("MainMesh");
 			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
 
@@ -208,12 +210,11 @@ void MainWindow::_importMesh()
 			transform.translate(-_geomInfo.center);
 			node->setTransform(transform);
 
-			auto id = ResourceManager::instance().mesh("MainMesh")->meshID;
-			auto graphics = std::make_unique<PBRMeshGraphics>(*_glWidget, GEOM_TYPE_MESH, id);
+			auto graphics = std::make_unique<PBRMeshGraphics>(*_glWidget);
 			graphics->setShaderLit("KLEIN_CookTorrance");
 			graphics->setShaderUnlit("KLEIN_Unlit");
-			graphics->setPositionBuffer("MainMesh_VertexBuffer");
-			graphics->setNormalBuffer("MainMesh_NormalBuffer");
+			graphics->setPositionBuffer(posBufID);
+			graphics->setNormalBuffer(normBufID);
 			graphics->setMaterial("KLEIN_PBR_Default");
 			graphics->addRenderPass(RENDER_PICK);
 			node->addGraphicsComponent(std::move(graphics));
@@ -255,7 +256,8 @@ void MainWindow::_importPointCloud()
 			// Empty
 		}
 
-		if (geomIO->readPointCloud(path, "MainMesh", &_geomInfo)) {
+		unsigned posBufID;
+		if (geomIO->readPointCloud(path, posBufID, &_geomInfo)) {
 			_scene.removeNode("MainMesh");
 			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
 
@@ -264,9 +266,8 @@ void MainWindow::_importPointCloud()
 			transform.translate(-_geomInfo.center);
 			node->setTransform(transform);
 
-			auto id = ResourceManager::instance().pointCloud("MainMesh")->pointCloudID;
-			auto graphics = std::make_unique<PrimitiveGraphics>(*_glWidget, GEOM_TYPE_POINTCLOUD, id);
-			graphics->setPointPositionBuffer("MainMesh_VertexBuffer");
+			auto graphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+			graphics->setPointPositionBuffer(posBufID);
 			graphics->setColor(QVector3D(1.0f, 1.0f, 1.0f));
 			graphics->addRenderPass(RENDER_PICK);
 			node->addGraphicsComponent(std::move(graphics));

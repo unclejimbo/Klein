@@ -7,12 +7,15 @@
 #include <algorithm>
 #include <cmath>
 
+unsigned Mesh::_inc = 1;
+
 Mesh::Mesh(const std::vector<QVector3D>& rawVertices,
 	const std::vector<QVector3D>& rawFNormals,
 	const std::vector<unsigned>& rawIndices,
-	const std::string& positionBuffer,
-	const std::string& normalBuffer)
-	: indices(rawIndices), positionBufferID(positionBuffer), normalBufferID(normalBuffer), meshID(count++)
+	unsigned positionBuffer,
+	unsigned normalBuffer)
+	: indices(rawIndices), positionBufferID(positionBuffer),
+	normalBufferID(normalBuffer), _id(_inc++)
 {
 	vertices.resize(rawVertices.size());
 	std::transform(rawVertices.begin(), rawVertices.end(), vertices.begin(),
@@ -50,6 +53,11 @@ Mesh::Mesh(const std::vector<QVector3D>& rawVertices,
 
 Mesh::~Mesh() = default;
 
+unsigned Mesh::id() const
+{
+	return _id;
+}
+
 void Mesh::updateGLBuffer() const
 {
 	std::vector<QVector3D> positions(indices.size());
@@ -67,25 +75,12 @@ void Mesh::updateGLBuffer() const
 		normals.push_back(eigenToQt(fn));
 	}
 
-	ResourceManager::instance().addGLBuffer(positionBufferID, positions);
-	ResourceManager::instance().addGLBuffer(normalBufferID, normals);
+	auto posBuf = ResourceManager::instance().glBuffer(positionBufferID);
+	posBuf->bind();
+	posBuf->allocate(positions.data(), static_cast<int>(positions.size() * sizeof(QVector3D)));
+	posBuf->release();
+	auto normBuf = ResourceManager::instance().glBuffer(normalBufferID);
+	normBuf->bind();
+	normBuf->allocate(normals.data(), static_cast<int>(normals.size() * sizeof(QVector3D)));
+	normBuf->release();
 }
-
-bool Mesh::attachTo(GraphicsComponent* graphics)
-{
-	if (_graphics == nullptr) {
-		_graphics = graphics;
-		return true;
-	}
-	else {
-		KLEIN_LOG_CRITICAL("This mesh has already been attached to another GraphicsComponent");
-		return false;
-	}
-}
-
-GraphicsComponent* Mesh::attachedGraphics()
-{
-	return _graphics;
-}
-
-unsigned Mesh::count = 0;

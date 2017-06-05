@@ -6,10 +6,12 @@
 
 #include <algorithm>
 
+unsigned PointCloud::_inc = 1;
+
 PointCloud::PointCloud(const std::vector<QVector3D>& rawVertices, 
 	const std::vector<QVector3D>& rawNormals, 
-	const std::string & positionBuffer)
-	: positionBufferID(positionBuffer), pointCloudID(_count++)
+	unsigned positionBuffer)
+	: positionBufferID(positionBuffer), _id(_inc++)
 {
 	vertices.resize(rawVertices.size());
 	std::transform(rawVertices.begin(), rawVertices.end(), vertices.begin(),
@@ -26,8 +28,8 @@ PointCloud::PointCloud(const std::vector<QVector3D>& rawVertices,
 	);
 }
 
-PointCloud::PointCloud(const std::vector<QVector3D>& rawVertices, const std::string& positionBuffer)
-	: positionBufferID(positionBuffer)
+PointCloud::PointCloud(const std::vector<QVector3D>& rawVertices, unsigned positionBuffer)
+	: positionBufferID(positionBuffer), _id(_inc++)
 {
 	vertices.resize(rawVertices.size());
 	std::transform(rawVertices.begin(), rawVertices.end(), vertices.begin(),
@@ -39,6 +41,11 @@ PointCloud::PointCloud(const std::vector<QVector3D>& rawVertices, const std::str
 
 PointCloud::~PointCloud() = default;
 
+unsigned PointCloud::id() const
+{
+	return _id;
+}
+
 void PointCloud::updateGLBuffer() const
 {
 	std::vector<QVector3D> positions(vertices.size());
@@ -48,24 +55,8 @@ void PointCloud::updateGLBuffer() const
 		}
 	);
 
-	ResourceManager::instance().addGLBuffer(positionBufferID, positions);
+	auto posBuf = ResourceManager::instance().glBuffer(positionBufferID);
+	posBuf->bind();
+	posBuf->allocate(positions.data(), positions.size() * sizeof(QVector3D));
+	posBuf->release();
 }
-
-bool PointCloud::attachTo(GraphicsComponent* graphics)
-{
-	if (_graphics == nullptr) {
-		_graphics = graphics;
-		return true;
-	}
-	else {
-		KLEIN_LOG_CRITICAL("This mesh has already been attached to another GraphicsComponent");
-		return false;
-	}
-}
-
-GraphicsComponent * PointCloud::attachedGraphics()
-{
-	return _graphics;
-}
-
-unsigned PointCloud::_count = 0;

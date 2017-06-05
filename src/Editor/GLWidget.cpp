@@ -99,19 +99,13 @@ PickingInfo GLWidget::pick(int x, int y)
 	if (_scene != nullptr) {
 		_scene->render(RENDER_PICK);
 	}
-	auto buf = new GLuint[4];
+	GLuint buf[4];
 	glReadPixels(x, this->height() - y, 1, 1, GL_RGBA_INTEGER, GL_UNSIGNED_INT, buf);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	this->doneCurrent();
 
-	PickingInfo info;
-	info.geomType = static_cast<GeomType>(buf[0]);
-	info.geomID = buf[1];
-	info.primitiveType = static_cast<PickingPrimitive>(buf[2]);
-	info.primitiveID = buf[3];
-
-	delete[] buf;
+	PickingInfo info(buf);
 	return info;
 }
 
@@ -216,7 +210,7 @@ void GLWidget::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
 		auto info = pick(event->x(), event->y());
-		if (info.geomType != GEOM_TYPE_NONE) {
+		if (info.bufferID != 0) {
 			_paintPicked(info);
 			Q_EMIT(picked(info));
 		}
@@ -303,42 +297,53 @@ void GLWidget::_paintAxis()
 
 void GLWidget::_paintPicked(PickingInfo info)
 {
+	if (info.primitiveType == PICKING_PRIMITIVE_NONE) {
+		return;
+	}
+
 	_scene->removeNode("PickedNode");
-
+	auto parent = _scene->node(info.nodeID);
+	auto buffer = ResourceManager::instance().glBuffer(info.bufferID);
 	this->makeCurrent();
-	
-	if (info.geomType == GEOM_TYPE_MESH) {
-		auto mesh = ResourceManager::instance().mesh(info.geomID);
-		auto parent = mesh->attachedGraphics()->sceneNode();
 
+	if (info.bufferSpec == GL_TRIANGLES) {
 		if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
+			QVector3D point;
+			buffer->bind();
+			buffer->read(info.primitiveID * sizeof(QVector3D), &point, sizeof(QVector3D));
+			buffer->release();
 			auto node = _scene->addNode(parent, "PickedNode");
 			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
 			graphics->setPointSize(10);
-			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID]]));
+			graphics->addPoint(point);
 			node->addGraphicsComponent(std::move(graphics));
 		}
 
 		if (info.primitiveType == PICKING_PRIMITIVE_FACE) {
+			QVector3D points[3];
+			buffer->bind();
+			buffer->read(3 * info.primitiveID * sizeof(QVector3D), points, sizeof(QVector3D) * 3);
+			buffer->release();
 			auto node = _scene->addNode(parent, "PickedNode");
 			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
 			graphics->setPointSize(10);
-			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID * 3 + 0]]));
-			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID * 3 + 1]]));
-			graphics->addPoint(eigenToQt(mesh->vertices[mesh->indices[info.primitiveID * 3 + 2]]));
+			graphics->addPoint(points[0]);
+			graphics->addPoint(points[1]);
+			graphics->addPoint(points[2]);
 			node->addGraphicsComponent(std::move(graphics));
 		}
 	}
 
-	if (info.geomType == GEOM_TYPE_POINTCLOUD) {
-		auto pc = ResourceManager::instance().pointCloud(info.geomID);
-		auto parent = pc->attachedGraphics()->sceneNode();
-
+	if (info.bufferSpec == GL_POINTS) {
 		if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
+			QVector3D point;
+			buffer->bind();
+			buffer->read(info.primitiveID * sizeof(QVector3D), &point, sizeof(QVector3D));
+			buffer->release();
 			auto node = _scene->addNode(parent, "PickedNode");
 			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
 			graphics->setPointSize(10);
-			graphics->addPoint(eigenToQt(pc->vertices[info.primitiveID]));
+			graphics->addPoint(point);
 			node->addGraphicsComponent(std::move(graphics));
 		}
 	}

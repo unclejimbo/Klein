@@ -9,6 +9,8 @@ public:
 	~PlyIO();
 
 private:
-	bool _readMesh(QTextStream& stream, const QString& name, bool recordMesh, GeomInfo* geomInfo) override;
-	bool _readPointCloud(QTextStream& stream, const QString& name, GeomInfo* geomInfo) override;
+	bool _readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
+		GeomInfo* geomInfo) override;
+	bool _readPointCloud(QTextStream& stream, unsigned& positionBufferID,
+		GeomInfo* geomInfo) override;
 };

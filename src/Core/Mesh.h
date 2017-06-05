@@ -23,24 +23,22 @@ public:
 	Mesh(const std::vector<QVector3D>& rawVertices,
 		const std::vector<QVector3D>& rawFNormals,
 		const std::vector<unsigned>& rawIndices,
-		const std::string& positionBuffer,
-		const std::string& normalBuffer);
+		unsigned positionBuffer,
+		unsigned normalBuffer);
 	~Mesh();
 
+	unsigned id() const;
 	void updateGLBuffer() const;
-	bool attachTo(GraphicsComponent* graphics);
-	GraphicsComponent* attachedGraphics();
 
 	std::vector<Eigen::Vector3f> vertices;
 	std::vector<Eigen::Vector3f> fNormals;
 	std::vector<unsigned> indices;
 	std::unique_ptr<CMesh> cMesh;
 
-	std::string positionBufferID;
-	std::string normalBufferID;
-	unsigned meshID;
+	unsigned positionBufferID;
+	unsigned normalBufferID;
 
 private:
-	GraphicsComponent* _graphics = nullptr;
-	static unsigned count;
+	unsigned _id;
+	static unsigned _inc;
 };

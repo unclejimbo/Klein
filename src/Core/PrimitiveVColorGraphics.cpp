@@ -12,14 +12,6 @@ PrimitiveVColorGraphics::PrimitiveVColorGraphics(QOpenGLWidget& context, bool tr
 	this->setShaderUnlit("KLEIN_Unlit_VColor");
 }
 
-PrimitiveVColorGraphics::PrimitiveVColorGraphics(QOpenGLWidget& context,
-	GeomType geomType, unsigned geomID, bool transparent, int layer)
-	: GraphicsComponent(context, geomType, geomID, transparent, layer)
-{
-	this->setShaderLit("KLEIN_Unlit_VColor");
-	this->setShaderUnlit("KLEIN_Unlit_VColor");
-}
-
 PrimitiveVColorGraphics::~PrimitiveVColorGraphics() = default;
 
 void PrimitiveVColorGraphics::addPoint(const QVector3D& point, const QVector3D& color)
@@ -40,28 +32,29 @@ void PrimitiveVColorGraphics::addPoints(const std::vector<QVector3D>& points, co
 	_pointColors.insert(_pointColors.end(), colors.begin(), colors.end());
 }
 
-bool PrimitiveVColorGraphics::setPointPositionBuffer(const std::string& bufID)
+unsigned PrimitiveVColorGraphics::pointPositionBuffer() const
 {
-	auto buf = ResourceManager::instance().glBuffer(bufID);
-	if (buf != nullptr) {
-		_pointPositionBuffer = buf;
-		return true;
-	}
-	else {
-		return false;
-	}
+	return _pointPositionBufferID;
 }
 
-bool PrimitiveVColorGraphics::setPointColorBuffer(const std::string& bufID)
+void PrimitiveVColorGraphics::setPointPositionBuffer(unsigned bufID)
 {
-	auto buf = ResourceManager::instance().glBuffer(bufID);
-	if (buf != nullptr) {
-		_pointColorBuffer = buf;
-		return true;
-	}
-	else {
-		return false;
-	}
+	_pointPositionBufferID = bufID;
+}
+
+unsigned PrimitiveVColorGraphics::pointColorBuffer() const
+{
+	return _pointColorBufferID;
+}
+
+void PrimitiveVColorGraphics::setPointColorBuffer(unsigned bufID)
+{
+	_pointColorBufferID = bufID;
+}
+
+short PrimitiveVColorGraphics::pointSize() const
+{
+	return _pointSize;
 }
 
 void PrimitiveVColorGraphics::setPointSize(short pointSize)
@@ -111,28 +104,32 @@ void PrimitiveVColorGraphics::_renderUnlit(const Camera& camera)
 		glPointSize(_pointSize);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 		glDrawArrays(GL_POINTS, 0, static_cast<int>(_pointPositions.size()));
+		glPointSize(1);
 		glDisable(GL_PROGRAM_POINT_SIZE);
 	}
 
 	// Draw point buffer
-	if (_pointPositionBuffer != nullptr && _pointColorBuffer != nullptr) {
-		_pointPositionBuffer->bind();
+	if (_pointPositionBufferID != 0 && _pointColorBufferID != 0) {
+		auto pointPositionBuffer = ResourceManager::instance().glBuffer(_pointPositionBufferID);
+		pointPositionBuffer->bind();
 		_shaderUnlit->enableAttributeArray(0);
 		_shaderUnlit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
-		auto pbufsize = static_cast<int>(_pointPositionBuffer->size());
-		_pointPositionBuffer->release();
+		auto pbufsize = static_cast<int>(pointPositionBuffer->size());
+		pointPositionBuffer->release();
 
-		_pointColorBuffer->bind();
+		auto pointColorBuffer = ResourceManager::instance().glBuffer(_pointColorBufferID);
+		pointColorBuffer->bind();
 		_shaderUnlit->enableAttributeArray(1);
 		_shaderUnlit->setAttributeBuffer(1, GL_FLOAT, 0, 3);
-		auto cbufsize = static_cast<int>(_pointColorBuffer->size());
-		_pointColorBuffer->release();
+		auto cbufsize = static_cast<int>(pointColorBuffer->size());
+		pointColorBuffer->release();
 
 		if (pbufsize == cbufsize) {
 			glEnable(GL_PROGRAM_POINT_SIZE);
 			glPointSize(_pointSize);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 			glDrawArrays(GL_POINTS, 0, pbufsize / sizeof(QVector3D));
+			glPointSize(1);
 			glDisable(GL_PROGRAM_POINT_SIZE);
 		}
 	}

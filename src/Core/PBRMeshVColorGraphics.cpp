@@ -1,90 +1,81 @@
 #include "Core/PBRMeshVColorGraphics.h"
+#include "Core/GLBuffer.h"
 #include "Core/SceneNode.h"
 #include "Core/ResourceManager.h"
 #include "Core/Logger.h"
 
 #include <QOpenGLVertexArrayObject>
-#include <QOpenGLBuffer>
 
 PBRMeshVColorGraphics::PBRMeshVColorGraphics(QOpenGLWidget& context, bool transparent, int layer)
 	: GraphicsComponent(context, transparent, layer)
 {
 	this->setShaderLit("KLEIN_CookTorrance_VColor");
 	this->setShaderUnlit("KLEIN_Unlit_VColor");
-	_material = ResourceManager::instance().pbrMaterial("KLEIN_PBR_Default");
-}
-
-PBRMeshVColorGraphics::PBRMeshVColorGraphics(QOpenGLWidget& context,
-	GeomType geomType, unsigned geomID, bool transparent, int layer)
-	: GraphicsComponent(context, geomType, geomID, transparent, layer)
-{
-	this->setShaderLit("KLEIN_CookTorrance_VColor");
-	this->setShaderUnlit("KLEIN_Unlit_VColor");
-	_material = ResourceManager::instance().pbrMaterial("KLEIN_PBR_Default");
+	_materialID = "KLEIN_PBR_Default";
 }
 
 PBRMeshVColorGraphics::~PBRMeshVColorGraphics() = default;
 
-bool PBRMeshVColorGraphics::setPositionBuffer(const std::string& posBufID)
+unsigned PBRMeshVColorGraphics::positionBuffer() const
 {
-	auto buf = ResourceManager::instance().glBuffer(posBufID);
-	if (buf != nullptr) {
-		_posBuf = buf;
-		return true;
-	}
-	else {
-		return false;
-	}
+	return _posBufID;
 }
 
-bool PBRMeshVColorGraphics::setNormalBuffer(const std::string& normBufID)
+void PBRMeshVColorGraphics::setPositionBuffer(unsigned posBufID)
 {
-	auto buf = ResourceManager::instance().glBuffer(normBufID);
-	if (buf != nullptr) {
-		_normBuf = buf;
-		return true;
-	}
-	else {
-		return false;
-	}
+	_posBufID = posBufID;
 }
 
-bool PBRMeshVColorGraphics::setColorBuffer(const std::string& colorBufID)
+unsigned PBRMeshVColorGraphics::normalBuffer() const
 {
-	auto buf = ResourceManager::instance().glBuffer(colorBufID);
-	if (buf != nullptr) {
-		_colorBuf = buf;
-		return true;
-	}
-	else {
-		return false;
-	}
+	return _normBufID;
 }
 
-bool PBRMeshVColorGraphics::setMaterial(const std::string& materialID)
+void PBRMeshVColorGraphics::setNormalBuffer(unsigned normBufID)
 {
-	auto material = ResourceManager::instance().pbrMaterial(materialID);
-	if (material != nullptr) {
-		_material = material;
-		return true;
-	}
-	else {
-		return false;
-	}
+	_normBufID = normBufID;
+}
+
+unsigned PBRMeshVColorGraphics::colorBuffer() const
+{
+	return _colorBufID;
+}
+
+void PBRMeshVColorGraphics::setColorBuffer(unsigned colorBufID)
+{
+	_colorBufID = colorBufID;
+}
+
+std::string PBRMeshVColorGraphics::material() const
+{
+	return _materialID;
+}
+
+void PBRMeshVColorGraphics::setMaterial(const std::string& materialID)
+{
+	_materialID = materialID;
 }
 
 void PBRMeshVColorGraphics::_renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights)
 {
-	if (_posBuf == nullptr) {
+	auto posBuf = ResourceManager::instance().glBuffer(_posBufID);
+	auto normBuf = ResourceManager::instance().glBuffer(_normBufID);
+	auto colorBuf = ResourceManager::instance().glBuffer(_colorBufID);
+	auto material = ResourceManager::instance().pbrMaterial(_materialID);
+	if (posBuf == nullptr) {
 		KLEIN_LOG_CRITICAL("Please set a valid position buffer before rendering");
 		return;
 	}
-	if (_normBuf == nullptr) {
+	if (normBuf == nullptr) {
 		KLEIN_LOG_CRITICAL("Please set a valid normal buffer before rendering");
 		return;
 	}
-	if (_colorBuf == nullptr) {
+	if (colorBuf == nullptr) {
 		KLEIN_LOG_CRITICAL("Please set a valid color buffer before rendering");
+		return;
+	}
+	if (material == nullptr) {
+		KLEIN_LOG_CRITICAL("Please set a valid pbr material before rendering");
 		return;
 	}
 
@@ -106,26 +97,26 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera, const std::array<Li
 			_shaderLit->setUniformValue(lightColor.toLatin1().data(), lights[i].color);
 		}
 		_shaderLit->setUniformValue("alpha", this->transparency());
-		_shaderLit->setUniformValue("material.metallic", _material->metallic);
-		_shaderLit->setUniformValue("material.roughness", _material->roughness);
-		_shaderLit->setUniformValue("material.ao", _material->ao);
+		_shaderLit->setUniformValue("material.metallic", material->metallic);
+		_shaderLit->setUniformValue("material.roughness", material->roughness);
+		_shaderLit->setUniformValue("material.ao", material->ao);
 
 		QOpenGLVertexArrayObject vao;
 		vao.create();
 		vao.bind();
-		_posBuf->bind();
+		posBuf->bind();
 		_shaderLit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
 		_shaderLit->enableAttributeArray(0);
-		auto bufferSize = _posBuf->size();
-		_posBuf->release();
-		_normBuf->bind();
+		auto bufferSize = posBuf->size();
+		posBuf->release();
+		normBuf->bind();
 		_shaderLit->setAttributeBuffer(1, GL_FLOAT, 0, 3);
 		_shaderLit->enableAttributeArray(1);
-		_normBuf->release();
-		_colorBuf->bind();
+		normBuf->release();
+		colorBuf->bind();
 		_shaderLit->setAttributeBuffer(2, GL_FLOAT, 0, 3);
 		_shaderLit->enableAttributeArray(2);
-		_colorBuf->release();
+		colorBuf->release();
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDrawArrays(GL_TRIANGLES, 0, bufferSize / sizeof(QVector3D));
@@ -145,15 +136,15 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera, const std::array<Li
 		QOpenGLVertexArrayObject vao;
 		vao.create();
 		vao.bind();
-		_posBuf->bind();
+		posBuf->bind();
 		_shaderUnlit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
 		_shaderUnlit->enableAttributeArray(0);
-		auto bufferSize = _posBuf->size();
-		_posBuf->release();
-		_colorBuf->bind();
+		auto bufferSize = posBuf->size();
+		posBuf->release();
+		colorBuf->bind();
 		_shaderUnlit->setAttributeBuffer(1, GL_FLOAT, 0, 3);
 		_shaderUnlit->enableAttributeArray(1);
-		_colorBuf->release();
+		colorBuf->release();
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_POLYGON_OFFSET_LINE);
@@ -168,8 +159,14 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera, const std::array<Li
 
 void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera)
 {
-	if (_posBuf == nullptr) {
+	auto posBuf = ResourceManager::instance().glBuffer(_posBufID);
+	auto colorBuf = ResourceManager::instance().glBuffer(_colorBufID);
+	if (posBuf == nullptr) {
 		KLEIN_LOG_CRITICAL("Please set a valid position buffer before rendering");
+		return;
+	}
+	if (colorBuf == nullptr) {
+		KLEIN_LOG_CRITICAL("Please set a valid color buffer before rendering");
 		return;
 	}
 
@@ -183,15 +180,15 @@ void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera)
 	QOpenGLVertexArrayObject vao;
 	vao.create();
 	vao.bind();
-	_posBuf->bind();
+	posBuf->bind();
 	_shaderUnlit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
 	_shaderUnlit->enableAttributeArray(0);
-	auto bufferSize = _posBuf->size();
-	_posBuf->release();
-	_colorBuf->bind();
+	auto bufferSize = posBuf->size();
+	posBuf->release();
+	colorBuf->bind();
 	_shaderUnlit->setAttributeBuffer(1, GL_FLOAT, 0, 3);
 	_shaderUnlit->enableAttributeArray(1);
-	_colorBuf->release();
+	colorBuf->release();
 
 	if (this->shadingMethod() == ShadingMethod::shaded || this->shadingMethod() == ShadingMethod::hiddenLine) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -211,7 +208,8 @@ void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera)
 
 void PBRMeshVColorGraphics::_renderPickVertex(const Camera& camera)
 {
-	if (_posBuf == nullptr) {
+	auto posBuf = ResourceManager::instance().glBuffer(_posBufID);
+	if (posBuf == nullptr) {
 		KLEIN_LOG_CRITICAL("Please set a valid position buffer before rendering");
 		return;
 	}
@@ -223,25 +221,27 @@ void PBRMeshVColorGraphics::_renderPickVertex(const Camera& camera)
 	auto transform = this->sceneNode()->transform();
 	auto mvp = projection * camera.view() * transform;
 	shaderPicking->setUniformValue("mvp", mvp);
-	auto gtLocation = shaderPicking->uniformLocation("geomType"); // Use native calls since Qt doesn't support uniform1ui
-	auto gidLocation = shaderPicking->uniformLocation("geomID");
+	auto bsLocation = shaderPicking->uniformLocation("bufferSpec");
 	auto ptLocation = shaderPicking->uniformLocation("primitiveType");
+	auto nidLocation = shaderPicking->uniformLocation("nodeID");
+	auto bidLocation = shaderPicking->uniformLocation("bufferID");
 
 	QOpenGLVertexArrayObject vao;
 	vao.create();
 	vao.bind();
-	_posBuf->bind();
+	posBuf->bind();
 	shaderPicking->setAttributeBuffer(0, GL_FLOAT, 0, 3);
 	shaderPicking->enableAttributeArray(0);
-	auto bufferSize = _posBuf->size();
-	_posBuf->release();
+	auto bufferSize = posBuf->size();
+	posBuf->release();
 
 	// Draw triangles first in order to cull points on the back faces
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	glUniform1ui(gtLocation, GEOM_TYPE_NONE);
-	glUniform1ui(gidLocation, 0);
+	glUniform1ui(bsLocation, 0); // Use native calls since Qt doesn't support uniform1ui
 	glUniform1ui(ptLocation, PICKING_PRIMITIVE_NONE);
+	glUniform1ui(nidLocation, 0);
+	glUniform1ui(bidLocation, 0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(1.0f, 1.0f);
@@ -250,11 +250,16 @@ void PBRMeshVColorGraphics::_renderPickVertex(const Camera& camera)
 	glDisable(GL_CULL_FACE);
 
 	// Then draw points
-	glUniform1ui(gtLocation, _geomType);
-	glUniform1ui(gidLocation, _geomID);
+	glUniform1ui(bsLocation, posBuf->bufferSpec());
 	glUniform1ui(ptLocation, PICKING_PRIMITIVE_VERTEX);
+	glUniform1ui(nidLocation, this->sceneNode()->id());
+	glUniform1ui(bidLocation, posBuf->bufferId());
+	glEnable(GL_PROGRAM_POINT_SIZE);
+	glPointSize(10);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 	glDrawArrays(GL_POINTS, 0, bufferSize / sizeof(QVector3D));
+	glPointSize(1);
+	glDisable(GL_PROGRAM_POINT_SIZE);
 
 	vao.release();
 	shaderPicking->release();
@@ -262,7 +267,8 @@ void PBRMeshVColorGraphics::_renderPickVertex(const Camera& camera)
 
 void PBRMeshVColorGraphics::_renderPickFace(const Camera& camera)
 {
-	if (_posBuf == nullptr) {
+	auto posBuf = ResourceManager::instance().glBuffer(_posBufID);
+	if (posBuf == nullptr) {
 		KLEIN_LOG_CRITICAL("Please set a valid position buffer before rendering");
 		return;
 	}
@@ -274,21 +280,23 @@ void PBRMeshVColorGraphics::_renderPickFace(const Camera& camera)
 	auto transform = this->sceneNode()->transform();
 	auto mvp = projection * camera.view() * transform;
 	shaderPicking->setUniformValue("mvp", mvp);
-	auto gtLocation = shaderPicking->uniformLocation("geomType"); // Use native calls since Qt doesn't support uniform1ui
-	auto gidLocation = shaderPicking->uniformLocation("geomID");
+	auto bsLocation = shaderPicking->uniformLocation("bufferSpec");
 	auto ptLocation = shaderPicking->uniformLocation("primitiveType");
-	glUniform1ui(gtLocation, _geomType);
-	glUniform1ui(gidLocation, _geomID);
+	auto nidLocation = shaderPicking->uniformLocation("nodeID");
+	auto bidLocation = shaderPicking->uniformLocation("bufferID");
+	glUniform1ui(bsLocation, posBuf->bufferSpec()); // Use native calls since Qt doesn't support uniform1ui
 	glUniform1ui(ptLocation, PICKING_PRIMITIVE_FACE);
+	glUniform1ui(nidLocation, this->sceneNode()->id());
+	glUniform1ui(bidLocation, posBuf->bufferId());
 
 	QOpenGLVertexArrayObject vao;
 	vao.create();
 	vao.bind();
-	_posBuf->bind();
+	posBuf->bind();
 	shaderPicking->setAttributeBuffer(0, GL_FLOAT, 0, 3);
 	shaderPicking->enableAttributeArray(0);
-	auto bufferSize = _posBuf->size();
-	_posBuf->release();
+	auto bufferSize = posBuf->size();
+	posBuf->release();
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);

@@ -42,4 +42,7 @@ private:
 	QCheckBox* _obb;
 	QCheckBox* _sphere;
 	QComboBox* _color;
+
+	unsigned _id;
+	unsigned _valenceBuffer;
 };

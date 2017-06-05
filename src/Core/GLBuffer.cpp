@@ -1,17 +1,17 @@
 #include "Core/GLBuffer.h"
 
-GLBuffer::GLBuffer() = default;
-
-GLBuffer::GLBuffer(QOpenGLBuffer::Type type)
-	: QOpenGLBuffer(type)
+GLBuffer::GLBuffer(unsigned bufferSpec, QOpenGLBuffer::Type type)
+	: QOpenGLBuffer(type), _bufferSpec(bufferSpec)
 {
 }
 
 GLBuffer::GLBuffer(const GLBuffer& other) = default;
 
-GLBuffer::~GLBuffer()
+GLBuffer::~GLBuffer() = default;
+
+unsigned GLBuffer::bufferSpec() const
 {
-	this->destroy();
+	return _bufferSpec;
 }
 
 void GLBuffer::attachGeom(unsigned type, unsigned id)

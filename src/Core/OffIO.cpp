@@ -53,7 +53,8 @@ inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<QVector3D>& ver
 	}
 }
 
-bool OffIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh, GeomInfo* geomInfo)
+bool OffIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
+	GeomInfo* geomInfo)
 {
 	std::vector<QVector3D> vertices;
 	std::vector<QVector3D> fnormals;
@@ -145,22 +146,21 @@ bool OffIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh,
 	std::transform(indices.begin(), indices.end(), vertexBuffer.begin(),
 		[&vertices](unsigned i) { return vertices[i]; });
 
-	auto vertexBufferName = QString(name).append("_VertexBuffer");
-	auto normalBufferName = QString(name).append("_NormalBuffer");
-	ResourceManager::instance().addGLBuffer(vertexBufferName.toStdString(), vertexBuffer);
-	ResourceManager::instance().addGLBuffer(normalBufferName.toStdString(), normalBuffer);
+	positionBufferID = ResourceManager::instance().addGLBuffer(vertexBuffer, GL_TRIANGLES);
+	normalBufferID =  ResourceManager::instance().addGLBuffer(normalBuffer, GL_TRIANGLES);
 
-	if (recordMesh) {
-		ResourceManager::instance().addMesh(name.toStdString(), vertices, fnormals, indices,
-			vertexBufferName.toStdString(), normalBufferName.toStdString());
+	if (geomInfo != nullptr) {
+		geomInfo->id = ResourceManager::instance().addMesh(vertices, fnormals, indices,
+			positionBufferID, normalBufferID);
+
+		recordGeomInfo(geomInfo, vertices, -1, static_cast<int>(fnormals.size()));
 	}
-
-	recordGeomInfo(geomInfo, vertices, -1, static_cast<int>(fnormals.size()));
 
 	return true;
 }
 
-bool OffIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* geomInfo)
+bool OffIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
+	GeomInfo* geomInfo)
 {
 	std::vector<QVector3D> vertices;
 
@@ -208,12 +208,13 @@ bool OffIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* 
 		++i;
 	}
 
-	auto vertexBufferName = QString(name).append("_VertexBuffer");
-	ResourceManager::instance().addGLBuffer(vertexBufferName.toStdString(), vertices);
+	positionBufferID = ResourceManager::instance().addGLBuffer(vertices, GL_POINTS);
 
-	ResourceManager::instance().addPointCloud(name.toStdString(), vertices, vertexBufferName.toStdString());
+	if (geomInfo != nullptr) {
+		geomInfo->id = ResourceManager::instance().addPointCloud(vertices, positionBufferID);
 
-	recordGeomInfo(geomInfo, vertices, -1, -1);
+		recordGeomInfo(geomInfo, vertices, -1, -1);
+	}
 
 	return true;
 }

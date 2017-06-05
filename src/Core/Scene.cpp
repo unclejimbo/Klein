@@ -26,6 +26,17 @@ SceneNode* Scene::node(const std::string& name)
 	}
 }
 
+SceneNode* Scene::node(unsigned id)
+{
+	for (auto& n : _nodes) {
+		if (n.second->id() == id) {
+			return n.second.get();
+		}
+	}
+	KLEIN_LOG_WARNING(QString("Can't find SceneNode%1").arg(id));
+	return nullptr;
+}
+
 SceneNode* Scene::rootNode()
 {
 	return _root;

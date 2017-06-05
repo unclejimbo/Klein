@@ -10,12 +10,15 @@ XyzIO::XyzIO() = default;
 
 XyzIO::~XyzIO() = default;
 
-bool XyzIO::_readMesh(QTextStream& stream, const QString& name, bool recordMesh, GeomInfo* meshInfo)
+bool XyzIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
+	GeomInfo* geomInfo)
 {
+	KLEIN_LOG_WARNING("XYZ file format doesn't support triangle mesh data");
 	return false;
 }
 
-bool XyzIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* geomInfo)
+bool XyzIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
+	GeomInfo* geomInfo)
 {
 	std::vector<QVector3D> vertices;
 	std::vector<QVector3D> normals;
@@ -39,16 +42,11 @@ bool XyzIO::_readPointCloud(QTextStream& stream, const QString& name, GeomInfo* 
 	}
 
 	// Construct OpenGL buffers
-	auto vertexBufferName = QString(name).append("_VertexBuffer");
-	auto normalBufferName = QString(name).append("_NormalBuffer");
-	ResourceManager::instance().addGLBuffer(vertexBufferName.toStdString(), vertices);
-	ResourceManager::instance().addGLBuffer(normalBufferName.toStdString(), normals);
-	
-	ResourceManager::instance().addPointCloud(name.toStdString(),
-		vertices, normals, vertexBufferName.toStdString());
+	positionBufferID = ResourceManager::instance().addGLBuffer(vertices, GL_POINTS);
 
 	// Record geomInfo
 	if (geomInfo != nullptr) {
+		geomInfo->id = ResourceManager::instance().addPointCloud(vertices, normals, positionBufferID);
 		geomInfo->nVertices = static_cast<int>(vertices.size());
 		geomInfo->nEdges = -1;
 		geomInfo->nFaces = -1;

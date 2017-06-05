@@ -7,7 +7,8 @@ GeomIO::GeomIO() = default;
 
 GeomIO::~GeomIO() = default;
 
-bool GeomIO::readMesh(const QString& filename, const QString& name, bool recordMesh, GeomInfo* geomInfo)
+bool GeomIO::readMesh(const QString& filename, unsigned& positionBufferID, unsigned& normalBufferID,
+	GeomInfo* geomInfo)
 {
 	QFile file(filename);
 	if (file.open(QIODevice::ReadOnly)) {
@@ -16,7 +17,7 @@ bool GeomIO::readMesh(const QString& filename, const QString& name, bool recordM
 			geomInfo->fileName = filename;
 		}
 		QTextStream stream(&file);
-		return _readMesh(stream, name, recordMesh, geomInfo);
+		return _readMesh(stream, positionBufferID, normalBufferID, geomInfo);
 	}
 	else {
 		KLEIN_LOG_CRITICAL(QString("Can't open file %1").arg(filename));
@@ -24,7 +25,8 @@ bool GeomIO::readMesh(const QString& filename, const QString& name, bool recordM
 	}
 }
 
-bool GeomIO::readPointCloud(const QString& filename, const QString& name, GeomInfo* geomInfo)
+bool GeomIO::readPointCloud(const QString& filename, unsigned& positionBufferID,
+	GeomInfo* geomInfo)
 {
 	QFile file(filename);
 	if (file.open(QIODevice::ReadOnly)) {
@@ -33,7 +35,7 @@ bool GeomIO::readPointCloud(const QString& filename, const QString& name, GeomIn
 			geomInfo->fileName = filename;
 		}
 		QTextStream stream(&file);
-		return _readPointCloud(stream, name, geomInfo);
+		return _readPointCloud(stream, positionBufferID, geomInfo);
 	}
 	else {
 		KLEIN_LOG_CRITICAL(QString("Can't open file %1").arg(filename));

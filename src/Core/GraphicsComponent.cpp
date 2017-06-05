@@ -3,25 +3,24 @@
 #include "Core/ResourceManager.h"
 #include "GraphicsComponent.h"
 
+PickingInfo::PickingInfo() = default;
+
+PickingInfo::PickingInfo(unsigned buffer[4])
+{
+	bufferSpec = buffer[0] >> 16;
+	primitiveType = buffer[0] & 0x0000ffff;
+	nodeID = buffer[1];
+	bufferID = buffer[2];
+	primitiveID = buffer[3];
+}
+
+PickingInfo::PickingInfo(const PickingInfo & info) = default;
+
+PickingInfo::~PickingInfo() = default;
+
 GraphicsComponent::GraphicsComponent(QOpenGLWidget& context, bool transparent, int layer)
 	: _context(context), _transparent(transparent), _layer(layer)
 {
-	_context.makeCurrent();
-	this->initializeOpenGLFunctions();
-	_context.doneCurrent();
-}
-
-GraphicsComponent::GraphicsComponent(QOpenGLWidget& context,
-	GeomType geomType, unsigned geomID, bool transparent, int layer)
-	: _context(context), _geomType(geomType), _geomID(geomID),
-	_transparent(transparent), _layer(layer)
-{
-	if (geomType == GEOM_TYPE_MESH) {
-		ResourceManager::instance().mesh(geomID)->attachTo(this);
-	}
-	if (geomType == GEOM_TYPE_POINTCLOUD) {
-		ResourceManager::instance().pointCloud(geomID)->attachTo(this);
-	}
 	_context.makeCurrent();
 	this->initializeOpenGLFunctions();
 	_context.doneCurrent();

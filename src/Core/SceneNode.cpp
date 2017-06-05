@@ -3,8 +3,10 @@
 #include "Core/GraphicsComponent.h"
 #include "Core/Logger.h"
 
+unsigned SceneNode::_inc = 1;
+
 SceneNode::SceneNode(const std::string& name, Scene& scene, SceneNode* parent, const QMatrix4x4& transform)
-	: _name(name), _scene(scene), _parent(parent)
+	: _name(name), _scene(scene), _parent(parent), _id(_inc++)
 {
 	if (parent != nullptr) {
 		_transform = transform;
@@ -16,6 +18,11 @@ SceneNode::SceneNode(const std::string& name, Scene& scene, SceneNode* parent, c
 }
 
 SceneNode::~SceneNode() = default;
+
+unsigned SceneNode::id() const
+{
+	return _id;
+}
 
 void SceneNode::setTransDirty(bool dirty)
 {
