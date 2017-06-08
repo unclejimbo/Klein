@@ -59,7 +59,7 @@ inline bool readPlyHeader(QTextStream& stream, PlyFormat& format,
 		}
 		else if (lineList[0] == "element" && lineList[1] == "face") {
 			nFaces = lineList[2].toInt();
-			hasNormal = false;
+			nFaces = lineList[2].toInt();
 		}
 		else if (lineList[0] == "end_header") {
 			return true;
