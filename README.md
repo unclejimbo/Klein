@@ -1,12 +1,11 @@
 Klein is a mesh viewer as well as a coding framework to help visualize and test your geometry processing algorithms.
 
 # Dependencies
-- Qt 5.8
-- CGAL 4.9
+- Qt 5.9
+- CGAL 4.10
 - Eigen 3.3
-- Python 3.5
 - [Euclid](https://github.com/unclejimbo/Euclid)
-- C++14 compatable compiler
+- C++17 compatable compiler
 
 # Installation
 Use CMake to build.
@@ -17,7 +16,7 @@ Use CMake to build.
 ![](https://github.com/unclejimbo/Klein/raw/master/contents/images/Klein.PNG)
 
 ## File formats supported
-.obj, .off
+.obj, .off, .ply, .xyz
 
 ## Camera control
 - Hold middle mouse to rotate.

@@ -8,13 +8,13 @@
 #include <QString>
 #include <QSurfaceFormat>
 
-#ifdef _DEBUG
-#undef _DEBUG
-#include <Python.h>
-#define _DEBUG
-#else
-#include <Python.h>
-#endif
+//#ifdef _DEBUG
+//#undef _DEBUG
+//#include <Python.h>
+//#define _DEBUG
+//#else
+//#include <Python.h>
+//#endif
 
 void initializeResourceSystem()
 {
@@ -66,13 +66,13 @@ int main(int argc, char *argv[])
 	initializeResourceSystem();
 	mainWindow.initializeScene();
 
-	Py_Initialize();
-	PyRun_SimpleString("import sys");
-	PyRun_SimpleString("sys.path.append(\"../contents/scripts\")");
+	//Py_Initialize();
+	//PyRun_SimpleString("import sys");
+	//PyRun_SimpleString("sys.path.append(\"../contents/scripts\")");
 
 	app.exec();
 
-	Py_Finalize();
-	Logger::cleanup();
+	//Py_Finalize();
+	//Logger::cleanup();
 	return 0;
 }

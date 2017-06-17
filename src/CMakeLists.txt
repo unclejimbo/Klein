@@ -11,7 +11,7 @@ find_package(Eigen3 REQUIRED)
 find_package(CGAL REQUIRED)
 find_package(CGAL REQUIRED COMPONENTS CGAL_Core)
 find_package(Euclid REQUIRED)
-find_package(PythonLibs REQUIRED)
+#find_package(PythonLibs REQUIRED)
 
 include(${CGAL_USE_FILE})
 
