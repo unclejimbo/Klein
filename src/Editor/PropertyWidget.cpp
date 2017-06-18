@@ -120,9 +120,9 @@ void PropertyWidget::onImport(GeomInfo* info)
 
 			auto obbNode = _scene->addNode("MainMesh", "OBB");
 			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			auto cMesh = ResourceManager::instance().mesh(_id)->cMesh.get();
+			auto cMesh = ResourceManager::instance().mesh(_id)->surfaceMesh();
 			if (cMesh != nullptr) {
-				Euclid::OBB<CMesh> obb(*cMesh);
+				Euclid::OBB<Surface_mesh> obb(*cMesh);
 				auto lbb = eigenToQt(obb.lbb());
 				auto lbf = eigenToQt(obb.lbf());
 				auto ltb = eigenToQt(obb.ltb());
@@ -134,8 +134,8 @@ void PropertyWidget::onImport(GeomInfo* info)
 				obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
 			}
 			else {
-				Euclid::OBB<CMesh>
-					obb(ResourceManager::instance().mesh(_id)->vertices);
+				Euclid::OBB<float>
+					obb(ResourceManager::instance().mesh(_id)->vertices());
 				auto lbb = eigenToQt(obb.lbb());
 				auto lbf = eigenToQt(obb.lbf());
 				auto ltb = eigenToQt(obb.ltb());
@@ -174,7 +174,7 @@ void PropertyWidget::onImport(GeomInfo* info)
 			_sphere->setChecked(false);
 			_sphere->setCheckable(true);
 			_color->setCurrentIndex(0);
-			if (ResourceManager::instance().mesh(_id)->cMesh.get() == nullptr) {
+			if (!ResourceManager::instance().mesh(_id)->isManifold()) {
 				_color->removeItem(1);
 			}
 			else {
@@ -194,7 +194,7 @@ void PropertyWidget::onImport(GeomInfo* info)
 
 			auto obbNode = _scene->addNode("MainMesh", "OBB");
 			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			Euclid::OBB<CMesh>
+			Euclid::OBB<Polyhedron_3>
 				obb(ResourceManager::instance().pointCloud(_id)->vertices);
 			auto lbb = eigenToQt(obb.lbb());
 			auto lbf = eigenToQt(obb.lbf());
@@ -313,7 +313,7 @@ void PropertyWidget::onColorChanged(int state)
 			_scene->node("MainMeshValence")->graphicsComponent()->setVisible(true);
 		}
 		else {
-			auto cMesh = ResourceManager::instance().mesh(_id)->cMesh.get();
+			auto cMesh = ResourceManager::instance().mesh(_id)->polyhedron();
 			std::vector<unsigned> valences;
 			valences.reserve(cMesh->size_of_facets() * 3);
 			for (auto f = cMesh->facets_begin(); f != cMesh->facets_end(); ++f) {
@@ -327,8 +327,8 @@ void PropertyWidget::onColorChanged(int state)
 
 			auto valenceNode = _scene->addNode(_scene->rootNode(), "MainMeshValence", _scene->node("MainMesh")->transform());
 			auto graphics = std::make_unique<PBRMeshVColorGraphics>(*_glWidget);
-			graphics->setPositionBuffer(ResourceManager::instance().mesh(_id)->positionBufferID);
-			graphics->setNormalBuffer(ResourceManager::instance().mesh(_id)->normalBufferID);
+			graphics->setPositionBuffer(ResourceManager::instance().mesh(_id)->positionBufferID());
+			graphics->setNormalBuffer(ResourceManager::instance().mesh(_id)->normalBufferID());
 			graphics->setColorBuffer(_valenceBuffer);
 			valenceNode->addGraphicsComponent(std::move(graphics));
 		}
