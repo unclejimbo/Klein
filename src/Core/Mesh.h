@@ -2,8 +2,9 @@
 
 #include <QVector3D>
 #include <CGAL/Simple_cartesian.h>
-#include <CGAL/Polyhedron_3.h>
 #include <CGAL/Surface_mesh.h>
+#include <CGAL/Polyhedron_3.h>
+#include <CGAL/Polyhedron_items_with_id_3.h>
 #include <Eigen/Dense>
 #include <memory>
 #include <vector>
@@ -11,8 +12,8 @@
 
 using Kernel = CGAL::Simple_cartesian<float>;
 using Point_3 = Kernel::Point_3;
-using Polyhedron_3 = CGAL::Polyhedron_3<Kernel>;
 using Surface_mesh = CGAL::Surface_mesh<Point_3>;
+using Polyhedron_3 = CGAL::Polyhedron_3<Kernel, CGAL::Polyhedron_items_with_id_3>;
 class GraphicsComponent;
 
 /*

@@ -151,13 +151,16 @@ bool Mesh::isManifold() const
 bool Mesh::_buildSurfaceMesh()
 {
 	_surfaceMesh = std::make_unique<Surface_mesh>();
+	std::vector<CGAL::SM_Vertex_index> vindices;
+	vindices.reserve(_vertices.size());
+	for (const auto& v : _vertices) {
+		vindices.push_back(_surfaceMesh->add_vertex(
+			eigenToCgal<Kernel>(v)));
+	}
 	for (auto i = 0; i < _indices.size(); i += 3) {
-		auto v1 = _surfaceMesh->add_vertex(
-			eigenToCgal<Kernel>(_vertices[_indices[i + 0]]));
-		auto v2 = _surfaceMesh->add_vertex(
-			eigenToCgal<Kernel>(_vertices[_indices[i + 1]]));
-		auto v3 = _surfaceMesh->add_vertex(
-			eigenToCgal<Kernel>(_vertices[_indices[i + 2]]));
+		auto v1 = vindices[_indices[i + 0]];
+		auto v2 = vindices[_indices[i + 1]];
+		auto v3 = vindices[_indices[i + 2]];
 		_surfaceMesh->add_face(v1, v2, v3);
 	}
 	if (_surfaceMesh->is_valid()) {
@@ -175,6 +178,7 @@ bool Mesh::_buildPolyhedron()
 	Euclid::TriMeshBuilder<Polyhedron_3> meshBuilder(_vertices, _indices);
 	try {
 		_polyhedron->delegate(meshBuilder);
+		CGAL::set_halfedgeds_items_id(*_polyhedron.get());
 		return true;
 	}
 	catch (...) {

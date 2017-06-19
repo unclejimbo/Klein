@@ -122,7 +122,7 @@ void PropertyWidget::onImport(GeomInfo* info)
 			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
 			auto cMesh = ResourceManager::instance().mesh(_id)->surfaceMesh();
 			if (cMesh != nullptr) {
-				Euclid::OBB<Surface_mesh> obb(*cMesh);
+				Euclid::OBB<Kernel::FT> obb(*cMesh);
 				auto lbb = eigenToQt(obb.lbb());
 				auto lbf = eigenToQt(obb.lbf());
 				auto ltb = eigenToQt(obb.ltb());
@@ -194,7 +194,7 @@ void PropertyWidget::onImport(GeomInfo* info)
 
 			auto obbNode = _scene->addNode("MainMesh", "OBB");
 			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			Euclid::OBB<Polyhedron_3>
+			Euclid::OBB<Kernel::FT>
 				obb(ResourceManager::instance().pointCloud(_id)->vertices);
 			auto lbb = eigenToQt(obb.lbb());
 			auto lbf = eigenToQt(obb.lbf());
