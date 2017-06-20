@@ -3,6 +3,7 @@
 #include "Core/ResourceManager.h"
 #include "Core/Util.h"
 
+#include <Euclid/Geometry/Surface_mesh.h>
 #include <Euclid/Geometry/Polyhedron_3.h>
 #include <algorithm>
 #include <cmath>
@@ -151,24 +152,7 @@ bool Mesh::isManifold() const
 bool Mesh::_buildSurfaceMesh()
 {
 	_surfaceMesh = std::make_unique<Surface_mesh>();
-	std::vector<CGAL::SM_Vertex_index> vindices;
-	vindices.reserve(_vertices.size());
-	for (const auto& v : _vertices) {
-		vindices.push_back(_surfaceMesh->add_vertex(
-			eigenToCgal<Kernel>(v)));
-	}
-	for (auto i = 0; i < _indices.size(); i += 3) {
-		auto v1 = vindices[_indices[i + 0]];
-		auto v2 = vindices[_indices[i + 1]];
-		auto v3 = vindices[_indices[i + 2]];
-		_surfaceMesh->add_face(v1, v2, v3);
-	}
-	if (_surfaceMesh->is_valid()) {
-		return true;
-	}
-	else {
-		return false;
-	}
+	return Euclid::build_surface_mesh(_vertices, _indices, *_surfaceMesh);
 }
 
 bool Mesh::_buildPolyhedron()
