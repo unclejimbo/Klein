@@ -2,11 +2,15 @@
 
 #include <QDockWidget>
 #include <QString>
+#include <memory>
 
 class MainWindow;
 class GLWidget;
 class ProcessWidget;
 class QStackedWidget;
+class QComboBox;
+struct GeomInfo;
+struct PickingInfo;
 
 class ProcessPanel : public QDockWidget
 {
@@ -17,10 +21,12 @@ public:
 	ProcessPanel(const QString& title, MainWindow* parent, GLWidget* glWidget);
 	~ProcessPanel();
 
-	void addWidget(ProcessWidget* widget);
+	void addWidget(ProcessWidget* widget, const QString& name);
 
 public Q_SLOTS:
 	void onCurrentWidgetChanged(int id);
+	void onImport(GeomInfo* info);
+	void onPicked(const PickingInfo& info);
 
 private:
 	void _initializePanel(MainWindow* parent, GLWidget* glWidget);
@@ -29,5 +35,7 @@ private:
 	MainWindow* _parent;
 	GLWidget* _glWidget;
 	QStackedWidget* _stackedWidget;
-	int _prevWidgetID = 0;
+	QComboBox* _comboBox;
+	std::unique_ptr<GeomInfo> _geomInfo = nullptr;
+	ProcessWidget* _activatedWidget = nullptr;
 };

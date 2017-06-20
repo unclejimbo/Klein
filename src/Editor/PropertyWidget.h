@@ -10,15 +10,16 @@ public:
 	PropertyWidget(QWidget* parent, GLWidget* glWidget);
 	~PropertyWidget();
 
-public Q_SLOTS:
+	void activate() override;
+	void deactivate() override;
 	void onImport(GeomInfo* info) override;
+	void onPicked(const PickingInfo& info) override;
+
+public Q_SLOTS:
 	void showAABB(int state);
 	void showOBB(int state);
 	void showSphere(int state);
 	void onColorChanged(int state);
-
-private:
-	void _onPickedImp(const PickingInfo& info) override;
 	 
 private:
 	bool _valid = false;

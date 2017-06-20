@@ -15,18 +15,18 @@ public:
 	ProcessWidget(QWidget* parent, GLWidget* glWidget);
 	virtual ~ProcessWidget();
 
-	void enablePicking(bool picking);
+	bool initialized() const;
+	void setInitialized(bool init);
+	virtual void activate() = 0;
+	virtual void deactivate() = 0;
+	virtual void onImport(GeomInfo* info) = 0;
+	virtual void onPicked(const PickingInfo& info);
 
 public Q_SLOTS:
-	virtual void onImport(GeomInfo* info) = 0; // Clear all states and info
-	void onPicked(const PickingInfo& info);
 	void onInitializeScene(Scene* scene);
 
 protected:
 	GLWidget* _glWidget;
 	Scene* _scene;
-	bool _picking = false;
-
-private:
-	virtual void _onPickedImp(const PickingInfo& info);
+	bool _initialized = false;
 };

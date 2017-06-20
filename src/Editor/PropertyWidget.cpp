@@ -98,6 +98,14 @@ PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
 
 PropertyWidget::~PropertyWidget() = default;
 
+void PropertyWidget::activate()
+{
+}
+
+void PropertyWidget::deactivate()
+{
+}
+
 void PropertyWidget::onImport(GeomInfo* info)
 {
 	_scene->removeNode("AABB");
@@ -183,7 +191,7 @@ void PropertyWidget::onImport(GeomInfo* info)
 				}
 			}
 		}
-		
+
 		if (info->type == GEOM_TYPE_POINTCLOUD) {
 			auto aabbNode = _scene->addNode("MainMesh", "AABB");
 			auto aabbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
@@ -257,6 +265,20 @@ void PropertyWidget::onImport(GeomInfo* info)
 		_color->setCurrentIndex(0);
 		_color->removeItem(1);
 	}
+}
+
+void PropertyWidget::onPicked(const PickingInfo& info)
+{
+	if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
+		_primType->setText("Vertex");
+	}
+	if (info.primitiveType == PICKING_PRIMITIVE_LINE) {
+		_primType->setText("Line");
+	}
+	if (info.primitiveType == PICKING_PRIMITIVE_FACE) {
+		_primType->setText("Face");
+	}
+	_primID->setNum(static_cast<int>(info.primitiveID));
 }
 
 void PropertyWidget::showAABB(int state)
@@ -335,18 +357,4 @@ void PropertyWidget::onColorChanged(int state)
 	}
 
 	_glWidget->update();
-}
-
-void PropertyWidget::_onPickedImp(const PickingInfo& info)
-{
-	if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
-		_primType->setText("Vertex");
-	}
-	if (info.primitiveType == PICKING_PRIMITIVE_LINE) {
-		_primType->setText("Line");
-	}
-	if (info.primitiveType == PICKING_PRIMITIVE_FACE) {
-		_primType->setText("Face");
-	}
-	_primID->setNum(static_cast<int>(info.primitiveID));
 }

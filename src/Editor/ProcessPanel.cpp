@@ -19,22 +19,43 @@ ProcessPanel::ProcessPanel(const QString& title, MainWindow* parent, GLWidget* g
 
 ProcessPanel::~ProcessPanel() = default;
 
-void ProcessPanel::addWidget(ProcessWidget* widget)
+void ProcessPanel::addWidget(ProcessWidget* widget, const QString& name)
 {
+	_comboBox->addItem(name);
 	_stackedWidget->addWidget(widget);
 	connect(_parent, SIGNAL(sceneInitialized(Scene*)), widget, SLOT(onInitializeScene(Scene*)));
-	connect(_parent, SIGNAL(geomImported(GeomInfo*)), widget, SLOT(onImport(GeomInfo*)));
-	connect(_glWidget, SIGNAL(picked(const PickingInfo&)), widget, SLOT(onPicked(const PickingInfo&)));
 }
 
 void ProcessPanel::onCurrentWidgetChanged(int id)
 {
-	// Only the current widget can take control of the picking events
-	auto prevWidget = dynamic_cast<ProcessWidget*>(_stackedWidget->widget(_prevWidgetID));
+	_activatedWidget->deactivate();
 	auto curWidget = dynamic_cast<ProcessWidget*>(_stackedWidget->currentWidget());
-	prevWidget->enablePicking(false);
-	curWidget->enablePicking(true);
-	_prevWidgetID = id;
+	if (curWidget->initialized()) {
+		curWidget->activate();
+	}
+	else {
+		curWidget->onImport(_geomInfo.get());
+		curWidget->setInitialized(true);
+	}
+	_activatedWidget = curWidget;
+}
+
+void ProcessPanel::onImport(GeomInfo* info)
+{
+	_geomInfo = std::make_unique<GeomInfo>(*info);
+
+	for (auto i = 0; i < _stackedWidget->count(); ++i) {
+		auto processWidget = dynamic_cast<ProcessWidget*>(_stackedWidget->widget(i));
+		processWidget->setInitialized(false);
+	}
+
+	_activatedWidget->onImport(info);
+	_activatedWidget->setInitialized(true);
+}
+
+void ProcessPanel::onPicked(const PickingInfo& info)
+{
+	_activatedWidget->onPicked(info);
 }
 
 void ProcessPanel::_initializePanel(MainWindow* parent, GLWidget* glWidget)
@@ -47,20 +68,20 @@ void ProcessPanel::_initializePanel(MainWindow* parent, GLWidget* glWidget)
 	container->setLayout(layout);
 	this->setWidget(container);
 
-	auto comboBox = new QComboBox(container);
-	comboBox->addItem("Mesh Properties");
-	layout->addWidget(comboBox);
+	_comboBox = new QComboBox(container);
+	layout->addWidget(_comboBox);
 
 	_stackedWidget = new QStackedWidget(container);
 	layout->addWidget(_stackedWidget);
 
 	auto propertyWidget = new PropertyWidget(_stackedWidget, glWidget);
-	addWidget(propertyWidget);
-	propertyWidget->enablePicking(true);
-	_prevWidgetID = _stackedWidget->currentIndex();
+	addWidget(propertyWidget, "Properties");;
+	_activatedWidget = propertyWidget;
 
-	connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+	connect(_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
 		_stackedWidget, &QStackedWidget::setCurrentIndex);
-	connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+	connect(_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
 		this, &ProcessPanel::onCurrentWidgetChanged);
+	connect(parent, &MainWindow::geomImported, this, &ProcessPanel::onImport);
+	connect(glWidget, &GLWidget::picked, this, &ProcessPanel::onPicked);
 }
