@@ -58,13 +58,13 @@ PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
 	layout->addWidget(pickGroup);
 	auto pickLayout = new QGridLayout(pickGroup);
 	pickGroup->setLayout(pickLayout);
-	auto nothingBtn = new QRadioButton("Don't Pick", pickGroup);
-	nothingBtn->setChecked(true);
-	pickLayout->addWidget(nothingBtn, 0, 0);
-	auto vertexBtn = new QRadioButton("Pick Vertex", pickGroup);
-	pickLayout->addWidget(vertexBtn, 0, 1);
-	auto faceBtn = new QRadioButton("Pick Face", pickGroup);
-	pickLayout->addWidget(faceBtn, 0, 2);
+	_nothingBtn = new QRadioButton("Don't Pick", pickGroup);
+	_nothingBtn->setChecked(true);
+	pickLayout->addWidget(_nothingBtn, 0, 0);
+	_vertexBtn = new QRadioButton("Pick Vertex", pickGroup);
+	pickLayout->addWidget(_vertexBtn, 0, 1);
+	_faceBtn = new QRadioButton("Pick Face", pickGroup);
+	pickLayout->addWidget(_faceBtn, 0, 2);
 	pickLayout->addWidget(new QLabel("PrimType:"), 1, 0);
 	_primType = new QLabel(pickGroup);
 	pickLayout->addWidget(_primType, 1, 1);
@@ -90,11 +90,11 @@ PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
 	_color->addItem("Material");
 	visLayout->addWidget(_color, 1, 1, 1, 2);
 
-	connect(nothingBtn, &QRadioButton::clicked,
+	connect(_nothingBtn, &QRadioButton::clicked,
 		[this](bool) { _scene->setPickingPrimitive(PICKING_PRIMITIVE_NONE); });
-	connect(vertexBtn, &QRadioButton::clicked,
+	connect(_vertexBtn, &QRadioButton::clicked,
 		[this](bool) { _scene->setPickingPrimitive(PICKING_PRIMITIVE_VERTEX); });
-	connect(faceBtn, &QRadioButton::clicked,
+	connect(_faceBtn, &QRadioButton::clicked,
 		[this](bool) { _scene->setPickingPrimitive(PICKING_PRIMITIVE_FACE); });
 	connect(_aabb, &QCheckBox::stateChanged, this, &PropertyWidget::showAABB);
 	connect(_obb, &QCheckBox::stateChanged, this, &PropertyWidget::showOBB);
@@ -107,15 +107,30 @@ PropertyWidget::~PropertyWidget() = default;
 
 void PropertyWidget::activate()
 {
-	auto g = _scene->node("PropertyPick")->graphicsComponent();
-	if (g != nullptr) {
-		g->setVisible(true);
+	auto node = _scene->node("PropertyPick");
+	if (node != nullptr) {
+		node->graphicsComponent()->setVisible(true);
 	}
+	if (_nothingBtn->isChecked()) {
+		_scene->setPickingPrimitive(PICKING_PRIMITIVE_NONE);
+	}
+	if (_vertexBtn->isChecked()) {
+		_scene->setPickingPrimitive(PICKING_PRIMITIVE_VERTEX);
+	}
+	if (_faceBtn->isChecked()) {
+		_scene->setPickingPrimitive(PICKING_PRIMITIVE_FACE);
+	}
+	_glWidget->update();
 }
 
 void PropertyWidget::deactivate()
 {
-	_scene->node("PropertyPick")->graphicsComponent()->setVisible(false);
+	auto node = _scene->node("PropertyPick");
+	if (node != nullptr) {
+		node->graphicsComponent()->setVisible(false);
+	}
+	_scene->setPickingPrimitive(PICKING_PRIMITIVE_NONE);
+	_glWidget->update();
 }
 
 void PropertyWidget::onImport(GeomInfo* info)

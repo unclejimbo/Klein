@@ -35,6 +35,9 @@ private:
 	QLabel* _maxY;
 	QLabel* _minZ;
 	QLabel* _maxZ;
+	QRadioButton* _nothingBtn;
+	QRadioButton* _vertexBtn;
+	QRadioButton* _faceBtn;
 	QLabel* _geomType;
 	QLabel* _geomID;
 	QLabel* _primType;
