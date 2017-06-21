@@ -7,6 +7,7 @@
 #include <QImage>
 #include <memory>
 #include <vector>
+#include <string>
 
 class Scene;
 class CameraController;
@@ -26,6 +27,7 @@ public:
 	void readColorBuffer(QImage& img); // Read offscreen-pass nodes
 	void readDepthBuffer(std::vector<float>& depth);
 	PickingInfo pick(int x, int y);
+	void renderPicked(const PickingInfo& info, const std::string& pickNodeID);
 
 Q_SIGNALS:
 	void picked(const PickingInfo& info);
@@ -43,7 +45,6 @@ protected:
 
 private:
 	void _paintAxis();
-	void _paintPicked(PickingInfo info);
 
 private Q_SLOTS:
 	void _logOpenGLMsg(const QOpenGLDebugMessage& msg);

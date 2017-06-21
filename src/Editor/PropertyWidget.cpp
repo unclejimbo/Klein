@@ -58,18 +58,19 @@ PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
 	layout->addWidget(pickGroup);
 	auto pickLayout = new QGridLayout(pickGroup);
 	pickGroup->setLayout(pickLayout);
-	pickLayout->addWidget(new QLabel("GeomType:"), 0, 0);
-	_geomType = new QLabel(pickGroup);
-	pickLayout->addWidget(_geomType, 0, 1);
-	pickLayout->addWidget(new QLabel("GeomID:  "), 1, 0);
-	_geomID = new QLabel(pickGroup);
-	pickLayout->addWidget(_geomID, 1, 1);
-	pickLayout->addWidget(new QLabel("PrimType:"), 2, 0);
+	auto nothingBtn = new QRadioButton("Don't Pick", pickGroup);
+	nothingBtn->setChecked(true);
+	pickLayout->addWidget(nothingBtn, 0, 0);
+	auto vertexBtn = new QRadioButton("Pick Vertex", pickGroup);
+	pickLayout->addWidget(vertexBtn, 0, 1);
+	auto faceBtn = new QRadioButton("Pick Face", pickGroup);
+	pickLayout->addWidget(faceBtn, 0, 2);
+	pickLayout->addWidget(new QLabel("PrimType:"), 1, 0);
 	_primType = new QLabel(pickGroup);
-	pickLayout->addWidget(_primType, 2, 1);
-	pickLayout->addWidget(new QLabel("PrimID  :"), 3, 0);
+	pickLayout->addWidget(_primType, 1, 1);
+	pickLayout->addWidget(new QLabel("PrimID  :"), 2, 0);
 	_primID = new QLabel(pickGroup);
-	pickLayout->addWidget(_primID, 3, 1);
+	pickLayout->addWidget(_primID, 2, 1);
 
 	auto visGroup = new QGroupBox("Visualization", this);
 	layout->addWidget(visGroup);
@@ -89,6 +90,12 @@ PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
 	_color->addItem("Material");
 	visLayout->addWidget(_color, 1, 1, 1, 2);
 
+	connect(nothingBtn, &QRadioButton::clicked,
+		[this](bool) { _scene->setPickingPrimitive(PICKING_PRIMITIVE_NONE); });
+	connect(vertexBtn, &QRadioButton::clicked,
+		[this](bool) { _scene->setPickingPrimitive(PICKING_PRIMITIVE_VERTEX); });
+	connect(faceBtn, &QRadioButton::clicked,
+		[this](bool) { _scene->setPickingPrimitive(PICKING_PRIMITIVE_FACE); });
 	connect(_aabb, &QCheckBox::stateChanged, this, &PropertyWidget::showAABB);
 	connect(_obb, &QCheckBox::stateChanged, this, &PropertyWidget::showOBB);
 	connect(_sphere, &QCheckBox::stateChanged, this, &PropertyWidget::showSphere);
@@ -100,10 +107,15 @@ PropertyWidget::~PropertyWidget() = default;
 
 void PropertyWidget::activate()
 {
+	auto g = _scene->node("PropertyPick")->graphicsComponent();
+	if (g != nullptr) {
+		g->setVisible(true);
+	}
 }
 
 void PropertyWidget::deactivate()
 {
+	_scene->node("PropertyPick")->graphicsComponent()->setVisible(false);
 }
 
 void PropertyWidget::onImport(GeomInfo* info)
@@ -279,6 +291,7 @@ void PropertyWidget::onPicked(const PickingInfo& info)
 		_primType->setText("Face");
 	}
 	_primID->setNum(static_cast<int>(info.primitiveID));
+	_glWidget->renderPicked(info, "PropertyPick");
 }
 
 void PropertyWidget::showAABB(int state)

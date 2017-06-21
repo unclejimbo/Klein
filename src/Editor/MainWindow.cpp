@@ -76,25 +76,6 @@ void MainWindow::_createActions()
 	_aScreenShot = new QAction("Screen Shot", this);
 	connect(_aScreenShot, &QAction::triggered, this, &MainWindow::_screenShot);
 
-	auto pickActions = new QActionGroup(this);
-
-	_aPickNothing = new QAction("No pick", pickActions);
-	_aPickNothing->setCheckable(true);
-	_aPickNothing->setChecked(true);
-	connect(_aPickNothing, &QAction::triggered, this, &MainWindow::_pickNothing);
-
-	_aPickVertex = new QAction("Pick Vertex", pickActions);
-	_aPickVertex->setCheckable(true);
-	connect(_aPickVertex, &QAction::triggered, this, &MainWindow::_pickVertex);
-
-	_aPickLine = new QAction("Pick Line", pickActions);
-	_aPickLine->setCheckable(true);
-	connect(_aPickLine, &QAction::triggered, this, &MainWindow::_pickLine);
-
-	_aPickFace = new QAction("Pick Face", pickActions);
-	_aPickFace->setCheckable(true);
-	connect(_aPickFace, &QAction::triggered, this, &MainWindow::_pickFace);
-
 	auto shadingActions = new QActionGroup(this);
 
 	_aShaded = new QAction("Shaded", shadingActions);
@@ -129,12 +110,6 @@ void MainWindow::_createMenuBar()
 	file->addAction(_aScreenShot);
 	file->addSeparator();
 	file->addAction(_aQuit);
-
-	auto edit = _menuBar->addMenu("Edit");
-	edit->addAction(_aPickNothing);
-	edit->addAction(_aPickVertex);
-	edit->addAction(_aPickLine);
-	edit->addAction(_aPickFace);
 	
 	auto view = _menuBar->addMenu("View");
 	view->addAction(_aShaded);
@@ -301,26 +276,6 @@ void MainWindow::_screenShot()
 	fileName.append(curTime.toString("yyyymmddhhmmsszzz")).append(".png");
 	KLEIN_LOG_DEBUG(fileName);
 	img.save(fileName);
-}
-
-void MainWindow::_pickNothing()
-{
-	_scene.setPickingPrimitive(PICKING_PRIMITIVE_NONE);
-}
-
-void MainWindow::_pickVertex()
-{
-	_scene.setPickingPrimitive(PICKING_PRIMITIVE_VERTEX);
-}
-
-void MainWindow::_pickLine()
-{
-	_scene.setPickingPrimitive(PICKING_PRIMITIVE_LINE);
-}
-
-void MainWindow::_pickFace()
-{
-	_scene.setPickingPrimitive(PICKING_PRIMITIVE_FACE);
 }
 
 void MainWindow::_shaded()

@@ -109,6 +109,63 @@ PickingInfo GLWidget::pick(int x, int y)
 	return info;
 }
 
+void GLWidget::renderPicked(const PickingInfo& info, const std::string& pickNodeID)
+{
+	if (info.primitiveType == PICKING_PRIMITIVE_NONE) {
+		return;
+	}
+
+	_scene->removeNode(pickNodeID);
+	auto parent = _scene->node(info.nodeID);
+	auto buffer = ResourceManager::instance().glBuffer(info.bufferID);
+	this->makeCurrent();
+
+	if (info.bufferSpec == GL_TRIANGLES) {
+		if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
+			QVector3D point;
+			buffer->bind();
+			buffer->read(info.primitiveID * sizeof(QVector3D), &point, sizeof(QVector3D));
+			buffer->release();
+			auto node = _scene->addNode(parent, pickNodeID);
+			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
+			graphics->setPointSize(10);
+			graphics->addPoint(point);
+			node->addGraphicsComponent(std::move(graphics));
+		}
+
+		if (info.primitiveType == PICKING_PRIMITIVE_FACE) {
+			QVector3D points[3];
+			buffer->bind();
+			buffer->read(3 * info.primitiveID * sizeof(QVector3D), points, sizeof(QVector3D) * 3);
+			buffer->release();
+			auto node = _scene->addNode(parent, pickNodeID);
+			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
+			graphics->setPointSize(10);
+			graphics->addPoint(points[0]);
+			graphics->addPoint(points[1]);
+			graphics->addPoint(points[2]);
+			node->addGraphicsComponent(std::move(graphics));
+		}
+	}
+
+	if (info.bufferSpec == GL_POINTS) {
+		if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
+			QVector3D point;
+			buffer->bind();
+			buffer->read(info.primitiveID * sizeof(QVector3D), &point, sizeof(QVector3D));
+			buffer->release();
+			auto node = _scene->addNode(parent, pickNodeID);
+			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
+			graphics->setPointSize(10);
+			graphics->addPoint(point);
+			node->addGraphicsComponent(std::move(graphics));
+		}
+	}
+
+	this->doneCurrent();
+	this->update();
+}
+
 void GLWidget::initializeGL()
 {
 	this->initializeOpenGLFunctions();
@@ -211,7 +268,7 @@ void GLWidget::mousePressEvent(QMouseEvent* event)
 	if (event->button() == Qt::LeftButton) {
 		auto info = pick(event->x(), event->y());
 		if (info.bufferID != 0) {
-			_paintPicked(info);
+			//_paintPicked(info);
 			Q_EMIT(picked(info));
 		}
 	}
@@ -293,63 +350,6 @@ void GLWidget::_paintAxis()
 	glEnable(GL_DEPTH_TEST);
 
 	vao.release();
-}
-
-void GLWidget::_paintPicked(PickingInfo info)
-{
-	if (info.primitiveType == PICKING_PRIMITIVE_NONE) {
-		return;
-	}
-
-	_scene->removeNode("PickedNode");
-	auto parent = _scene->node(info.nodeID);
-	auto buffer = ResourceManager::instance().glBuffer(info.bufferID);
-	this->makeCurrent();
-
-	if (info.bufferSpec == GL_TRIANGLES) {
-		if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
-			QVector3D point;
-			buffer->bind();
-			buffer->read(info.primitiveID * sizeof(QVector3D), &point, sizeof(QVector3D));
-			buffer->release();
-			auto node = _scene->addNode(parent, "PickedNode");
-			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
-			graphics->setPointSize(10);
-			graphics->addPoint(point);
-			node->addGraphicsComponent(std::move(graphics));
-		}
-
-		if (info.primitiveType == PICKING_PRIMITIVE_FACE) {
-			QVector3D points[3];
-			buffer->bind();
-			buffer->read(3 * info.primitiveID * sizeof(QVector3D), points, sizeof(QVector3D) * 3);
-			buffer->release();
-			auto node = _scene->addNode(parent, "PickedNode");
-			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
-			graphics->setPointSize(10);
-			graphics->addPoint(points[0]);
-			graphics->addPoint(points[1]);
-			graphics->addPoint(points[2]);
-			node->addGraphicsComponent(std::move(graphics));
-		}
-	}
-
-	if (info.bufferSpec == GL_POINTS) {
-		if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
-			QVector3D point;
-			buffer->bind();
-			buffer->read(info.primitiveID * sizeof(QVector3D), &point, sizeof(QVector3D));
-			buffer->release();
-			auto node = _scene->addNode(parent, "PickedNode");
-			auto graphics = std::make_unique<PrimitiveGraphics>(*this);
-			graphics->setPointSize(10);
-			graphics->addPoint(point);
-			node->addGraphicsComponent(std::move(graphics));
-		}
-	}
-
-	this->doneCurrent();
-	this->update();
 }
 
 void GLWidget::_logOpenGLMsg(const QOpenGLDebugMessage& msg)
