@@ -1,10 +1,7 @@
 #pragma once
 
 #include <QVector3D>
-#include <QImage>
 #include <Eigen/Dense>
-#include <algorithm>
-#include <vector>
 
 /*****************************
  Vector and Matrix Conversion
@@ -16,11 +13,11 @@ qtToEigen(const QVector3D& vec)
 	return Eigen::Matrix<FT, 3, 1>(vec.x(), vec.y(), vec.z());
 }
 
-template<typename Kernel>
-inline typename Kernel::Point_3
+template<typename CGALVec>
+inline CGALVec
 qtToCgal(const QVector3D& vec)
 {
-	return typename Kernel::Point_3(vec.x(), vec.y(), vec.z());
+	return CGALVec(vec.x(), vec.y(), vec.z());
 }
 
 template<typename FT>
@@ -30,23 +27,23 @@ eigenToQt(const Eigen::Matrix<FT, 3, 1>& vec)
 	return QVector3D(vec(0), vec(1), vec(2));
 }
 
-template<typename Kernel>
-inline typename Kernel::Point_3
+template<typename CGALVec>
+inline CGALVec
 eigenToCgal(const Eigen::Matrix<typename Kernel::FT, 3, 1>& vec)
 {
-	return typename Kernel::Point_3(vec(0), vec(1), vec(2));
+	return CGALVec(vec(0), vec(1), vec(2));
 }
 
-template<typename Kernel>
-inline Eigen::Matrix<typename Kernel::FT, 3, 1>
-cgalToEigen(const typename Kernel::Point_3& p)
+template<typename CGALVec>
+inline Eigen::Matrix<typename CGAL::Kernel_traits<CGALVec>::Kernel::FT, 3, 1>
+cgalToEigen(const CGALVec& p)
 {
-	return Eigen::Matrix<typename Kernel::FT, 3, 1>(p.x(), p.y(), p.z());
+	return Eigen::Matrix<typename CGAL::Kernel_traits<CGALVec>::Kernel::FT, 3, 1>(p.x(), p.y(), p.z());
 }
 
-template<typename Kernel>
+template<typename CGALVec>
 inline QVector3D
-cgalToQt(const typename Kernel::Point_3& p)
+cgalToQt(const CGALVec& p)
 {
 	return QVector3D(p.x(), p.y(), p.z());
 }

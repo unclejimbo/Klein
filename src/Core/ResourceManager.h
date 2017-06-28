@@ -29,7 +29,7 @@ public:
 	void initialize(QOpenGLWidget* context);
 
 	unsigned addMesh(const std::vector<QVector3D>& vertices,
-		const std::vector<QVector3D>& normals, const std::vector<unsigned>& indices, 
+		const std::vector<unsigned>& indices, 
 		unsigned vertexBufferID, unsigned normalBufferID);
 	Mesh* mesh(unsigned id);
 	bool removeMesh(unsigned id);

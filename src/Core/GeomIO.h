@@ -20,7 +20,6 @@ struct GeomInfo
 	int nEdges;
 	int nFaces;
 	QVector3D center;
-	float radius;
 	float minX;
 	float maxX;
 	float minY;

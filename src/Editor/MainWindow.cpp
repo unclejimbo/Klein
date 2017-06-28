@@ -11,6 +11,7 @@
 #include "Core/PrimitiveGraphics.h"
 
 #include <QMatrix4x4>
+#include <QVector3D>
 #include <memory>
 #include <fstream>
 
@@ -181,7 +182,10 @@ void MainWindow::_importMesh()
 			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
 
 			QMatrix4x4 transform;
-			transform.scale(1.0f / _geomInfo.radius);
+			auto diag = QVector3D(_geomInfo.maxX - _geomInfo.minX,
+				_geomInfo.maxY - _geomInfo.minY, _geomInfo.maxZ - _geomInfo.minZ);
+			diag *= 0.5f;
+			transform.scale(1.0f / diag.length());
 			transform.translate(-_geomInfo.center);
 			node->setTransform(transform);
 
@@ -237,7 +241,10 @@ void MainWindow::_importPointCloud()
 			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
 
 			QMatrix4x4 transform;
-			transform.scale(1.0f / _geomInfo.radius);
+			auto diag = QVector3D(_geomInfo.maxX - _geomInfo.minX,
+				_geomInfo.maxY - _geomInfo.minY, _geomInfo.maxZ - _geomInfo.minZ);
+			diag *= 0.5f;
+			transform.scale(1.0f / diag.length());
 			transform.translate(-_geomInfo.center);
 			node->setTransform(transform);
 

@@ -1,32 +1,34 @@
 #pragma once
 
+#include "Core/GeomBase.h"
+
 #include <QVector3D>
-#include <Eigen/Dense>
+#include <CGAL/Point_set_3.h>
 #include <vector>
 #include <string>
 
-class GraphicsComponent;
+using Point_set = CGAL::Point_set_3<Point_3>;
 
 class PointCloud
 {
 public:
-	PointCloud(const std::vector<QVector3D>& rawVertices,
+	PointCloud(const std::vector<QVector3D>& rawPoints,
+		unsigned pointBuffer);
+	PointCloud(const std::vector<QVector3D>& rawPoints,
 		const std::vector<QVector3D>& rawNormals,
-		unsigned positionBuffer);
-	PointCloud(const std::vector<QVector3D>& rawVertices,
-		unsigned positionBuffer);
+		unsigned pointBuffer);
 	~PointCloud();
 
 	unsigned id() const;
+	unsigned pointBufferID() const;
+	Point_set& pointSet();
+	const Point_set& pointSet() const;
 	void updateGLBuffer() const;
 
-	std::vector<Eigen::Vector3f> vertices;
-	std::vector<Eigen::Vector3f> normals;
-
-	unsigned positionBufferID;
-
 private:
-	GraphicsComponent* _graphics = nullptr;
 	unsigned _id;
+	unsigned _pointBufferID;
+	Point_set _pointSet;
+
 	static unsigned _inc;
 };

@@ -15,10 +15,10 @@ void ResourceManager::initialize(QOpenGLWidget* context)
 }
 
 unsigned ResourceManager::addMesh(const std::vector<QVector3D>& vertices,
-	const std::vector<QVector3D>& normals, const std::vector<unsigned>& indices,
+	const std::vector<unsigned>& indices,
 	unsigned vertexBufferID, unsigned normalBufferID)
 {
-	auto mesh = std::make_unique<Mesh>(vertices, normals, indices, vertexBufferID, normalBufferID);
+	auto mesh = std::make_unique<Mesh>(vertices, indices, vertexBufferID, normalBufferID);
 	auto id = mesh->id();
 	if (!_meshMap.insert_or_assign(id, std::move(mesh)).second) {
 		KLEIN_LOG_WARNING(QString("Mesh%1 already exists and is replaced").arg(id));

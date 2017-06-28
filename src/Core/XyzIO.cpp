@@ -77,7 +77,6 @@ bool XyzIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 			}
 		}
 		geomInfo->center = QVector3D((xmax + xmin) * 0.5f, (ymax + ymin) * 0.5f, (zmax + zmin) * 0.5f);
-		geomInfo->radius = QVector3D(xmax - xmin, ymax - ymin, zmax - zmin).length() * 0.5f;
 		geomInfo->minX = xmin;
 		geomInfo->maxX = xmax;
 		geomInfo->minY = ymin;

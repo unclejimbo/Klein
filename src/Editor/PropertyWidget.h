@@ -18,7 +18,6 @@ public:
 public Q_SLOTS:
 	void showAABB(int state);
 	void showOBB(int state);
-	void showSphere(int state);
 	void onColorChanged(int state);
 	 
 private:
@@ -28,7 +27,6 @@ private:
 	QLabel* _nFaces;
 	QLabel* _euler;
 	QLabel* _center;
-	QLabel* _radius;
 	QLabel* _minX;
 	QLabel* _maxX;
 	QLabel* _minY;
@@ -44,7 +42,6 @@ private:
 	QLabel* _primID;
 	QCheckBox* _aabb;
 	QCheckBox* _obb;
-	QCheckBox* _sphere;
 	QComboBox* _color;
 
 	unsigned _id;

@@ -32,9 +32,6 @@ PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
 	infoLayout->addWidget(new QLabel("Center: "), 2, 0);
 	_center = new QLabel(infoGroup);
 	infoLayout->addWidget(_center, 2, 1);
-	infoLayout->addWidget(new QLabel("Radius: "), 2, 2);
-	_radius = new QLabel(infoGroup);
-	infoLayout->addWidget(_radius, 2, 3);
 	infoLayout->addWidget(new QLabel("minX:"), 3, 0);
 	_minX = new QLabel(infoGroup);
 	infoLayout->addWidget(_minX, 3, 1);
@@ -82,9 +79,6 @@ PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
 	_obb = new QCheckBox("OBB", visGroup);
 	_obb->setCheckable(false);
 	visLayout->addWidget(_obb, 0, 1);
-	_sphere = new QCheckBox("Sphere", visGroup);
-	_sphere->setCheckable(false);
-	visLayout->addWidget(_sphere, 0, 2);
 	visLayout->addWidget(new QLabel("Color: "), 1, 0);
 	_color = new QComboBox(visGroup);
 	_color->addItem("Material");
@@ -98,7 +92,6 @@ PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
 		[this](bool) { _scene->setPickingPrimitive(PICKING_PRIMITIVE_FACE); });
 	connect(_aabb, &QCheckBox::stateChanged, this, &PropertyWidget::showAABB);
 	connect(_obb, &QCheckBox::stateChanged, this, &PropertyWidget::showOBB);
-	connect(_sphere, &QCheckBox::stateChanged, this, &PropertyWidget::showSphere);
 	connect(_color, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
 		this, &PropertyWidget::onColorChanged);
 }
@@ -158,44 +151,37 @@ void PropertyWidget::onImport(GeomInfo* info)
 			auto cMesh = ResourceManager::instance().mesh(_id)->surfaceMesh();
 			if (cMesh != nullptr) {
 				Euclid::OBB<Kernel::FT> obb(*cMesh);
-				auto lbb = eigenToQt(obb.lbb());
-				auto lbf = eigenToQt(obb.lbf());
-				auto ltb = eigenToQt(obb.ltb());
-				auto ltf = eigenToQt(obb.ltf());
-				auto rbb = eigenToQt(obb.rbb());
-				auto rbf = eigenToQt(obb.rbf());
-				auto rtb = eigenToQt(obb.rtb());
-				auto rtf = eigenToQt(obb.rtf());
+				auto lbb = cgalToQt(obb.lbb());
+				auto lbf = cgalToQt(obb.lbf());
+				auto ltb = cgalToQt(obb.ltb());
+				auto ltf = cgalToQt(obb.ltf());
+				auto rbb = cgalToQt(obb.rbb());
+				auto rbf = cgalToQt(obb.rbf());
+				auto rtb = cgalToQt(obb.rtb());
+				auto rtf = cgalToQt(obb.rtf());
 				obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
 			}
 			else {
 				Euclid::OBB<float>
-					obb(ResourceManager::instance().mesh(_id)->vertices());
-				auto lbb = eigenToQt(obb.lbb());
-				auto lbf = eigenToQt(obb.lbf());
-				auto ltb = eigenToQt(obb.ltb());
-				auto ltf = eigenToQt(obb.ltf());
-				auto rbb = eigenToQt(obb.rbb());
-				auto rbf = eigenToQt(obb.rbf());
-				auto rtb = eigenToQt(obb.rtb());
-				auto rtf = eigenToQt(obb.rtf());
+					obb(ResourceManager::instance().mesh(_id)->points());
+				auto lbb = cgalToQt(obb.lbb());
+				auto lbf = cgalToQt(obb.lbf());
+				auto ltb = cgalToQt(obb.ltb());
+				auto ltf = cgalToQt(obb.ltf());
+				auto rbb = cgalToQt(obb.rbb());
+				auto rbf = cgalToQt(obb.rbf());
+				auto rtb = cgalToQt(obb.rtb());
+				auto rtf = cgalToQt(obb.rtf());
 				obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
 			}
 			obbGraphics->setVisible(false);
 			obbNode->addGraphicsComponent(std::move(obbGraphics));
-
-			auto sphereNode = _scene->addNode("MainMesh", "Sphere");
-			auto sphereGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			sphereGraphics->addSphere(info->center, info->radius);
-			sphereGraphics->setVisible(false);
-			sphereNode->addGraphicsComponent(std::move(sphereGraphics));
 
 			_fileName->setText(info->fileName);
 			_nVertices->setNum(static_cast<int>(info->nVertices));
 			_nFaces->setNum(static_cast<int>(info->nFaces));
 			_center->setText(QString("(%1, %2, %3)").arg(info->center.x()).
 				arg(info->center.y()).arg(info->center.z()));
-			_radius->setNum(info->radius);
 			_minX->setNum(info->minX);
 			_maxX->setNum(info->maxX);
 			_minY->setNum(info->minY);
@@ -206,8 +192,6 @@ void PropertyWidget::onImport(GeomInfo* info)
 			_aabb->setCheckable(true);
 			_obb->setChecked(false);
 			_obb->setCheckable(true);
-			_sphere->setChecked(false);
-			_sphere->setCheckable(true);
 			_color->setCurrentIndex(0);
 			if (!ResourceManager::instance().mesh(_id)->isManifold()) {
 				_color->removeItem(1);
@@ -230,32 +214,25 @@ void PropertyWidget::onImport(GeomInfo* info)
 			auto obbNode = _scene->addNode("MainMesh", "OBB");
 			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
 			Euclid::OBB<Kernel::FT>
-				obb(ResourceManager::instance().pointCloud(_id)->vertices);
-			auto lbb = eigenToQt(obb.lbb());
-			auto lbf = eigenToQt(obb.lbf());
-			auto ltb = eigenToQt(obb.ltb());
-			auto ltf = eigenToQt(obb.ltf());
-			auto rbb = eigenToQt(obb.rbb());
-			auto rbf = eigenToQt(obb.rbf());
-			auto rtb = eigenToQt(obb.rtb());
-			auto rtf = eigenToQt(obb.rtf());
+				obb(ResourceManager::instance().pointCloud(_id)->pointSet());
+			auto lbb = cgalToQt(obb.lbb());
+			auto lbf = cgalToQt(obb.lbf());
+			auto ltb = cgalToQt(obb.ltb());
+			auto ltf = cgalToQt(obb.ltf());
+			auto rbb = cgalToQt(obb.rbb());
+			auto rbf = cgalToQt(obb.rbf());
+			auto rtb = cgalToQt(obb.rtb());
+			auto rtf = cgalToQt(obb.rtf());
 			obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
 
 			obbGraphics->setVisible(false);
 			obbNode->addGraphicsComponent(std::move(obbGraphics));
-
-			auto sphereNode = _scene->addNode("MainMesh", "Sphere");
-			auto sphereGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			sphereGraphics->addSphere(info->center, info->radius);
-			sphereGraphics->setVisible(false);
-			sphereNode->addGraphicsComponent(std::move(sphereGraphics));
 
 			_fileName->setText(info->fileName);
 			_nVertices->setNum(static_cast<int>(info->nVertices));
 			_nFaces->setNum(static_cast<int>(info->nFaces));
 			_center->setText(QString("(%1, %2, %3)").arg(info->center.x()).
 				arg(info->center.y()).arg(info->center.z()));
-			_radius->setNum(info->radius);
 			_minX->setNum(info->minX);
 			_maxX->setNum(info->maxX);
 			_minY->setNum(info->minY);
@@ -266,8 +243,6 @@ void PropertyWidget::onImport(GeomInfo* info)
 			_aabb->setCheckable(true);
 			_obb->setChecked(false);
 			_obb->setCheckable(true);
-			_sphere->setChecked(false);
-			_sphere->setCheckable(true);
 			_color->setCurrentIndex(0);
 			_color->removeItem(1);
 		}
@@ -279,7 +254,6 @@ void PropertyWidget::onImport(GeomInfo* info)
 		_nVertices->setText("");
 		_nFaces->setText("");
 		_center->setText("");
-		_radius->setText("");
 		_minX->setText("");
 		_maxX->setText("");
 		_minY->setText("");
@@ -288,7 +262,6 @@ void PropertyWidget::onImport(GeomInfo* info)
 		_maxZ->setText("");
 		_aabb->setCheckable(false);
 		_obb->setCheckable(false);
-		_sphere->setCheckable(false);
 		_color->setCurrentIndex(0);
 		_color->removeItem(1);
 	}
@@ -335,19 +308,6 @@ void PropertyWidget::showOBB(int state)
 	}
 }
 
-void PropertyWidget::showSphere(int state)
-{
-	if (_valid) {
-		if (state == Qt::Checked) {
-			_scene->node("Sphere")->graphicsComponent()->setVisible(true);
-		} 
-		else {
-			_scene->node("Sphere")->graphicsComponent()->setVisible(false);
-		}
-		_glWidget->update();
-	}
-}
-
 void PropertyWidget::onColorChanged(int state)
 {
 	if (state == 0) { // Material
@@ -377,7 +337,7 @@ void PropertyWidget::onColorChanged(int state)
 
 			auto valenceNode = _scene->addNode(_scene->rootNode(), "MainMeshValence", _scene->node("MainMesh")->transform());
 			auto graphics = std::make_unique<PBRMeshVColorGraphics>(*_glWidget);
-			graphics->setPositionBuffer(ResourceManager::instance().mesh(_id)->positionBufferID());
+			graphics->setPositionBuffer(ResourceManager::instance().mesh(_id)->pointBufferID());
 			graphics->setNormalBuffer(ResourceManager::instance().mesh(_id)->normalBufferID());
 			graphics->setColorBuffer(_valenceBuffer);
 			valenceNode->addGraphicsComponent(std::move(graphics));

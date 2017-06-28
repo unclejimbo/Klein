@@ -43,7 +43,6 @@ inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<QVector3D>& ver
 			}
 		}
 		geomInfo->center = QVector3D((xmax + xmin) * 0.5f, (ymax + ymin) * 0.5f, (zmax + zmin) * 0.5f);
-		geomInfo->radius = QVector3D(xmax - xmin, ymax - ymin, zmax - zmin).length() * 0.5f;
 		geomInfo->minX = xmin;
 		geomInfo->maxX = xmax;
 		geomInfo->minY = ymin;
@@ -150,7 +149,7 @@ bool OffIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 	normalBufferID =  ResourceManager::instance().addGLBuffer(normalBuffer, GL_TRIANGLES);
 
 	if (geomInfo != nullptr) {
-		geomInfo->id = ResourceManager::instance().addMesh(vertices, fnormals, indices,
+		geomInfo->id = ResourceManager::instance().addMesh(vertices, indices,
 			positionBufferID, normalBufferID);
 
 		recordGeomInfo(geomInfo, vertices, -1, static_cast<int>(fnormals.size()));

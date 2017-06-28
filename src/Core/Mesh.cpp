@@ -11,25 +11,17 @@
 
 unsigned Mesh::_inc = 1;
 
-Mesh::Mesh(const std::vector<QVector3D>& rawVertices,
-	const std::vector<QVector3D>& rawFNormals,
+Mesh::Mesh(const std::vector<QVector3D>& rawPoints,
 	const std::vector<unsigned>& rawIndices,
-	unsigned positionBuffer,
+	unsigned pointBuffer,
 	unsigned normalBuffer)
-	: _indices(rawIndices), _positionBufferID(positionBuffer),
+	: _indices(rawIndices), _pointBufferID(pointBuffer),
 	_normalBufferID(normalBuffer), _id(_inc++)
 {
-	_vertices.resize(rawVertices.size());
-	std::transform(rawVertices.begin(), rawVertices.end(), _vertices.begin(),
+	_points.resize(rawPoints.size());
+	std::transform(rawPoints.begin(), rawPoints.end(), _points.begin(),
 		[](const QVector3D& v) {
-			return qtToEigen<float>(v);
-		}
-	);
-
-	_fNormals.resize(rawFNormals.size());
-	std::transform(rawFNormals.begin(), rawFNormals.end(), _fNormals.begin(),
-		[](const QVector3D& v) {
-			return qtToEigen<float>(v);
+			return qtToCgal<Point_3>(v);
 		}
 	);
 
@@ -43,24 +35,19 @@ unsigned Mesh::id() const
 	return _id;
 }
 
-const std::vector<Eigen::Vector3f>& Mesh::vertices() const
+bool Mesh::isManifold() const
 {
-	return _vertices;
+	return _isManifold;
 }
 
-std::vector<Eigen::Vector3f>& Mesh::vertice()
+std::vector<Point_3>& Mesh::points()
 {
-	return _vertices;
+	return _points;
 }
 
-void Mesh::setVertices(const std::vector<Eigen::Vector3f>& vertices)
+const std::vector<Point_3>& Mesh::points() const
 {
-	_vertices = vertices;
-}
-
-const std::vector<unsigned>& Mesh::indices() const
-{
-	return _indices;
+	return _points;
 }
 
 std::vector<unsigned>& Mesh::indices()
@@ -68,9 +55,9 @@ std::vector<unsigned>& Mesh::indices()
 	return _indices;
 }
 
-void Mesh::setIndices(const std::vector<unsigned>& indices)
+const std::vector<unsigned>& Mesh::indices() const
 {
-	_indices = indices;
+	return _indices;
 }
 
 Surface_mesh* Mesh::surfaceMesh()
@@ -81,11 +68,6 @@ Surface_mesh* Mesh::surfaceMesh()
 	else {
 		return _surfaceMesh.get();
 	}
-}
-
-void Mesh::setSurfaceMesh(const Surface_mesh& surfaceMesh)
-{
-	_surfaceMesh = std::make_unique<Surface_mesh>(surfaceMesh);
 }
 
 Polyhedron_3* Mesh::polyhedron()
@@ -102,14 +84,9 @@ Polyhedron_3* Mesh::polyhedron()
 	}
 }
 
-void Mesh::setPolyhedron(const Polyhedron_3& polyhedron)
+unsigned Mesh::pointBufferID() const
 {
-	_polyhedron = std::make_unique<Polyhedron_3>(polyhedron);
-}
-
-unsigned Mesh::positionBufferID() const
-{
-	return _positionBufferID;
+	return _pointBufferID;
 }
 
 unsigned Mesh::normalBufferID() const
@@ -121,20 +98,23 @@ void Mesh::updateGLBuffer() const
 {
 	std::vector<QVector3D> positions(_indices.size());
 	std::transform(_indices.begin(), _indices.end(), positions.begin(),
-		[&vertices = _vertices](unsigned idx) {
-		return eigenToQt(vertices[idx]);
+		[&vertices = _points](unsigned idx) {
+		return cgalToQt(vertices[idx]);
 	}
 	);
 
 	std::vector<QVector3D> normals;
 	normals.reserve(_indices.size());
-	for (const auto& fn : _fNormals) {
-		normals.push_back(eigenToQt(fn));
-		normals.push_back(eigenToQt(fn));
-		normals.push_back(eigenToQt(fn));
+	for (auto i = 0; i < _indices.size(); i += 3) {
+		auto n = CGAL::unit_normal(_points[_indices[i]],
+			_points[_indices[i + 1]], _points[_indices[i + 2]]);
+		auto normal = cgalToQt(n);
+		normals.push_back(normal);
+		normals.push_back(normal);
+		normals.push_back(normal);
 	}
 
-	auto posBuf = ResourceManager::instance().glBuffer(_positionBufferID);
+	auto posBuf = ResourceManager::instance().glBuffer(_pointBufferID);
 	posBuf->bind();
 	posBuf->allocate(positions.data(), static_cast<int>(positions.size() * sizeof(QVector3D)));
 	posBuf->release();
@@ -144,22 +124,17 @@ void Mesh::updateGLBuffer() const
 	normBuf->release();
 }
 
-bool Mesh::isManifold() const
-{
-	return _isManifold;
-}
-
 bool Mesh::_buildSurfaceMesh()
 {
 	_surfaceMesh = std::make_unique<Surface_mesh>();
-	return Euclid::build_surface_mesh(_vertices, _indices, *_surfaceMesh);
+	return Euclid::build_surface_mesh(_points, _indices, *_surfaceMesh);
 }
 
 bool Mesh::_buildPolyhedron()
 {
 
 	_polyhedron = std::make_unique<Polyhedron_3>();
-	Euclid::TriMeshBuilder<Polyhedron_3> meshBuilder(_vertices, _indices);
+	Euclid::TriMeshBuilder<Polyhedron_3> meshBuilder(_points, _indices);
 	try {
 		_polyhedron->delegate(meshBuilder);
 		CGAL::set_halfedgeds_items_id(*_polyhedron.get());
