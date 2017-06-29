@@ -17,6 +17,8 @@ using Polyhedron_3 = CGAL::Polyhedron_3<Kernel, CGAL::Polyhedron_items_with_id_3
 	Warning: The user is ultimately responsible for keeping raw mesh data
 	and cgal mesh data in synchronization when changed by the caller.
 	TODO: Let Mesh handle this automatically.
+	Keep in mind that the indices as well as the id property within cgal data structure
+	should all be updated according to the new vertices.
 */
 class Mesh
 {

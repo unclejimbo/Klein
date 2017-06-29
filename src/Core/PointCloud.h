@@ -9,6 +9,9 @@
 
 using Point_set = CGAL::Point_set_3<Point_3>;
 
+// Note:
+// Point_set.collect_garbage() should be called everytime
+// before indexing into the points in order to update the indices
 class PointCloud
 {
 public:
