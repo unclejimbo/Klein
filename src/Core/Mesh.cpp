@@ -40,6 +40,16 @@ bool Mesh::isManifold() const
 	return _isManifold;
 }
 
+Point_3& Mesh::point(unsigned idx)
+{
+	return _points[_indices[idx]];
+}
+
+const Point_3& Mesh::point(unsigned idx) const
+{
+	return _points[_indices[idx]];
+}
+
 std::vector<Point_3>& Mesh::points()
 {
 	return _points;
