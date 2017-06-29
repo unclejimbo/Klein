@@ -20,6 +20,7 @@ PointCloud::PointCloud(const std::vector<QVector3D>& rawPoints,
 	: _pointBufferID(pointBuffer), _id(_inc++)
 {
 	_pointSet.reserve(rawPoints.size());
+	_pointSet.add_normal_map();
 	for (auto i = 0; i < rawPoints.size(); ++i) {
 		auto p = rawPoints[i];
 		auto n = rawNormals[i];
@@ -46,13 +47,14 @@ const Point_set& PointCloud::pointSet() const
 
 unsigned PointCloud::pointBufferID() const
 {
-	return 0;
+	return _pointBufferID;
 }
 
 void PointCloud::updateGLBuffer() const
 {
-	std::vector<QVector3D> points(_pointSet.number_of_points());
-	for (auto p : _pointSet.points()) {
+	std::vector<QVector3D> points;
+	points.reserve(_pointSet.number_of_points());
+	for (const auto& p : _pointSet.points()) {
 		points.emplace_back(p.x(), p.y(), p.z());
 	}
 
