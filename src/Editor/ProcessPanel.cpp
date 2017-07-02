@@ -78,6 +78,8 @@ void ProcessPanel::_initializePanel(MainWindow* parent, GLWidget* glWidget)
 	addWidget(propertyWidget, "Properties");;
 	_activatedWidget = propertyWidget;
 
+	// Add your own widgets here using addWidget function
+
 	connect(_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
 		_stackedWidget, &QStackedWidget::setCurrentIndex);
 	connect(_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
