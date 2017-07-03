@@ -10,7 +10,7 @@ SceneNode::SceneNode(const std::string& name, Scene& scene, SceneNode* parent, c
 {
 	if (parent != nullptr) {
 		_transform = transform;
-		_toWorld = transform * _parent->transform();
+		_toWorld = _parent->transform() * transform;
 	}
 	else {
 		_toWorld = transform;
@@ -47,7 +47,7 @@ void SceneNode::setTransform(const QMatrix4x4& transform)
 {
 	if (_parent != nullptr) {
 		_transform = transform;
-		_toWorld = transform * _parent->transform();
+		_toWorld = _parent->transform() * transform;
 	}
 	else {
 		_transform = transform;
