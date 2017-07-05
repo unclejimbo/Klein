@@ -23,9 +23,9 @@ using Polyhedron_3 = CGAL::Polyhedron_3<Kernel, CGAL::Polyhedron_items_with_id_3
 class Mesh
 {
 public:
-	Mesh(const std::vector<QVector3D>& rawPoints,
+	Mesh(const std::vector<Point_3>& rawPoints,
 		const std::vector<unsigned>& rawIndices,
-		unsigned pointBuffer,
+		unsigned PointBuffer,
 		unsigned normalBuffer);
 	~Mesh();
 

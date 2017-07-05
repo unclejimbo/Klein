@@ -28,15 +28,15 @@ public:
 
 	void initialize(QOpenGLWidget* context);
 
-	unsigned addMesh(const std::vector<QVector3D>& vertices,
-		const std::vector<unsigned>& indices, 
+	unsigned addMesh(const std::vector<Point_3>& vertices,
+		const std::vector<unsigned>& indices,
 		unsigned vertexBufferID, unsigned normalBufferID);
 	Mesh* mesh(unsigned id);
 	bool removeMesh(unsigned id);
 
-	unsigned addPointCloud(const std::vector<QVector3D>& vertices,
-		const std::vector<QVector3D>& normals, unsigned vertexBufferID);
-	unsigned addPointCloud(const std::vector<QVector3D>& vertices, unsigned vertexBufferID);
+	unsigned addPointCloud(const std::vector<Point_3>& vertices, unsigned vertexBufferID);
+	unsigned addPointCloud(const std::vector<Point_3>& vertices,
+		const std::vector<Vector_3>& normals, unsigned vertexBufferID);
 	PointCloud* pointCloud(unsigned id);
 	bool removePointCloud(unsigned id);
 
@@ -47,9 +47,6 @@ public:
 		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
 		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
 	unsigned addGLBuffer(const std::vector<QVector4D>& data, unsigned bufferSpec,
-		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
-		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
-	unsigned addGLBuffer(const std::vector<typename Kernel::Point_3>& data, unsigned bufferSpec,
 		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
 		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
 	GLBuffer* glBuffer(unsigned bufferID);

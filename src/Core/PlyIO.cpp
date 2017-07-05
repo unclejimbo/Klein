@@ -1,7 +1,10 @@
 #include "Core/PlyIO.h"
 #include "Core/Logger.h"
 #include "Core/ResourceManager.h"
+#include "Core/GeomBase.h"
+#include "Core/Util.h"
 
+#include <Euclid/Math/KernelGeometry.h>
 #include <QRegExp>
 #include <QVector3D>
 #include <vector>
@@ -74,7 +77,7 @@ inline bool readPlyHeader(QTextStream& stream, PlyFormat& format,
 }
 
 // Without normals
-inline bool readPlyAscii(QTextStream& stream, std::vector<QVector3D>& vertices, std::vector<unsigned>& vIndices)
+inline bool readPlyAscii(QTextStream& stream, std::vector<Point_3>& vertices, std::vector<unsigned>& vIndices)
 {
 	auto nVertices = vertices.size();
 	auto nFaces = vIndices.size() / 3;
@@ -82,10 +85,10 @@ inline bool readPlyAscii(QTextStream& stream, std::vector<QVector3D>& vertices, 
 	for (auto i = 0; i < nVertices; ++i) {
 		auto line = stream.readLine();
 		auto lineList = line.split(QRegExp("\\s+"));
-		auto x = lineList[0].toFloat();
-		auto y = lineList[1].toFloat();
-		auto z = lineList[2].toFloat();
-		vertices[i] = QVector3D(x, y, z);
+		auto x = lineList[0].toDouble();
+		auto y = lineList[1].toDouble();
+		auto z = lineList[2].toDouble();
+		vertices[i] = Point_3(x, y, z);
 	}
 
 	for (auto i = 0; i < nFaces; ++i) {
@@ -107,8 +110,8 @@ inline bool readPlyAscii(QTextStream& stream, std::vector<QVector3D>& vertices, 
 }
 
 // With vertex normals
-inline bool readPlyAscii(QTextStream& stream, std::vector<QVector3D>& vertices,
-	std::vector<QVector3D>& normals, std::vector<unsigned>& vIndices)
+inline bool readPlyAscii(QTextStream& stream, std::vector<Point_3>& vertices,
+	std::vector<Vector_3>& normals, std::vector<unsigned>& vIndices)
 {
 	auto nVertices = vertices.size();
 	auto nFaces = vIndices.size() / 3;
@@ -116,14 +119,14 @@ inline bool readPlyAscii(QTextStream& stream, std::vector<QVector3D>& vertices,
 	for (auto i = 0; i < nVertices; ++i) {
 		auto line = stream.readLine();
 		auto lineList = line.split(QRegExp("\\s+"));
-		auto x = lineList[0].toFloat();
-		auto y = lineList[1].toFloat();
-		auto z = lineList[2].toFloat();
-		vertices[i] = QVector3D(x, y, z);
-		auto nx = lineList[3].toFloat();
-		auto ny = lineList[4].toFloat();
-		auto nz = lineList[5].toFloat();
-		normals[i] = QVector3D(nx, ny, nz);
+		auto x = lineList[0].toDouble();
+		auto y = lineList[1].toDouble();
+		auto z = lineList[2].toDouble();
+		vertices[i] = Point_3(x, y, z);
+		auto nx = lineList[3].toDouble();
+		auto ny = lineList[4].toDouble();
+		auto nz = lineList[5].toDouble();
+		normals[i] = Vector_3(nx, ny, nz);
 	}
 
 	for (auto i = 0; i < nFaces; ++i) {
@@ -144,7 +147,7 @@ inline bool readPlyAscii(QTextStream& stream, std::vector<QVector3D>& vertices,
 	return true;
 }
 
-inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<QVector3D>& vertices, int nEdges, int nFaces)
+inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<Point_3>& vertices, int nEdges, int nFaces)
 {
 	if (geomInfo != nullptr) {
 		geomInfo->nVertices = static_cast<int>(vertices.size());
@@ -197,8 +200,8 @@ bool PlyIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 		return false;
 	}
 
-	std::vector<QVector3D> vertices(nVertices);
-	std::vector<QVector3D> normals(nVertices);
+	std::vector<Point_3> vertices(nVertices);
+	std::vector<Vector_3> normals(nVertices);
 	std::vector<unsigned> vIndices(nFaces * 3);
 	std::vector<QVector3D> vertexBuffer(vIndices.size());
 	std::vector<QVector3D> normalBuffer(vIndices.size());
@@ -209,9 +212,9 @@ bool PlyIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 			}
 			else {
 				std::transform(vIndices.begin(), vIndices.end(), vertexBuffer.begin(),
-					[&vertices](unsigned i) { return vertices[i]; });
+					[&vertices](unsigned i) { return cgalToQt(vertices[i]); });
 				std::transform(vIndices.begin(), vIndices.end(), normalBuffer.begin(),
-					[&normals](unsigned i) { return normals[i]; });
+					[&normals](unsigned i) { return cgalToQt(normals[i]); });
 			}
 		}
 		else {
@@ -220,15 +223,16 @@ bool PlyIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 			}
 			else {
 				std::transform(vIndices.begin(), vIndices.end(), vertexBuffer.begin(),
-					[&vertices](unsigned i) { return vertices[i]; });
+					[&vertices](unsigned i) { return cgalToQt(vertices[i]); });
 				for (auto i = 0; i < nFaces; ++i) {
 					auto v1 = vertices[vIndices[i * 3 + 0]];
 					auto v2 = vertices[vIndices[i * 3 + 1]];
 					auto v3 = vertices[vIndices[i * 3 + 2]];
-					auto n = QVector3D::crossProduct(v2 - v1, v3 - v1).normalized();
-					normalBuffer[i * 3 + 0] = n;
-					normalBuffer[i * 3 + 1] = n;
-					normalBuffer[i * 3 + 2] = n;
+					auto n = Euclid::normalized(CGAL::cross_product(v2 - v1, v3 - v1));
+					auto qnormal = cgalToQt(n);
+					normalBuffer[i * 3 + 0] = qnormal;
+					normalBuffer[i * 3 + 1] = qnormal;
+					normalBuffer[i * 3 + 2] = qnormal;
 				}
 			}
 		}
@@ -260,8 +264,11 @@ bool PlyIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 				auto v1 = vertices[vIndices[i * 3 + 0]];
 				auto v2 = vertices[vIndices[i * 3 + 1]];
 				auto v3 = vertices[vIndices[i * 3 + 2]];
-				auto n = QVector3D::crossProduct(v2 - v1, v3 - v1).normalized();
-				fNormals[i] = n;
+				auto n = Euclid::normalized(CGAL::cross_product(v2 - v1, v3 - v1));
+				auto qnormal = cgalToQt(n);
+				normalBuffer[i * 3 + 0] = qnormal;
+				normalBuffer[i * 3 + 1] = qnormal;
+				normalBuffer[i * 3 + 2] = qnormal;
 			}
 		}
 		geomInfo->id = ResourceManager::instance().addMesh(vertices, vIndices,
@@ -284,8 +291,8 @@ bool PlyIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 		return false;
 	}
 
-	std::vector<QVector3D> vertices(nVertices);
-	std::vector<QVector3D> normals(nVertices);
+	std::vector<Point_3> vertices(nVertices);
+	std::vector<Vector_3> normals(nVertices);
 	std::vector<unsigned> vIndices(nFaces * 3);
 	if (format == PlyFormat::ascii) {
 		if (hasNormal) {
@@ -309,7 +316,14 @@ bool PlyIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 	}
 
 	// Construct OpenGL buffers
-	positionBufferID = ResourceManager::instance().addGLBuffer(vertices, GL_POINTS);
+	std::vector<float> vertexBuffer;
+	vertexBuffer.reserve(vertices.size() * 3);
+	for (const auto& v : vertices) {
+		vertexBuffer.push_back(v.x());
+		vertexBuffer.push_back(v.y());
+		vertexBuffer.push_back(v.z());
+	}
+	positionBufferID = ResourceManager::instance().addGLBuffer(vertexBuffer, GL_POINTS);
 
 	if (geomInfo != nullptr) {
 		if (hasNormal) {

@@ -1,7 +1,10 @@
 #include "Core/OffIO.h"
 #include "Core/Logger.h"
 #include "Core/ResourceManager.h"
+#include "Core/GeomBase.h"
+#include "Core/Util.h"
 
+#include <Euclid/Math/KernelGeometry.h>
 #include <QRegExp>
 #include <QVector3D>
 #include <vector>
@@ -10,7 +13,7 @@ OffIO::OffIO() = default;
 
 OffIO::~OffIO() = default;
 
-inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<QVector3D>& vertices, int nEdges, int nFaces)
+inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<Point_3>& vertices, int nEdges, int nFaces)
 {
 	if (geomInfo != nullptr) {
 		geomInfo->nVertices = static_cast<int>(vertices.size());
@@ -55,8 +58,8 @@ inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<QVector3D>& ver
 bool OffIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
 	GeomInfo* geomInfo)
 {
-	std::vector<QVector3D> vertices;
-	std::vector<QVector3D> fnormals;
+	std::vector<Point_3> vertices;
+	std::vector<Vector_3> fnormals;
 	std::vector<unsigned> indices;
 	std::vector<QVector3D> vertexBuffer;
 	std::vector<QVector3D> normalBuffer;
@@ -102,10 +105,10 @@ bool OffIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 		if (lineList[0] == "#") {
 			continue;
 		}
-		auto x = lineList[0].toFloat();
-		auto y = lineList[1].toFloat();
-		auto z = lineList[2].toFloat();
-		vertices[i] = QVector3D(x, y, z);
+		auto x = lineList[0].toDouble();
+		auto y = lineList[1].toDouble();
+		auto z = lineList[2].toDouble();
+		vertices[i] = Point_3(x, y, z);
 		++i;
 	}
 
@@ -133,17 +136,20 @@ bool OffIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 		indices[i * 3 + 2] = v3;
 
 		// Compute normal
-		auto norm = QVector3D::crossProduct(vertices[v2] - vertices[v1], vertices[v3] - vertices[v2]).normalized();
+		auto e1 = vertices[v2] - vertices[v1];
+		auto e2 = vertices[v3] - vertices[v2];
+		auto norm = Euclid::normalized(CGAL::cross_product(e1, e2));
 		fnormals[i] = norm;
-		normalBuffer[i * 3] = norm;
-		normalBuffer[i * 3 + 1] = norm;
-		normalBuffer[i * 3 + 2] = norm;
+		auto qnormal = cgalToQt(norm);
+		normalBuffer[i * 3] = qnormal;
+		normalBuffer[i * 3 + 1] = qnormal;
+		normalBuffer[i * 3 + 2] = qnormal;
 		++i;
 	}
 
 	vertexBuffer.resize(fCount * 3);
 	std::transform(indices.begin(), indices.end(), vertexBuffer.begin(),
-		[&vertices](unsigned i) { return vertices[i]; });
+		[&vertices](unsigned i) { return cgalToQt(vertices[i]); });
 
 	positionBufferID = ResourceManager::instance().addGLBuffer(vertexBuffer, GL_TRIANGLES);
 	normalBufferID =  ResourceManager::instance().addGLBuffer(normalBuffer, GL_TRIANGLES);
@@ -161,7 +167,7 @@ bool OffIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 bool OffIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 	GeomInfo* geomInfo)
 {
-	std::vector<QVector3D> vertices;
+	std::vector<Point_3> vertices;
 
 	// OFF file header
 	auto line = stream.readLine();
@@ -200,14 +206,21 @@ bool OffIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 		if (lineList[0] == "#") {
 			continue;
 		}
-		auto x = lineList[0].toFloat();
-		auto y = lineList[1].toFloat();
-		auto z = lineList[2].toFloat();
-		vertices[i] = QVector3D(x, y, z);
+		auto x = lineList[0].toDouble();
+		auto y = lineList[1].toDouble();
+		auto z = lineList[2].toDouble();
+		vertices[i] = Point_3(x, y, z);
 		++i;
 	}
 
-	positionBufferID = ResourceManager::instance().addGLBuffer(vertices, GL_POINTS);
+	std::vector<float> vertexBuffer;
+	vertexBuffer.reserve(vertices.size() * 3);
+	for (const auto& v : vertices) {
+		vertexBuffer.push_back(v.x());
+		vertexBuffer.push_back(v.y());
+		vertexBuffer.push_back(v.z());
+	}
+	positionBufferID = ResourceManager::instance().addGLBuffer(vertexBuffer, GL_POINTS);
 
 	if (geomInfo != nullptr) {
 		geomInfo->id = ResourceManager::instance().addPointCloud(vertices, positionBufferID);

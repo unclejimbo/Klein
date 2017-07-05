@@ -1,7 +1,10 @@
 #include "Core/XyzIO.h"
 #include "Core/Logger.h"
 #include "Core/ResourceManager.h"
+#include "Core/GeomBase.h"
+#include "Core/Util.h"
 
+#include <Euclid/Math/KernelGeometry.h>
 #include <QRegExp>
 #include <QVector3D>
 #include <vector>
@@ -20,8 +23,8 @@ bool XyzIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 bool XyzIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 	GeomInfo* geomInfo)
 {
-	std::vector<QVector3D> vertices;
-	std::vector<QVector3D> normals;
+	std::vector<Point_3> vertices;
+	std::vector<Vector_3> normals;
 
 	// Read file
 	auto line = stream.readLine();
@@ -31,18 +34,25 @@ bool XyzIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 	for (auto i = 0; i < count; ++i) {
 		auto line = stream.readLine();
 		auto lineList = line.split(QRegExp("\\s+"));
-		auto vx = lineList[0].toFloat();
-		auto vy = lineList[1].toFloat();
-		auto vz = lineList[2].toFloat();
-		auto nx = lineList[3].toFloat();
-		auto ny = lineList[4].toFloat();
-		auto nz = lineList[5].toFloat();
+		auto vx = lineList[0].toDouble();
+		auto vy = lineList[1].toDouble();
+		auto vz = lineList[2].toDouble();
+		auto nx = lineList[3].toDouble();
+		auto ny = lineList[4].toDouble();
+		auto nz = lineList[5].toDouble();
 		vertices.emplace_back(vx, vy, vz);
 		normals.emplace_back(nx, ny, nz);
 	}
 
 	// Construct OpenGL buffers
-	positionBufferID = ResourceManager::instance().addGLBuffer(vertices, GL_POINTS);
+	std::vector<float> vertexBuffer;
+	vertexBuffer.reserve(vertices.size() * 3);
+	for (const auto& v : vertices) {
+		vertexBuffer.push_back(v.x());
+		vertexBuffer.push_back(v.y());
+		vertexBuffer.push_back(v.z());
+	}
+	positionBufferID = ResourceManager::instance().addGLBuffer(vertexBuffer, GL_POINTS);
 
 	// Record geomInfo
 	if (geomInfo != nullptr) {

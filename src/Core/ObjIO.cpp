@@ -1,7 +1,10 @@
 #include "Core/ObjIO.h"
 #include "Core/Logger.h"
 #include "Core/ResourceManager.h"
+#include "Core/GeomBase.h"
+#include "Core/Util.h"
 
+#include <Euclid/Math/KernelGeometry.h>
 #include <QRegExp>
 #include <QVector3D>
 #include <vector>
@@ -10,7 +13,7 @@ ObjIO::ObjIO() = default;
 
 ObjIO::~ObjIO() = default;
 
-inline void readOBJFile(QTextStream& stream, std::vector<QVector3D>& vertices, std::vector<QVector3D>& normals,
+inline void readOBJFile(QTextStream& stream, std::vector<Point_3>& vertices, std::vector<Vector_3>& normals,
 	std::vector<unsigned>& vIndices, std::vector<unsigned>& nIndices)
 {
 	int faceCount = 0;
@@ -25,9 +28,9 @@ inline void readOBJFile(QTextStream& stream, std::vector<QVector3D>& vertices, s
 		auto lineList = line.split(QRegExp("\\s+"));
 
 		if (lineList[0] == "v") {
-			auto x = lineList[1].toFloat();
-			auto y = lineList[2].toFloat();
-			auto z = lineList[3].toFloat();
+			auto x = lineList[1].toDouble();
+			auto y = lineList[2].toDouble();
+			auto z = lineList[3].toDouble();
 			vertices.emplace_back(x, y, z);
 		}
 
@@ -36,9 +39,9 @@ inline void readOBJFile(QTextStream& stream, std::vector<QVector3D>& vertices, s
 		}
 
 		if (lineList[0] == "vn") {
-			auto x = lineList[1].toFloat();
-			auto y = lineList[2].toFloat();
-			auto z = lineList[3].toFloat();
+			auto x = lineList[1].toDouble();
+			auto y = lineList[2].toDouble();
+			auto z = lineList[3].toDouble();
 			normals.emplace_back(x, y, z);
 		}
 
@@ -75,14 +78,14 @@ inline void readOBJFile(QTextStream& stream, std::vector<QVector3D>& vertices, s
 			if (!vertexIndices.empty()) { // Compute normals
 				auto v1 = vertices[vertexIndices[1]] - vertices[vertexIndices[0]];
 				auto v2 = vertices[vertexIndices[2]] - vertices[vertexIndices[0]];
-				auto fnormal = QVector3D::crossProduct(v1, v2);
+				auto fnormal = Euclid::normalized(CGAL::cross_product(v1, v2));
 				normals.push_back(fnormal);
 			}
 		}
 	}
 }
 
-inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<QVector3D>& vertices, int nEdges, int nFaces)
+inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<Point_3>& vertices, int nEdges, int nFaces)
 {
 	if (geomInfo != nullptr) {
 		geomInfo->nVertices = static_cast<int>(vertices.size());
@@ -127,8 +130,8 @@ inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<QVector3D>& ver
 bool ObjIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
 	GeomInfo* geomInfo)
 {
-	std::vector<QVector3D> vertices;
-	std::vector<QVector3D> normals;
+	std::vector<Point_3> vertices;
+	std::vector<Vector_3> normals;
 	std::vector<unsigned> vIndices;
 	std::vector<unsigned> nIndices;
 	readOBJFile(stream, vertices, normals, vIndices, nIndices);
@@ -139,17 +142,18 @@ bool ObjIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 	vertexBuffer.reserve(vIndices.size());
 	normalBuffer.reserve(vIndices.size());
 	std::transform(vIndices.begin(), vIndices.end(), std::back_inserter(vertexBuffer),
-		[&vertices](unsigned i) { return vertices[i]; });
+		[&vertices](unsigned i) { return cgalToQt(vertices[i]); });
 	if (nIndices.empty()) { // Per-face normals
 		for (const auto& n : normals) {
-			normalBuffer.push_back(n);
-			normalBuffer.push_back(n);
-			normalBuffer.push_back(n);
+			auto normal = cgalToQt(n);
+			normalBuffer.push_back(normal);
+			normalBuffer.push_back(normal);
+			normalBuffer.push_back(normal);
 		}
 	}
 	else {
 		std::transform(nIndices.begin(), nIndices.end(), std::back_inserter(normalBuffer),
-			[&normals](unsigned i) { return normals[i]; });
+			[&normals](unsigned i) { return cgalToQt(normals[i]); });
 	}
 	positionBufferID = ResourceManager::instance().addGLBuffer(vertexBuffer, GL_TRIANGLES);
 	normalBufferID =  ResourceManager::instance().addGLBuffer(normalBuffer, GL_TRIANGLES);
@@ -168,14 +172,21 @@ bool ObjIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 bool ObjIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 	GeomInfo* geomInfo)
 {
-	std::vector<QVector3D> vertices;
-	std::vector<QVector3D> normals;
+	std::vector<Point_3> vertices;
+	std::vector<Vector_3> normals;
 	std::vector<unsigned> vIndices;
 	std::vector<unsigned> nIndices;
 	readOBJFile(stream, vertices, normals, vIndices, nIndices);
 
 	// Construct OpenGL buffers
-	positionBufferID = ResourceManager::instance().addGLBuffer(vertices, GL_POINTS);
+	std::vector<float> vertexBuffer;
+	vertexBuffer.reserve(vertices.size() * 3);
+	for (const auto& v : vertices) {
+		vertexBuffer.push_back(v.x());
+		vertexBuffer.push_back(v.y());
+		vertexBuffer.push_back(v.z());
+	}
+	positionBufferID = ResourceManager::instance().addGLBuffer(vertexBuffer, GL_POINTS);
 
 	if (geomInfo != nullptr) {
 		if (vertices.size() == normals.size()) { // Per-vertex normals

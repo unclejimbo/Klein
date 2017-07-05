@@ -5,26 +5,25 @@
 
 unsigned PointCloud::_inc = 1;
 
-PointCloud::PointCloud(const std::vector<QVector3D>& rawPoints, unsigned pointBuffer)
-	: _pointBufferID(pointBuffer), _id(_inc++)
+PointCloud::PointCloud(const std::vector<Point_3>& rawPoints,
+	unsigned pointBuffer)
 {
 	_pointSet.reserve(rawPoints.size());
 	for (const auto& p : rawPoints) {
-		_pointSet.insert(qtToCgal<Point_3>(p));
+		_pointSet.insert(p);
 	}
 }
 
-PointCloud::PointCloud(const std::vector<QVector3D>& rawPoints, 
-	const std::vector<QVector3D>& rawNormals, 
+PointCloud::PointCloud(const std::vector<Point_3>& rawPoints,
+	const std::vector<Vector_3>& rawNormals,
 	unsigned pointBuffer)
-	: _pointBufferID(pointBuffer), _id(_inc++)
 {
 	_pointSet.reserve(rawPoints.size());
 	_pointSet.add_normal_map();
 	for (auto i = 0; i < rawPoints.size(); ++i) {
 		auto p = rawPoints[i];
 		auto n = rawNormals[i];
-		_pointSet.insert(qtToCgal<Point_3>(p), qtToCgal<Vector_3>(n));
+		_pointSet.insert(p, n);
 	}
 }
 

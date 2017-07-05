@@ -14,7 +14,7 @@ void ResourceManager::initialize(QOpenGLWidget* context)
 	_context = context;
 }
 
-unsigned ResourceManager::addMesh(const std::vector<QVector3D>& vertices,
+unsigned ResourceManager::addMesh(const std::vector<Point_3>& vertices,
 	const std::vector<unsigned>& indices,
 	unsigned vertexBufferID, unsigned normalBufferID)
 {
@@ -48,10 +48,9 @@ bool ResourceManager::removeMesh(unsigned id)
 	}
 }
 
-unsigned ResourceManager::addPointCloud(const std::vector<QVector3D>& vertices,
-	const std::vector<QVector3D>& normals, unsigned vertexBufferID)
+unsigned ResourceManager::addPointCloud(const std::vector<Point_3>& vertices, unsigned vertexBufferID)
 {
-	auto pc = std::make_unique<PointCloud>(vertices, normals, vertexBufferID);
+	auto pc = std::make_unique<PointCloud>(vertices, vertexBufferID);
 	auto id = pc->id();
 	if (!_pointCloudMap.insert_or_assign(id, std::move(pc)).second) {
 		KLEIN_LOG_WARNING(QString("PointCloud%1 already exists and is replaced").arg(id));
@@ -59,9 +58,10 @@ unsigned ResourceManager::addPointCloud(const std::vector<QVector3D>& vertices,
 	return id;
 }
 
-unsigned ResourceManager::addPointCloud(const std::vector<QVector3D>& vertices, unsigned vertexBufferID)
+unsigned ResourceManager::addPointCloud(const std::vector<Point_3>& vertices,
+	const std::vector<Vector_3>& normals, unsigned vertexBufferID)
 {
-	auto pc = std::make_unique<PointCloud>(vertices, vertexBufferID);
+	auto pc = std::make_unique<PointCloud>(vertices, normals, vertexBufferID);
 	auto id = pc->id();
 	if (!_pointCloudMap.insert_or_assign(id, std::move(pc)).second) {
 		KLEIN_LOG_WARNING(QString("PointCloud%1 already exists and is replaced").arg(id));
@@ -151,31 +151,6 @@ unsigned ResourceManager::addGLBuffer(const std::vector<QVector4D>& data, unsign
 		buffer->setUsagePattern(usage);
 		buffer->bind();
 		buffer->allocate(data.data(), static_cast<int>(data.size() * sizeof(QVector4D)));
-		buffer->release();
-		_context->doneCurrent();
-
-		auto id = buffer->bufferId();
-		if (!_bufferMap.insert_or_assign(id, std::move(buffer)).second) {
-			KLEIN_LOG_WARNING(QString("Buffer%1 already exists and is replaced").arg(id));
-		}
-		return id;
-	}
-	else {
-		KLEIN_LOG_CRITICAL("Invalid OpenGL context");
-		return 0;
-	}
-}
-
-unsigned ResourceManager::addGLBuffer(const std::vector<typename Kernel::Point_3>& data, unsigned bufferSpec,
-	QOpenGLBuffer::Type type, QOpenGLBuffer::UsagePattern usage)
-{
-	if (_context != nullptr) {
-		_context->makeCurrent();
-		auto buffer = std::make_unique<GLBuffer>(bufferSpec, type);
-		buffer->create();
-		buffer->setUsagePattern(usage);
-		buffer->bind();
-		buffer->allocate(data.data(), static_cast<int>(data.size() * sizeof(float) * 3));
 		buffer->release();
 		_context->doneCurrent();
 

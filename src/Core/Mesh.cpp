@@ -11,20 +11,13 @@
 
 unsigned Mesh::_inc = 1;
 
-Mesh::Mesh(const std::vector<QVector3D>& rawPoints,
+Mesh::Mesh(const std::vector<Point_3>& rawPoints,
 	const std::vector<unsigned>& rawIndices,
 	unsigned pointBuffer,
 	unsigned normalBuffer)
-	: _indices(rawIndices), _pointBufferID(pointBuffer),
-	_normalBufferID(normalBuffer), _id(_inc++)
+	: _points(rawPoints), _indices(rawIndices),
+	_pointBufferID(pointBuffer), _normalBufferID(normalBuffer), _id(_inc++)
 {
-	_points.resize(rawPoints.size());
-	std::transform(rawPoints.begin(), rawPoints.end(), _points.begin(),
-		[](const QVector3D& v) {
-			return qtToCgal<Point_3>(v);
-		}
-	);
-
 	_isManifold = _buildSurfaceMesh();
 }
 

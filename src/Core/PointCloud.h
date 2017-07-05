@@ -15,10 +15,10 @@ using Point_set = CGAL::Point_set_3<Point_3>;
 class PointCloud
 {
 public:
-	PointCloud(const std::vector<QVector3D>& rawPoints,
+	PointCloud(const std::vector<Point_3>& rawPoints,
 		unsigned pointBuffer);
-	PointCloud(const std::vector<QVector3D>& rawPoints,
-		const std::vector<QVector3D>& rawNormals,
+	PointCloud(const std::vector<Point_3>& rawPoints,
+		const std::vector<Vector_3>& rawNormals,
 		unsigned pointBuffer);
 	~PointCloud();
 
