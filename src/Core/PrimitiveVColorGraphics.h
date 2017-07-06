@@ -23,8 +23,10 @@ public:
 	void setPointSize(short pointSize);
 
 private:
-	void _renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights) override;
-	void _renderUnlit(const Camera& camera) override;
+	void _renderLit(const Camera& camera,
+		const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
+		float aspectRatio) override;
+	void _renderUnlit(const Camera& camera, float aspectRatio) override;
 
 private:
 	std::vector<QVector3D> _pointPositions;

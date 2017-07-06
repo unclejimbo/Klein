@@ -19,19 +19,11 @@
 #include <QVector3D>
 #include <QVector2D>
 
-GLWidget::GLWidget() = default;
-
-GLWidget::GLWidget(QWidget* parent)
-	: QOpenGLWidget(parent)
+GLWidget::GLWidget(Scene* scene, QWidget* parent)
+	: QOpenGLWidget(parent), _scene(scene)
 {
-}
-
-void GLWidget::bindScene(Scene* scene)
-{
-	_scene = scene;
-	if (_scene != nullptr) {
-		_cameraController = std::make_unique<ArcballController>(*_scene->camera(), this->width(), this->height());
-	}
+	_aspectRatio = this->width() / (this->height() + 0.00001f);
+	_cameraController = std::make_unique<ArcballController>(*_scene->camera(), this->width(), this->height());
 }
 
 void GLWidget::renderToTexture(QImage& img)
@@ -43,9 +35,8 @@ void GLWidget::renderToTexture(QImage& img)
 	glClearColor(static_cast<float>(bgColor.redF()), static_cast<float>(bgColor.greenF()),
 		static_cast<float>(bgColor.blueF()), static_cast<float>(bgColor.alphaF()));
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	if (_scene != nullptr) {
-		_scene->render(RENDER_ONSCREEN); // Models in shading pass got rendered to texture, see readColorBuffer for difference
-	}
+	// Models in shading pass got rendered to texture, see readColorBuffer for difference
+	_scene->render(RENDER_ONSCREEN, _aspectRatio);
 	img = _fboOffscreen->toImage();
 
 	QOpenGLFramebufferObject::bindDefault();
@@ -59,9 +50,8 @@ void GLWidget::readColorBuffer(QImage& img)
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	if (_scene != nullptr) {
-		_scene->render(RENDER_OFFSCREEN); // Models in offscreen pass got rendered, see renderToTexture for difference
-	}
+	// Models in offscreen pass got rendered, see renderToTexture for difference
+	_scene->render(RENDER_OFFSCREEN, _aspectRatio);
 	img = _fboOffscreen->toImage();
 
 	QOpenGLFramebufferObject::bindDefault();
@@ -75,9 +65,7 @@ void GLWidget::readDepthBuffer(std::vector<float>& depth)
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	if (_scene != nullptr) {
-		_scene->render(RENDER_OFFSCREEN);
-	}
+	_scene->render(RENDER_OFFSCREEN, _aspectRatio);
 
 	auto buf = new GLfloat[this->width() * this->height()];
 	glReadPixels(0, 0, this->width(), this->height(), GL_DEPTH_COMPONENT, GL_FLOAT, buf);
@@ -98,9 +86,7 @@ PickingInfo GLWidget::pick(int x, int y)
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	if (_scene != nullptr) {
-		_scene->render(RENDER_PICK);
-	}
+	_scene->render(RENDER_PICK, _aspectRatio);
 	GLuint buf[4];
 	glReadPixels(x, this->height() - y, 1, 1, GL_RGBA_INTEGER, GL_UNSIGNED_INT, buf);
 
@@ -223,6 +209,30 @@ void GLWidget::initializeGL()
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 	glViewport(0, 0, this->width(), this->height());
+
+	// Default contents should be initialized here
+	ResourceManager::instance().initialize(this);
+
+	ResourceManager::instance().addPBRMaterial("KLEIN_PBR_Default",
+		QVector3D(1.0f, 1.0f, 1.0f), 0.8f, 0.4f, 10.0f);
+	ResourceManager::instance().addPBRMaterial("KLEIN_PBR_Red",
+		QVector3D(1.0f, 0.0f, 0.0f), 0.8f, 0.4f, 10.0f);
+
+	ResourceManager::instance().addShaderProgram("KLEIN_CookTorrance",
+		QString(KLEIN_SHADER_PATH).append("Mesh.vert").toStdString(),
+		QString(KLEIN_SHADER_PATH).append("CookTorrance.frag").toStdString());
+	ResourceManager::instance().addShaderProgram("KLEIN_CookTorrance_VColor",
+		QString(KLEIN_SHADER_PATH).append("MeshVColor.vert").toStdString(),
+		QString(KLEIN_SHADER_PATH).append("CookTorranceVColor.frag").toStdString());
+	ResourceManager::instance().addShaderProgram("KLEIN_Unlit",
+		QString(KLEIN_SHADER_PATH).append("Unlit.vert").toStdString(),
+		QString(KLEIN_SHADER_PATH).append("Unlit.frag").toStdString());
+	ResourceManager::instance().addShaderProgram("KLEIN_Unlit_VColor",
+		QString(KLEIN_SHADER_PATH).append("UnlitVColor.vert").toStdString(),
+		QString(KLEIN_SHADER_PATH).append("UnlitVColor.frag").toStdString());
+	ResourceManager::instance().addShaderProgram("KLEIN_Picking",
+		QString(KLEIN_SHADER_PATH).append("Unlit.vert").toStdString(),
+		QString(KLEIN_SHADER_PATH).append("Picking.frag").toStdString());
 }
 
 void GLWidget::paintGL()
@@ -231,19 +241,14 @@ void GLWidget::paintGL()
 	glClearColor(static_cast<float>(bgColor.redF()), static_cast<float>(bgColor.greenF()),
 		static_cast<float>(bgColor.blueF()), static_cast<float>(bgColor.alphaF()));
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	if (_scene != nullptr) {
-		_scene->render(RENDER_ONSCREEN);
-		_paintAxis();
-	}
+	_scene->render(RENDER_ONSCREEN, _aspectRatio);
+	_paintAxis();
 }
 
 void GLWidget::resizeGL(int w, int h)
 {
-	if (_scene != nullptr) {
-		_scene->camera()->setAspect((w + 0.0f) / h);
-		_cameraController->onResize(w, h);
-	}
+	_aspectRatio = this->width() / (this->height() + 0.00001f);
+	_cameraController->onResize(w, h);
 	this->update();
 }
 

@@ -1,7 +1,6 @@
 #include "Core/GraphicsComponent.h"
 #include "Core/Logger.h"
 #include "Core/ResourceManager.h"
-#include "GraphicsComponent.h"
 
 PickingInfo::PickingInfo() = default;
 
@@ -26,7 +25,9 @@ GraphicsComponent::GraphicsComponent(QOpenGLWidget& context, bool transparent, i
 	_context.doneCurrent();
 }
 
-GraphicsComponent::~GraphicsComponent() = default;
+GraphicsComponent::~GraphicsComponent()
+{
+}
 
 bool GraphicsComponent::transparent() const
 {
@@ -134,37 +135,40 @@ void GraphicsComponent::setRenderPass(int renderPass)
 	_renderPass = renderPass;
 }
 
-void GraphicsComponent::render(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights)
+void GraphicsComponent::render(const Camera& camera,
+	const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
+	float aspectRatio)
 {
 	if (!_unlit) {
-		_renderLit(camera, lights);
+		_renderLit(camera, lights, aspectRatio);
 	}
 	else {
-		_renderUnlit(camera);
+		_renderUnlit(camera, aspectRatio);
 	}
 }
 
-void GraphicsComponent::renderPick(PickingPrimitive primitive, Camera& camera)
+void GraphicsComponent::renderPick(PickingPrimitive primitive,
+	Camera& camera, float aspectRatio)
 {
 	if (primitive == PICKING_PRIMITIVE_VERTEX) {
-		_renderPickVertex(camera);
+		_renderPickVertex(camera, aspectRatio);
 	}
 	if (primitive == PICKING_PRIMITIVE_LINE) {
-		_renderPickLine(camera);
+		_renderPickLine(camera, aspectRatio);
 	}
 	if (primitive == PICKING_PRIMITIVE_FACE) {
-		_renderPickFace(camera);
+		_renderPickFace(camera, aspectRatio);
 	}
 }
 
-void GraphicsComponent::_renderPickVertex(const Camera& camera)
+void GraphicsComponent::_renderPickVertex(const Camera& camera, float aspectRatio)
 {
 }
 
-void GraphicsComponent::_renderPickLine(const Camera& camera)
+void GraphicsComponent::_renderPickLine(const Camera& camera, float aspectRatio)
 {
 }
 
-void GraphicsComponent::_renderPickFace(const Camera& camera)
+void GraphicsComponent::_renderPickFace(const Camera& camera, float aspectRatio)
 {
 }

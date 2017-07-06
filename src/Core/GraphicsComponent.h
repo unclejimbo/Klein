@@ -73,19 +73,23 @@ public:
 	void removeRenderPass(int renderPass);
 	void setRenderPass(int renderPass);
 	
-	void render(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights);
-	void renderPick(PickingPrimitive primitive, Camera& camera);
+	void render(const Camera& camera,
+		const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
+		float aspectRatio);
+	void renderPick(PickingPrimitive primitive,
+		Camera& camera, float aspectRatio);
 
 protected:
 	QOpenGLShaderProgram* _shaderLit;
 	QOpenGLShaderProgram* _shaderUnlit;
 
 private:
-	virtual void _renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights) = 0;
-	virtual void _renderUnlit(const Camera& camera) = 0;
-	virtual void _renderPickVertex(const Camera& camera);
-	virtual void _renderPickLine(const Camera& camera);
-	virtual void _renderPickFace(const Camera& camera);
+	virtual void _renderLit(const Camera& camera,
+		const std::array<Light, KLEIN_MAX_LIGHTS>& lights, float aspectRatio) = 0;
+	virtual void _renderUnlit(const Camera& camera, float aspectRatio) = 0;
+	virtual void _renderPickVertex(const Camera& camera, float aspectRatio);
+	virtual void _renderPickLine(const Camera& camera, float aspectRatio);
+	virtual void _renderPickFace(const Camera& camera, float aspectRatio);
 
 private:
 	QOpenGLWidget& _context;

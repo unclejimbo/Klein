@@ -17,10 +17,12 @@ public:
 	void setMaterial(const std::string& materialID);
 
 private:
-	void _renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights) override;
-	void _renderUnlit(const Camera& camera) override;
-	void _renderPickVertex(const Camera& camera) override;
-	void _renderPickFace(const Camera& camera) override;
+	void _renderLit(const Camera& camera,
+		const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
+		float aspectRatio) override;
+	void _renderUnlit(const Camera& camera, float aspectRatio) override;
+	void _renderPickVertex(const Camera& camera, float aspectRatio) override;
+	void _renderPickFace(const Camera& camera, float aspectRatio) override;
 
 private:
 	unsigned _posBufID = 0;

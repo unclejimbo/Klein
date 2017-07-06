@@ -27,7 +27,10 @@ PointCloud::PointCloud(const std::vector<Point_3>& rawPoints,
 	}
 }
 
-PointCloud::~PointCloud() = default;
+PointCloud::~PointCloud()
+{
+	ResourceManager::instance().removeGLBuffer(_pointBufferID);
+}
 
 unsigned PointCloud::id() const
 {

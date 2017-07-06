@@ -3,22 +3,23 @@
 #include <QDockWidget>
 #include <memory>
 
-class QString;
+class Scene;
 class MainWindow;
 class GLWidget;
 class ProcessWidget;
-class QStackedWidget;
-class QComboBox;
 struct GeomInfo;
 struct PickingInfo;
+class QStackedWidget;
+class QComboBox;
+class QString;
 
 class ProcessPanel : public QDockWidget
 {
 	Q_OBJECT
 
 public:
-	ProcessPanel(MainWindow* parent, GLWidget* glWidget);
-	ProcessPanel(const QString& title, MainWindow* parent, GLWidget* glWidget);
+	ProcessPanel(Scene* scene, MainWindow* parent, GLWidget* glWidget);
+	ProcessPanel(Scene* scene, const QString& title, MainWindow* parent, GLWidget* glWidget);
 
 	void addWidget(ProcessWidget* widget, const QString& name);
 
@@ -31,6 +32,7 @@ private:
 	void _initializePanel(MainWindow* parent, GLWidget* glWidget);
 
 private:
+	Scene* _scene;
 	MainWindow* _parent;
 	GLWidget* _glWidget;
 	QStackedWidget* _stackedWidget;

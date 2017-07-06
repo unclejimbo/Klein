@@ -54,7 +54,9 @@ void PBRMeshVColorGraphics::setMaterial(const std::string& materialID)
 	_materialID = materialID;
 }
 
-void PBRMeshVColorGraphics::_renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights)
+void PBRMeshVColorGraphics::_renderLit(const Camera& camera,
+	const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
+	float aspectRatio)
 {
 	auto posBuf = ResourceManager::instance().glBuffer(_posBufID);
 	auto normBuf = ResourceManager::instance().glBuffer(_normBufID);
@@ -80,7 +82,7 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera, const std::array<Li
 	if (this->shadingMethod() == ShadingMethod::shaded || this->shadingMethod() == ShadingMethod::hiddenLine) {
 		_shaderLit->bind();
 		QMatrix4x4 projection;
-		projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+		projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
 		auto transform = this->sceneNode()->transform();
 		auto mvp = projection * camera.view() * transform;
 		auto invTransModel = transform.inverted().transposed();
@@ -126,7 +128,7 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera, const std::array<Li
 	if (this->shadingMethod() == ShadingMethod::wireframe || this->shadingMethod() == ShadingMethod::hiddenLine) {
 		_shaderUnlit->bind();
 		QMatrix4x4 projection;
-		projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+		projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
 		auto transform = this->sceneNode()->transform();
 		auto mvp = projection * camera.view() * transform;
 		_shaderUnlit->setUniformValue("mvp", mvp);
@@ -155,7 +157,7 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera, const std::array<Li
 	}
 }
 
-void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera)
+void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera, float aspectRatio)
 {
 	auto posBuf = ResourceManager::instance().glBuffer(_posBufID);
 	auto colorBuf = ResourceManager::instance().glBuffer(_colorBufID);
@@ -170,7 +172,7 @@ void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera)
 
 	_shaderUnlit->bind();
 	QMatrix4x4 projection;
-	projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+	projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
 	auto transform = this->sceneNode()->transform();
 	auto mvp = projection * camera.view() * transform;
 	_shaderUnlit->setUniformValue("mvp", mvp);
@@ -204,7 +206,7 @@ void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera)
 	_shaderUnlit->release();
 }
 
-void PBRMeshVColorGraphics::_renderPickVertex(const Camera& camera)
+void PBRMeshVColorGraphics::_renderPickVertex(const Camera& camera, float aspectRatio)
 {
 	auto posBuf = ResourceManager::instance().glBuffer(_posBufID);
 	if (posBuf == nullptr) {
@@ -215,7 +217,7 @@ void PBRMeshVColorGraphics::_renderPickVertex(const Camera& camera)
 	auto shaderPicking = ResourceManager::instance().shaderProgram("KLEIN_Picking");
 	shaderPicking->bind();
 	QMatrix4x4 projection;
-	projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+	projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
 	auto transform = this->sceneNode()->transform();
 	auto mvp = projection * camera.view() * transform;
 	shaderPicking->setUniformValue("mvp", mvp);
@@ -263,7 +265,7 @@ void PBRMeshVColorGraphics::_renderPickVertex(const Camera& camera)
 	shaderPicking->release();
 }
 
-void PBRMeshVColorGraphics::_renderPickFace(const Camera& camera)
+void PBRMeshVColorGraphics::_renderPickFace(const Camera& camera, float aspectRatio)
 {
 	auto posBuf = ResourceManager::instance().glBuffer(_posBufID);
 	if (posBuf == nullptr) {
@@ -274,7 +276,7 @@ void PBRMeshVColorGraphics::_renderPickFace(const Camera& camera)
 	auto shaderPicking = ResourceManager::instance().shaderProgram("KLEIN_Picking");
 	shaderPicking->bind();
 	QMatrix4x4 projection;
-	projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+	projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
 	auto transform = this->sceneNode()->transform();
 	auto mvp = projection * camera.view() * transform;
 	shaderPicking->setUniformValue("mvp", mvp);

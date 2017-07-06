@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core/Scene.h"
 #include "Core/Common.h"
 #include "Core/GeomIO.h"
 
@@ -8,6 +7,7 @@
 #include <QtWidgets>
 #include <memory>
 
+class Scene;
 class GLWidget;
 class ProcessPanel;
 
@@ -16,13 +16,10 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	MainWindow(QWidget* parent = 0);
-
-	void initializeScene();
+	MainWindow(Scene* scene, QWidget* parent = 0);
 
 Q_SIGNALS:
 	void geomImported(GeomInfo*);
-	void sceneInitialized(Scene*);
 
 private:
 	void _createCentralWidget();
@@ -61,7 +58,7 @@ private:
 	QAction* _aHiddenline;
 	QAction* _aUnlit;
 
-	Scene _scene;
+	Scene* _scene;
 	GeomInfo _geomInfo;
 	QString _lastOpenFile = KLEIN_IMPORT_PATH;
 };

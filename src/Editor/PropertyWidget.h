@@ -7,7 +7,7 @@ class PropertyWidget : public ProcessWidget
 	Q_OBJECT
 
 public:
-	PropertyWidget(QWidget* parent, GLWidget* glWidget);
+	PropertyWidget(Scene* scene, QWidget* parent, GLWidget* glWidget);
 
 	void activate() override;
 	void deactivate() override;

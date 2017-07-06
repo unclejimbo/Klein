@@ -18,10 +18,8 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
 	Q_OBJECT
 
 public:
-	GLWidget();
-	explicit GLWidget(QWidget* parent);
+	GLWidget(Scene* scene, QWidget* parent);
 
-	void bindScene(Scene* scene);
 	void renderToTexture(QImage& img); // Read render-pass nodes
 	void readColorBuffer(QImage& img); // Read offscreen-pass nodes
 	void readDepthBuffer(std::vector<float>& depth);
@@ -49,10 +47,11 @@ private Q_SLOTS:
 	void _logOpenGLMsg(const QOpenGLDebugMessage& msg);
 
 private:
-	Scene* _scene = nullptr;
+	Scene* _scene;
 	std::unique_ptr<CameraController> _cameraController = nullptr;
 	QOpenGLDebugLogger* _glDebugLogger = nullptr;
 	std::unique_ptr<QOpenGLFramebufferObject> _fboOffscreen = nullptr;
 	GLuint _fboDepth;
 	GLuint _fboPick;
+	float _aspectRatio;
 };

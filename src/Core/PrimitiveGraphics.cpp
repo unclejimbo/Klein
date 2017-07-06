@@ -151,17 +151,19 @@ void PrimitiveGraphics::setPointSize(short pointSize)
 	_pointSize = pointSize;
 }
 
-void PrimitiveGraphics::_renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights)
+void PrimitiveGraphics::_renderLit(const Camera& camera,
+	const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
+	float aspectRatio)
 {
-	_renderUnlit(camera);
+	_renderUnlit(camera, aspectRatio);
 }
 
-void PrimitiveGraphics::_renderUnlit(const Camera& camera)
+void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio)
 {
 
 	_shaderUnlit->bind();
 	QMatrix4x4 projection;
-	projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+	projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
 	auto transform = this->sceneNode()->transform();
 	auto mvp = projection * camera.view() * transform;
 	_shaderUnlit->setUniformValue("mvp", mvp);
@@ -251,7 +253,7 @@ void PrimitiveGraphics::_renderUnlit(const Camera& camera)
 	_shaderUnlit->release();
 }
 
-void PrimitiveGraphics::_renderPickVertex(const Camera& camera)
+void PrimitiveGraphics::_renderPickVertex(const Camera& camera, float aspectRatio)
 {
 	auto pointPosBuf = ResourceManager::instance().glBuffer(_pointPosBufID);
 	if (pointPosBuf == nullptr) {
@@ -263,7 +265,7 @@ void PrimitiveGraphics::_renderPickVertex(const Camera& camera)
 	auto shaderPicking = ResourceManager::instance().shaderProgram("KLEIN_Picking");
 	shaderPicking->bind();
 	QMatrix4x4 projection;
-	projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+	projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
 	auto transform = this->sceneNode()->transform();
 	auto mvp = projection * camera.view() * transform;
 	shaderPicking->setUniformValue("mvp", mvp);

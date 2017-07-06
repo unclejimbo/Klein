@@ -60,16 +60,18 @@ void PrimitiveVColorGraphics::setPointSize(short pointSize)
 	_pointSize = pointSize;
 }
 
-void PrimitiveVColorGraphics::_renderLit(const Camera& camera, const std::array<Light, KLEIN_MAX_LIGHTS>& lights)
+void PrimitiveVColorGraphics::_renderLit(const Camera& camera,
+	const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
+	float aspectRatio)
 {
-	_renderUnlit(camera);
+	_renderUnlit(camera, aspectRatio);
 }
 
-void PrimitiveVColorGraphics::_renderUnlit(const Camera& camera)
+void PrimitiveVColorGraphics::_renderUnlit(const Camera& camera, float aspectRatio)
 {
 	_shaderUnlit->bind();
 	QMatrix4x4 projection;
-	projection.perspective(camera.fov(), camera.aspect(), camera.nearPlane(), camera.farPlane());
+	projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
 	auto transform = this->sceneNode()->transform();
 	auto mvp = projection * camera.view() * transform;
 	_shaderUnlit->setUniformValue("mvp", mvp);

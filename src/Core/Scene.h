@@ -25,12 +25,12 @@ public:
 	SceneNode* addNode(SceneNode* parent, const std::string& name, const QMatrix4x4& transform = QMatrix4x4());
 	bool removeNode(const std::string& name);
 	Camera* camera();
-	void setCamera(const QVector3D& eye_w, const QVector3D& center_w, const QVector3D& up_w, float fov, float aspect);
+	void setCamera(const QVector3D& eye_w, const QVector3D& center_w, const QVector3D& up_w, float fov);
 	bool setLight(int lightID, const QVector3D& position_w, const QVector3D& color = QVector3D(1.0f, 1.0f, 1.0f));
 	void setShadingMethod(ShadingMethod shading);
 	void setPickingPrimitive(PickingPrimitive picking);
 	void setUnlit(bool unlit);
-	void render(RenderPass renderPass);
+	void render(RenderPass renderPass, float aspectRatio);
 
 private:
 	std::unordered_map<std::string, std::unique_ptr<SceneNode>> _nodes;

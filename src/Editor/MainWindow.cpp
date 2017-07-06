@@ -16,8 +16,8 @@
 #include <QVector3D>
 #include <fstream>
 
-MainWindow::MainWindow(QWidget* parent)
-	: QMainWindow(parent)
+MainWindow::MainWindow(Scene* scene, QWidget* parent)
+	: QMainWindow(parent), _scene(scene)
 {
 	this->setWindowTitle(KLEIN_TITLE);
 	_createCentralWidget();
@@ -28,23 +28,9 @@ MainWindow::MainWindow(QWidget* parent)
 	_createStatusBar();
 }
 
-void MainWindow::initializeScene()
-{
-	// Default scene setup
-	_scene.setCamera(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), 
-		QVector3D(0.0f, 1.0f, 0.0f), 45.0f, _glWidget->width() / (_glWidget->height() + 0.00001f));
-	_scene.setLight(0, QVector3D(3.0f, 3.0f, 3.0f), QVector3D(300.0f, 300.0f, 300.0f));
-	_scene.setLight(1, QVector3D(-3.0f, -3.0f, -3.0f), QVector3D(300.0f, 300.0f, 300.0f));
-
-	// bindScene should be called at the end of scene initialization
-	_glWidget->bindScene(&_scene);
-
-	Q_EMIT sceneInitialized(&_scene);
-}
-
 void MainWindow::_createCentralWidget()
 {
-	_glWidget = new GLWidget(this);
+	_glWidget = new GLWidget(_scene, this);
 	_glWidget->setMinimumSize(KLEIN_MIN_WIDTH, KLEIN_MIN_HEIGHT);
 	this->setCentralWidget(_glWidget);
 	ResourceManager::instance().initialize(_glWidget);
@@ -52,7 +38,7 @@ void MainWindow::_createCentralWidget()
 
 void MainWindow::_createDockWidgets()
 {
-	_processPanel = new ProcessPanel("ProcessPanel", this, _glWidget);
+	_processPanel = new ProcessPanel(_scene, "ProcessPanel", this, _glWidget);
 	_processPanel->setAllowedAreas(Qt::RightDockWidgetArea);
 	_processPanel->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	_processPanel->setMinimumWidth(400);
@@ -177,8 +163,8 @@ void MainWindow::_importMesh()
 		unsigned posBufID;
 		unsigned normBufID;
 		if (geomIO->readMesh(path, posBufID, normBufID, &_geomInfo)) {
-			_scene.removeNode("MainMesh");
-			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
+			_scene->removeNode("MainMesh");
+			auto node = _scene->addNode(_scene->rootNode(), "MainMesh");
 
 			QMatrix4x4 transform;
 			auto diag = QVector3D(_geomInfo.maxX - _geomInfo.minX,
@@ -197,7 +183,7 @@ void MainWindow::_importMesh()
 			graphics->addRenderPass(RENDER_PICK);
 			node->addGraphicsComponent(std::move(graphics));
 
-			_scene.camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
+			_scene->camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
 
 			_lastOpenFile = QFileInfo(path).path();
 			_changeTitle(QFileInfo(path).fileName());
@@ -236,8 +222,8 @@ void MainWindow::_importPointCloud()
 
 		unsigned posBufID;
 		if (geomIO->readPointCloud(path, posBufID, &_geomInfo)) {
-			_scene.removeNode("MainMesh");
-			auto node = _scene.addNode(_scene.rootNode(), "MainMesh");
+			_scene->removeNode("MainMesh");
+			auto node = _scene->addNode(_scene->rootNode(), "MainMesh");
 
 			QMatrix4x4 transform;
 			auto diag = QVector3D(_geomInfo.maxX - _geomInfo.minX,
@@ -253,7 +239,7 @@ void MainWindow::_importPointCloud()
 			graphics->addRenderPass(RENDER_PICK);
 			node->addGraphicsComponent(std::move(graphics));
 
-			_scene.camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
+			_scene->camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
 
 			_lastOpenFile = QFileInfo(path).path();
 			_changeTitle(QFileInfo(path).fileName());
@@ -268,7 +254,7 @@ void MainWindow::_importPointCloud()
 
 void MainWindow::_clearAll()
 {
-	_scene.removeNode("MainMesh");
+	_scene->removeNode("MainMesh");
 	Q_EMIT geomImported(nullptr);
 	_glWidget->update();
 }
@@ -286,29 +272,29 @@ void MainWindow::_screenShot()
 
 void MainWindow::_shaded()
 {
-	_scene.setShadingMethod(ShadingMethod::shaded);
+	_scene->setShadingMethod(ShadingMethod::shaded);
 	_glWidget->update();
 }
 
 void MainWindow::_wireframe()
 {
-	_scene.setShadingMethod(ShadingMethod::wireframe);
+	_scene->setShadingMethod(ShadingMethod::wireframe);
 	_glWidget->update();
 }
 
 void MainWindow::_hiddenline()
 {
-	_scene.setShadingMethod(ShadingMethod::hiddenLine);
+	_scene->setShadingMethod(ShadingMethod::hiddenLine);
 	_glWidget->update();
 }
 
 void MainWindow::_unlit()
 {
 	if (_aUnlit->isChecked()) {
-		_scene.setUnlit(true);
+		_scene->setUnlit(true);
 	}
 	else {
-		_scene.setUnlit(false);
+		_scene->setUnlit(false);
 	}
 	_glWidget->update();
 }

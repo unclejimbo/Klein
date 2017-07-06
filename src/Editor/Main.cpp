@@ -1,6 +1,7 @@
 #include "Core/Common.h"
 #include "Core/Logger.h"
 #include "Core/ResourceManager.h"
+#include "Core/Scene.h"
 #include "Editor/MainWindow.h"
 
 #include <QApplication>
@@ -15,31 +16,6 @@
 //#else
 //#include <Python.h>
 //#endif
-
-void initializeResourceSystem()
-{
-	// Load default contents
-	ResourceManager::instance().addPBRMaterial("KLEIN_PBR_Default",
-		QVector3D(1.0f, 1.0f, 1.0f), 0.8f, 0.4f, 10.0f);
-	ResourceManager::instance().addPBRMaterial("KLEIN_PBR_Red",
-		QVector3D(1.0f, 0.0f, 0.0f), 0.8f, 0.4f, 10.0f);
-
-	ResourceManager::instance().addShaderProgram("KLEIN_CookTorrance",
-		QString(KLEIN_SHADER_PATH).append("Mesh.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("CookTorrance.frag").toStdString());
-	ResourceManager::instance().addShaderProgram("KLEIN_CookTorrance_VColor",
-		QString(KLEIN_SHADER_PATH).append("MeshVColor.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("CookTorranceVColor.frag").toStdString());
-	ResourceManager::instance().addShaderProgram("KLEIN_Unlit",
-		QString(KLEIN_SHADER_PATH).append("Unlit.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("Unlit.frag").toStdString());
-	ResourceManager::instance().addShaderProgram("KLEIN_Unlit_VColor",
-		QString(KLEIN_SHADER_PATH).append("UnlitVColor.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("UnlitVColor.frag").toStdString());
-	ResourceManager::instance().addShaderProgram("KLEIN_Picking",
-		QString(KLEIN_SHADER_PATH).append("Unlit.vert").toStdString(),
-		QString(KLEIN_SHADER_PATH).append("Picking.frag").toStdString());
-}
 
 int main(int argc, char *argv[])
 {
@@ -61,10 +37,14 @@ int main(int argc, char *argv[])
 		arg(KLEIN_VERSION_MINOR).arg(KLEIN_VERSION_PATCH);
 	KLEIN_LOG_INFO(version);
 
-	MainWindow mainWindow;
+	Scene scene;
+	scene.setCamera(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f),
+		QVector3D(0.0f, 1.0f, 0.0f), 45.0f);
+	scene.setLight(0, QVector3D(3.0f, 3.0f, 3.0f), QVector3D(300.0f, 300.0f, 300.0f));
+	scene.setLight(1, QVector3D(-3.0f, -3.0f, -3.0f), QVector3D(300.0f, 300.0f, 300.0f));
+
+	MainWindow mainWindow(&scene);
 	mainWindow.show();
-	initializeResourceSystem();
-	mainWindow.initializeScene();
 
 	//Py_Initialize();
 	//PyRun_SimpleString("import sys");

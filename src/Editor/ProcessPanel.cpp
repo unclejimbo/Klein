@@ -6,14 +6,14 @@
 #include <QString>
 #include <QtWidgets>
 
-ProcessPanel::ProcessPanel(MainWindow* parent, GLWidget* glWidget)
-	: QDockWidget(parent)
+ProcessPanel::ProcessPanel(Scene* scene, MainWindow* parent, GLWidget* glWidget)
+	: QDockWidget(parent), _scene(scene)
 {
 	_initializePanel(parent, glWidget);
 }
 
-ProcessPanel::ProcessPanel(const QString& title, MainWindow* parent, GLWidget* glWidget)
-	: QDockWidget(title, parent)
+ProcessPanel::ProcessPanel(Scene* scene, const QString& title, MainWindow* parent, GLWidget* glWidget)
+	: QDockWidget(title, parent), _scene(scene)
 {
 	_initializePanel(parent, glWidget);
 }
@@ -22,7 +22,6 @@ void ProcessPanel::addWidget(ProcessWidget* widget, const QString& name)
 {
 	_comboBox->addItem(name);
 	_stackedWidget->addWidget(widget);
-	connect(_parent, SIGNAL(sceneInitialized(Scene*)), widget, SLOT(onInitializeScene(Scene*)));
 }
 
 void ProcessPanel::onCurrentWidgetChanged(int id)
@@ -73,7 +72,7 @@ void ProcessPanel::_initializePanel(MainWindow* parent, GLWidget* glWidget)
 	_stackedWidget = new QStackedWidget(container);
 	layout->addWidget(_stackedWidget);
 
-	auto propertyWidget = new PropertyWidget(_stackedWidget, glWidget);
+	auto propertyWidget = new PropertyWidget(_scene, _stackedWidget, glWidget);
 	addWidget(propertyWidget, "Properties");;
 	_activatedWidget = propertyWidget;
 

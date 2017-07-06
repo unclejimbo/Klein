@@ -12,7 +12,7 @@ class ProcessWidget : public QWidget
 	Q_OBJECT
 
 public:
-	ProcessWidget(QWidget* parent, GLWidget* glWidget);
+	ProcessWidget(Scene* scene, QWidget* parent, GLWidget* glWidget);
 	virtual ~ProcessWidget();
 
 	bool initialized() const;
@@ -22,11 +22,8 @@ public:
 	virtual void onImport(GeomInfo* info) = 0;
 	virtual void onPicked(const PickingInfo& info);
 
-public Q_SLOTS:
-	void onInitializeScene(Scene* scene);
-
 protected:
-	GLWidget* _glWidget;
 	Scene* _scene;
+	GLWidget* _glWidget;
 	bool _initialized = false;
 };

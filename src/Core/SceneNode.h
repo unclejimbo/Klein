@@ -1,13 +1,12 @@
 #pragma once
 
 #include "Core/Scene.h"
+#include "Core/GraphicsComponent.h"
 
 #include <QMatrix4x4>
 #include <string>
 #include <unordered_map>
 #include <memory>
-
-class GraphicsComponent;
 
 class SceneNode
 {

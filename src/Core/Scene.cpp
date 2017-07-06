@@ -127,9 +127,9 @@ Camera* Scene::camera()
 	return _camera.get();
 }
 
-void Scene::setCamera(const QVector3D& eye_w, const QVector3D& center_w, const QVector3D& up_w, float fov, float aspect)
+void Scene::setCamera(const QVector3D& eye_w, const QVector3D& center_w, const QVector3D& up_w, float fov)
 {
-	_camera = std::make_unique<Camera>(eye_w, center_w, up_w, fov, aspect);
+	_camera = std::make_unique<Camera>(eye_w, center_w, up_w, fov);
 }
 
 bool Scene::setLight(int lightID, const QVector3D& position_w, const QVector3D& color)
@@ -169,16 +169,16 @@ void Scene::setUnlit(bool unlit)
 	}
 }
 
-void Scene::render(RenderPass renderPass)
+void Scene::render(RenderPass renderPass, float aspectRatio)
 {
 	for (const auto& node : _graphicsNodes) {
 		auto graphics = node.second->graphicsComponent();
 		if (graphics->visible() && (graphics->renderPass() & renderPass)) {
 			if (renderPass & RENDER_PICK) {
-				graphics->renderPick(_picking, *_camera);
+				graphics->renderPick(_picking, *_camera, aspectRatio);
 			}
 			else {
-				graphics->render(*_camera, _lights);
+				graphics->render(*_camera, _lights, aspectRatio);
 			}
 		}
 	}
@@ -186,10 +186,10 @@ void Scene::render(RenderPass renderPass)
 		auto graphics = node.second->graphicsComponent();
 		if (graphics->visible() && (graphics->renderPass() & renderPass)) {
 			if (renderPass & RENDER_PICK) {
-				graphics->renderPick(_picking, *_camera);
+				graphics->renderPick(_picking, *_camera, aspectRatio);
 			}
 			else {
-				graphics->render(*_camera, _lights);
+				graphics->render(*_camera, _lights, aspectRatio);
 			}
 		}
 	}
