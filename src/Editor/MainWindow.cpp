@@ -162,16 +162,19 @@ void MainWindow::_importMesh()
 
 		unsigned posBufID;
 		unsigned normBufID;
-		if (geomIO->readMesh(path, posBufID, normBufID, &_geomInfo)) {
+		GeomInfo geomInfo;
+		if (geomIO->readMesh(path, posBufID, normBufID, &geomInfo)) {
+			ResourceManager::instance().removeMesh(_geomInfo.id);
+			_geomInfo = geomInfo;
 			_scene->removeNode("MainMesh");
 			auto node = _scene->addNode(_scene->rootNode(), "MainMesh");
 
 			QMatrix4x4 transform;
-			auto diag = QVector3D(_geomInfo.maxX - _geomInfo.minX,
-				_geomInfo.maxY - _geomInfo.minY, _geomInfo.maxZ - _geomInfo.minZ);
+			auto diag = QVector3D(geomInfo.maxX - geomInfo.minX,
+				geomInfo.maxY - geomInfo.minY, geomInfo.maxZ - geomInfo.minZ);
 			diag *= 0.5f;
 			transform.scale(1.0f / diag.length());
-			transform.translate(-_geomInfo.center);
+			transform.translate(-geomInfo.center);
 			node->setTransform(transform);
 
 			auto graphics = std::make_unique<PBRMeshGraphics>(*_glWidget);
@@ -187,7 +190,7 @@ void MainWindow::_importMesh()
 
 			_lastOpenFile = QFileInfo(path).path();
 			_changeTitle(QFileInfo(path).fileName());
-			_updateStatusLabel(_geomInfo.nVertices, _geomInfo.nFaces);
+			_updateStatusLabel(geomInfo.nVertices, geomInfo.nFaces);
 			Q_EMIT geomImported(&_geomInfo);
 		}
 
@@ -221,7 +224,10 @@ void MainWindow::_importPointCloud()
 		}
 
 		unsigned posBufID;
-		if (geomIO->readPointCloud(path, posBufID, &_geomInfo)) {
+		GeomInfo geomInfo;
+		if (geomIO->readPointCloud(path, posBufID, &geomInfo)) {
+			ResourceManager::instance().removePointCloud(_geomInfo.id);
+			_geomInfo = geomInfo;
 			_scene->removeNode("MainMesh");
 			auto node = _scene->addNode(_scene->rootNode(), "MainMesh");
 

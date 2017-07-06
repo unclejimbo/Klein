@@ -18,6 +18,10 @@ public:
 	PointCloud(const std::vector<Point_3>& rawPoints,
 		const std::vector<Vector_3>& rawNormals,
 		unsigned pointBuffer);
+	PointCloud(const PointCloud& rhs) = delete; // TODO, delete for now to prevent using
+	PointCloud& operator=(const PointCloud& rhs) = delete;
+	PointCloud(PointCloud&& rhs) = delete;
+	PointCloud& operator=(PointCloud&& rhs) = delete;
 	~PointCloud();
 
 	unsigned id() const;

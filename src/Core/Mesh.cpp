@@ -21,7 +21,11 @@ Mesh::Mesh(const std::vector<Point_3>& rawPoints,
 	_isManifold = _buildSurfaceMesh();
 }
 
-Mesh::~Mesh() = default;
+Mesh::~Mesh()
+{
+	ResourceManager::instance().removeGLBuffer(_pointBufferID);
+	ResourceManager::instance().removeGLBuffer(_normalBufferID);
+}
 
 unsigned Mesh::id() const
 {

@@ -27,6 +27,10 @@ public:
 		const std::vector<unsigned>& rawIndices,
 		unsigned PointBuffer,
 		unsigned normalBuffer);
+	Mesh(const Mesh& rhs) = delete; // TODO, delete for now to prevent using
+	Mesh& operator=(const Mesh& rhs) = delete;
+	Mesh(Mesh&& rhs) = delete;
+	Mesh& operator=(Mesh&& rhs) = delete;
 	~Mesh();
 
 	unsigned id() const;
