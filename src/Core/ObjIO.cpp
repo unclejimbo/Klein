@@ -9,10 +9,6 @@
 #include <QVector3D>
 #include <vector>
 
-ObjIO::ObjIO() = default;
-
-ObjIO::~ObjIO() = default;
-
 inline void readOBJFile(QTextStream& stream, std::vector<Point_3>& vertices, std::vector<Vector_3>& normals,
 	std::vector<unsigned>& vIndices, std::vector<unsigned>& nIndices)
 {

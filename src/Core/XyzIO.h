@@ -4,10 +4,6 @@
 
 class XyzIO : public GeomIO
 {
-public:
-	XyzIO();
-	~XyzIO();
-
 private:
 	bool _readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
 		GeomInfo* geomInfo) override;

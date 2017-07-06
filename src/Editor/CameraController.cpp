@@ -1,11 +1,11 @@
 #include "Editor/CameraController.h"
 
+CameraController::CameraController() = default;
+
 CameraController::CameraController(Camera& camera, int width, int height)
 	: _camera(&camera), _width(width), _height(height)
 {
 }
-
-CameraController::~CameraController() = default;
 
 void CameraController::bindCamera(Camera& camera)
 {

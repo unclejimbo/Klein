@@ -10,19 +10,21 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLFrameBufferObject>
+#include <QOpenGLDebugLogger>
+#include <QOpenGLDebugMessage>
+#include <QImage>
 #include <QPainter>
 #include <QColor>
 #include <QMatrix4x4>
 #include <QVector3D>
 #include <QVector2D>
-#include <vector>
+
+GLWidget::GLWidget() = default;
 
 GLWidget::GLWidget(QWidget* parent)
 	: QOpenGLWidget(parent)
 {
 }
-
-GLWidget::~GLWidget() = default;
 
 void GLWidget::bindScene(Scene* scene)
 {

@@ -11,7 +11,6 @@ class PrimitiveGraphics : public GraphicsComponent
 {
 public:
 	PrimitiveGraphics(QOpenGLWidget& context, bool transparent = false, int layer = 0);
-	~PrimitiveGraphics();
 
 	void addPoint(const QVector3D& point);
 	void addPoint(float x, float y, float z);

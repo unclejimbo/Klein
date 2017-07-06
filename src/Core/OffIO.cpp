@@ -9,10 +9,6 @@
 #include <QVector3D>
 #include <vector>
 
-OffIO::OffIO() = default;
-
-OffIO::~OffIO() = default;
-
 inline void recordGeomInfo(GeomInfo* geomInfo, const std::vector<Point_3>& vertices, int nEdges, int nFaces)
 {
 	if (geomInfo != nullptr) {

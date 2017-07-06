@@ -11,7 +11,6 @@ class PrimitiveVColorGraphics : public GraphicsComponent
 {
 public:
 	PrimitiveVColorGraphics(QOpenGLWidget& context, bool transparent = false, int layer = 0);
-	~PrimitiveVColorGraphics();
 
 	void addPoint(const QVector3D& point, const QVector3D& color);
 	void addPoint(float x, float y, float z, float r, float g, float b);

@@ -31,9 +31,6 @@ struct GeomInfo
 class GeomIO
 {
 public:
-	GeomIO();
-	~GeomIO();
-
 	bool readMesh(const QString& filename, unsigned& positionBufferID, unsigned& normalBufferID,
 		GeomInfo* geomInfo = nullptr);
 	bool readPointCloud(const QString& filename, unsigned& positionBufferID,

@@ -14,8 +14,6 @@ PBRMeshVColorGraphics::PBRMeshVColorGraphics(QOpenGLWidget& context, bool transp
 	_materialID = "KLEIN_PBR_Default";
 }
 
-PBRMeshVColorGraphics::~PBRMeshVColorGraphics() = default;
-
 unsigned PBRMeshVColorGraphics::positionBuffer() const
 {
 	return _posBufID;

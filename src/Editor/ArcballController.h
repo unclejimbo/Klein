@@ -14,8 +14,8 @@ enum class ControllerMode
 class ArcballController : public CameraController
 {
 public:
+	ArcballController();
 	ArcballController(Camera& camera, int width, int height);
-	~ArcballController();
 
 	void keyPressEvent(QKeyEvent* event) override;
 	void keyReleaseEvent(QKeyEvent* event) override;

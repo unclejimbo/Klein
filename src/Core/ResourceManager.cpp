@@ -1,8 +1,6 @@
 #include "Core/ResourceManager.h"
 #include "Core/Logger.h"
 
-ResourceManager::~ResourceManager() = default;
-
 ResourceManager& ResourceManager::instance()
 {
 	static ResourceManager* resourceManager = new ResourceManager();

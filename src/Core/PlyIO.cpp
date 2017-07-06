@@ -9,10 +9,6 @@
 #include <QVector3D>
 #include <vector>
 
-PlyIO::PlyIO() = default;
-
-PlyIO::~PlyIO() = default;
-
 enum class PlyFormat
 {
 	ascii,

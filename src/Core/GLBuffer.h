@@ -5,9 +5,8 @@
 class GLBuffer : public QOpenGLBuffer
 {
 public:
+	GLBuffer();
 	GLBuffer(unsigned bufferSpec, QOpenGLBuffer::Type type = QOpenGLBuffer::VertexBuffer);
-	GLBuffer(const GLBuffer& other);
-	~GLBuffer();
 
 	unsigned bufferSpec() const;
 	void attachGeom(unsigned type, unsigned id);

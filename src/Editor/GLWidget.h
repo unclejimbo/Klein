@@ -2,16 +2,15 @@
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_3_Core>
-#include <QOpenGLDebugLogger>
-#include <QOpenGLDebugMessage>
-#include <QImage>
 #include <memory>
 #include <vector>
 #include <string>
 
 class Scene;
 class CameraController;
+class QImage;
 class QOpenGLDebugLogger;
+class QOpenGLDebugMessage;
 struct PickingInfo;
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
@@ -19,8 +18,8 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
 	Q_OBJECT
 
 public:
+	GLWidget();
 	explicit GLWidget(QWidget* parent);
-	~GLWidget();
 
 	void bindScene(Scene* scene);
 	void renderToTexture(QImage& img); // Read render-pass nodes

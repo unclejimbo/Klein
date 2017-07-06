@@ -9,10 +9,6 @@
 #include <QVector3D>
 #include <vector>
 
-XyzIO::XyzIO() = default;
-
-XyzIO::~XyzIO() = default;
-
 bool XyzIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
 	GeomInfo* geomInfo)
 {

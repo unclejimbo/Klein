@@ -13,8 +13,6 @@ PrimitiveGraphics::PrimitiveGraphics(QOpenGLWidget& context, bool transparent, i
 	this->setShaderUnlit("KLEIN_Unlit");
 }
 
-PrimitiveGraphics::~PrimitiveGraphics() = default;
-
 void PrimitiveGraphics::addPoint(const QVector3D& point)
 {
 	_points.push_back(point);

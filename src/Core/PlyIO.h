@@ -4,10 +4,6 @@
 
 class PlyIO : public GeomIO
 {
-public:
-	PlyIO();
-	~PlyIO();
-
 private:
 	bool _readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
 		GeomInfo* geomInfo) override;

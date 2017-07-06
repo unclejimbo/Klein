@@ -9,8 +9,8 @@
 class CameraController
 {
 public:
+	CameraController();
 	CameraController(Camera& camera, int width, int height);
-	~CameraController();
 
 	void bindCamera(Camera& camera);
 	void onResize(int width, int height);
@@ -23,7 +23,7 @@ public:
 	virtual void wheelEvent(QWheelEvent* event) = 0;
 
 protected:
-	Camera* _camera;
+	Camera* _camera = nullptr;
 	int _width;
 	int _height;
 };

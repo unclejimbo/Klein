@@ -17,8 +17,6 @@ SceneNode::SceneNode(const std::string& name, Scene& scene, SceneNode* parent, c
 	}
 }
 
-SceneNode::~SceneNode() = default;
-
 unsigned SceneNode::id() const
 {
 	return _id;

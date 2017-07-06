@@ -4,10 +4,6 @@
 
 class ObjIO : public GeomIO
 {
-public:
-	ObjIO();
-	~ObjIO();
-
 private:
 	bool _readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
 		GeomInfo* geomInfo) override;

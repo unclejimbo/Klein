@@ -9,10 +9,11 @@
 #include "Core/SceneNode.h"
 #include "Core/PBRMeshGraphics.h"
 #include "Core/PrimitiveGraphics.h"
+#include "Editor/GLWidget.h"
+#include "Editor/ProcessPanel.h"
 
 #include <QMatrix4x4>
 #include <QVector3D>
-#include <memory>
 #include <fstream>
 
 MainWindow::MainWindow(QWidget* parent)
@@ -26,8 +27,6 @@ MainWindow::MainWindow(QWidget* parent)
 	_createToolBar();
 	_createStatusBar();
 }
-
-MainWindow::~MainWindow() = default;
 
 void MainWindow::initializeScene()
 {

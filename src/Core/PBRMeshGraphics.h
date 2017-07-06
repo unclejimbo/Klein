@@ -6,7 +6,6 @@ class PBRMeshGraphics : public GraphicsComponent
 {
 public:
 	PBRMeshGraphics(QOpenGLWidget& context, bool transparent = false, int layer = 0);
-	~PBRMeshGraphics();
 
 	unsigned positionBuffer() const;
 	void setPositionBuffer(unsigned posBufID);

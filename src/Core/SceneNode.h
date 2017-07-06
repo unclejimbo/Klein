@@ -15,7 +15,6 @@ class SceneNode
 
 public:
 	SceneNode(const std::string& name, Scene& scene, SceneNode* parent, const QMatrix4x4& transform = QMatrix4x4());
-	~SceneNode();
 
 	unsigned id() const;
 	void setTransDirty(bool dirty);

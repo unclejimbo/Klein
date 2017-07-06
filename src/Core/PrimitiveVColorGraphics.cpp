@@ -12,8 +12,6 @@ PrimitiveVColorGraphics::PrimitiveVColorGraphics(QOpenGLWidget& context, bool tr
 	this->setShaderUnlit("KLEIN_Unlit_VColor");
 }
 
-PrimitiveVColorGraphics::~PrimitiveVColorGraphics() = default;
-
 void PrimitiveVColorGraphics::addPoint(const QVector3D& point, const QVector3D& color)
 {
 	_pointPositions.push_back(point);

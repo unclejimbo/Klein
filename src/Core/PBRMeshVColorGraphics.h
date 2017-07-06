@@ -6,7 +6,6 @@ class PBRMeshVColorGraphics : public GraphicsComponent
 {
 public:
 	PBRMeshVColorGraphics(QOpenGLWidget& context, bool transparent = false, int layer = 0);
-	~PBRMeshVColorGraphics();
 
 	unsigned positionBuffer() const;
 	void setPositionBuffer(unsigned posBufID);

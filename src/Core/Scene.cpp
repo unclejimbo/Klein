@@ -1,5 +1,4 @@
 #include "Core/Scene.h"
-#include "Core/SceneNode.h"
 #include "Core/Camera.h"
 #include "Core/ResourceManager.h"
 #include "Core/Logger.h"
@@ -12,8 +11,6 @@ Scene::Scene()
 		l = { QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 0.0f, 0.0f) };
 	}
 }
-
-Scene::~Scene() = default;
 
 SceneNode* Scene::node(const std::string& name)
 {

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <QDockWidget>
-#include <QString>
 #include <memory>
 
+class QString;
 class MainWindow;
 class GLWidget;
 class ProcessWidget;
@@ -19,7 +19,6 @@ class ProcessPanel : public QDockWidget
 public:
 	ProcessPanel(MainWindow* parent, GLWidget* glWidget);
 	ProcessPanel(const QString& title, MainWindow* parent, GLWidget* glWidget);
-	~ProcessPanel();
 
 	void addWidget(ProcessWidget* widget, const QString& name);
 

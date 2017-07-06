@@ -1,13 +1,14 @@
 #include "Editor/ArcballController.h"
 
+#include <QVector3D>
 #include <QMatrix4x4>
+
+ArcballController::ArcballController() = default;
 
 ArcballController::ArcballController(Camera& camera, int width, int height)
 	: CameraController(camera, width, height)
 {
 }
-
-ArcballController::~ArcballController() = default;
 
 void ArcballController::keyPressEvent(QKeyEvent* event)
 {

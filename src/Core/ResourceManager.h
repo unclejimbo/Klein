@@ -11,7 +11,6 @@
 #include <QVector4D>
 #include <memory>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 using MeshMap = std::unordered_map<unsigned, std::unique_ptr<Mesh>>;
@@ -23,7 +22,6 @@ using ShaderMap = std::unordered_map<std::string, std::unique_ptr<QOpenGLShaderP
 class ResourceManager
 {
 public:
-	~ResourceManager();
 	static ResourceManager& instance();
 
 	void initialize(QOpenGLWidget* context);

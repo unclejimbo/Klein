@@ -3,6 +3,7 @@
 #include "Editor/GLWidget.h"
 #include "Editor/PropertyWidget.h"
 
+#include <QString>
 #include <QtWidgets>
 
 ProcessPanel::ProcessPanel(MainWindow* parent, GLWidget* glWidget)
@@ -16,8 +17,6 @@ ProcessPanel::ProcessPanel(const QString& title, MainWindow* parent, GLWidget* g
 {
 	_initializePanel(parent, glWidget);
 }
-
-ProcessPanel::~ProcessPanel() = default;
 
 void ProcessPanel::addWidget(ProcessWidget* widget, const QString& name)
 {

@@ -96,8 +96,6 @@ PropertyWidget::PropertyWidget(QWidget* parent, GLWidget* glWidget)
 		this, &PropertyWidget::onColorChanged);
 }
 
-PropertyWidget::~PropertyWidget() = default;
-
 void PropertyWidget::activate()
 {
 	auto node = _scene->node("PropertyPick");

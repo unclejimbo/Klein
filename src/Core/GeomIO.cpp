@@ -3,10 +3,6 @@
 
 #include <QFile>
 
-GeomIO::GeomIO() = default;
-
-GeomIO::~GeomIO() = default;
-
 bool GeomIO::readMesh(const QString& filename, unsigned& positionBufferID, unsigned& normalBufferID,
 	GeomInfo* geomInfo)
 {

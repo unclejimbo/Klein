@@ -3,12 +3,13 @@
 #include "Core/Scene.h"
 #include "Core/Common.h"
 #include "Core/GeomIO.h"
-#include "Editor/GLWidget.h"
-#include "Editor/ProcessPanel.h"
 
 #include <QMainWindow>
 #include <QtWidgets>
 #include <memory>
+
+class GLWidget;
+class ProcessPanel;
 
 class MainWindow : public QMainWindow
 {
@@ -16,7 +17,6 @@ class MainWindow : public QMainWindow
 
 public:
 	MainWindow(QWidget* parent = 0);
-	~MainWindow();
 
 	void initializeScene();
 

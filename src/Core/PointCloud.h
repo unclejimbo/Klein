@@ -2,10 +2,8 @@
 
 #include "Core/GeomBase.h"
 
-#include <QVector3D>
 #include <CGAL/Point_set_3.h>
 #include <vector>
-#include <string>
 
 using Point_set = CGAL::Point_set_3<Point_3>;
 

@@ -8,7 +8,6 @@ class PropertyWidget : public ProcessWidget
 
 public:
 	PropertyWidget(QWidget* parent, GLWidget* glWidget);
-	~PropertyWidget();
 
 	void activate() override;
 	void deactivate() override;

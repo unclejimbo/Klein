@@ -14,8 +14,6 @@ PBRMeshGraphics::PBRMeshGraphics(QOpenGLWidget& context, bool transparent, int l
 	_materialID = "KLEIN_PBR_Default";
 }
 
-PBRMeshGraphics::~PBRMeshGraphics() = default;
-
 unsigned PBRMeshGraphics::positionBuffer() const
 {
 	return _posBufID;

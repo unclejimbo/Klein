@@ -3,6 +3,7 @@
 #include "Core/Common.h"
 #include "Core/Light.h"
 #include "Core/GraphicsComponent.h"
+#include "Core/SceneNode.h"
 
 #include <unordered_map>
 #include <memory>
@@ -16,7 +17,6 @@ class Scene
 
 public:
 	Scene();
-	~Scene();
 
 	SceneNode* node(const std::string& name);
 	SceneNode* node(unsigned id);
