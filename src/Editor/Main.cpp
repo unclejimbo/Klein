@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 	scene.setLight(1, QVector3D(-3.0f, -3.0f, -3.0f), QVector3D(300.0f, 300.0f, 300.0f));
 
 	MainWindow mainWindow(&scene);
+	mainWindow.move(200, 100);
 	mainWindow.show();
 
 	//Py_Initialize();
