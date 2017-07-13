@@ -4,6 +4,7 @@ Klein is a mesh viewer as well as a coding framework to help visualize and test 
 - Qt 5.9
 - CGAL 4.10
 - Eigen 3.3
+- OpenCV 3.2
 - [Euclid](https://github.com/unclejimbo/Euclid)
 - C++17 compatable compiler
 
