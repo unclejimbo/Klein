@@ -11,11 +11,11 @@ find_package(Eigen3 REQUIRED)
 find_package(CGAL REQUIRED)
 find_package(CGAL REQUIRED COMPONENTS CGAL_Core)
 find_package(Euclid REQUIRED)
-#find_package(PythonLibs REQUIRED)
+find_package(OpenCV REQUIRED core imgproc)
 
 include(${CGAL_USE_FILE})
 
-include_directories(${CGAL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR} ${Euclid_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIR})
+include_directories(${CGAL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR} ${Euclid_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 
 add_definitions(-DQT_NO_KEYWORDS)
 
@@ -28,4 +28,4 @@ source_group("Scripts" FILES ${SCRIPTS})
 source_group("Shaders" FILES ${SHADERS})
 
 qt5_use_modules(Klein Core Widgets Gui)
-target_link_libraries(Klein ${CGAL_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(Klein ${CGAL_LIBRARIES} ${OpenCV_LIBS})
