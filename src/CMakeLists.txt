@@ -32,8 +32,10 @@ add_definitions(-DQT_NO_KEYWORDS)
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB_RECURSE SHADERS ${CMAKE_SOURCE_DIR}/contents/shaders/*)
-add_executable(Klein ${SOURCES} ${HEADERS} ${SHADERS})
 source_group("Shaders" FILES ${SHADERS})
+
+add_executable(Klein ${SOURCES} ${HEADERS} ${SHADERS})
+set_target_properties(Klein PROPERTIES COMPILE_FLAGS "/wd4819")
 
 qt5_use_modules(Klein Core Widgets Gui)
 target_link_libraries(Klein ${CGAL_LIBRARIES} ${OpenCV_LIBS})
