@@ -4,7 +4,7 @@
 #include "Core/GeomBase.h"
 #include "Core/Util.h"
 
-#include <Euclid/Math/KernelGeometry.h>
+#include <Euclid/Geometry/KernelGeometry.h>
 #include <QRegExp>
 #include <QVector3D>
 #include <vector>
