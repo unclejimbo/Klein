@@ -57,11 +57,12 @@ void PointCloud::updateGLBuffer() const
 	std::vector<QVector3D> points;
 	points.reserve(_pointSet.number_of_points());
 	for (const auto& p : _pointSet.points()) {
-		points.emplace_back(p.x(), p.y(), p.z());
+		points.emplace_back(static_cast<float>(p.x()),
+			static_cast<float>(p.y()), static_cast<float>(p.z()));
 	}
 
 	auto pointBuf = ResourceManager::instance().glBuffer(_pointBufferID);
 	pointBuf->bind();
-	pointBuf->allocate(points.data(), points.size() * sizeof(QVector3D));
+	pointBuf->allocate(points.data(), static_cast<int>(points.size() * sizeof(QVector3D)));
 	pointBuf->release();
 }
