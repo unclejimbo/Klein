@@ -15,9 +15,16 @@ public:
 	void onPicked(const PickingInfo& info) override;
 
 public Q_SLOTS:
+	void onAreaTypeChanged(int state);
 	void showAABB(int state);
 	void showOBB(int state);
 	void onColorChanged(int state);
+
+private:
+	void _clearResources();
+	void _hideAllAreaNodes();
+	void _hideAllColorNodes();
+	void _drawVertexArea();
 	 
 private:
 	bool _valid = false;
@@ -35,14 +42,16 @@ private:
 	QRadioButton* _nothingBtn;
 	QRadioButton* _vertexBtn;
 	QRadioButton* _faceBtn;
-	QLabel* _geomType;
-	QLabel* _geomID;
 	QLabel* _primType;
 	QLabel* _primID;
+	QComboBox* _areaType;
+	QLabel* _primArea;
 	QCheckBox* _aabb;
 	QCheckBox* _obb;
 	QComboBox* _color;
 
 	unsigned _id;
 	unsigned _valenceBuffer;
+	unsigned _gaussianBuffer;
+	unsigned _meanBuffer;
 };
