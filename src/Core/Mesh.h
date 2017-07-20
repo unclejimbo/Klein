@@ -37,6 +37,7 @@ public:
 	bool isManifold() const;
 	Point_3 point(unsigned idx);
 	Point_3 pointAt(unsigned idx);
+	unsigned pointIndex(unsigned idx);
 	std::vector<Point_3>& points();
 	const std::vector<Point_3>& points() const;
 	std::vector<unsigned>& indices();

@@ -47,6 +47,11 @@ Point_3 Mesh::pointAt(unsigned idx)
 	return _points[_indices[idx]];
 }
 
+unsigned Mesh::pointIndex(unsigned idx)
+{
+	return _indices[idx];
+}
+
 std::vector<Point_3>& Mesh::points()
 {
 	return _points;
