@@ -111,6 +111,13 @@ void PrimitiveGraphics::addSphere(const QVector3D& center, float radius)
 	_lineLoops.push_back(circle3);
 }
 
+void PrimitiveGraphics::addTriangleFill(const QVector3D& p1, const QVector3D& p2, const QVector3D& p3)
+{
+	_faces.push_back(p1);
+	_faces.push_back(p2);
+	_faces.push_back(p3);
+}
+
 unsigned PrimitiveGraphics::pointPositionBuffer() const
 {
 	return _pointPosBufID;
@@ -219,6 +226,20 @@ void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			glDrawArrays(GL_LINE_LOOP, 0, static_cast<int>(loop.size()));
 		}
+	}
+
+	// Draw faces
+	if (!_faces.empty()) {
+		QOpenGLBuffer vboFace(QOpenGLBuffer::VertexBuffer);
+		vboFace.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+		vboFace.create();
+		vboFace.bind();
+		vboFace.allocate(_faces.data(), static_cast<int>(_faces.size() * sizeof(QVector3D)));
+		_shaderUnlit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
+		_shaderUnlit->enableAttributeArray(0);
+		vboFace.release();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(_faces.size()));
 	}
 
 	// Draw point buffer

@@ -21,6 +21,7 @@ public:
 		const QVector3D& ltb, const QVector3D& ltf, const QVector3D& rbb,
 		const QVector3D& rbf, const QVector3D& rtb, const QVector3D& rtf);
 	void addSphere(const QVector3D& center, float radius);
+	void addTriangleFill(const QVector3D& p1, const QVector3D& p2, const QVector3D& p3);
 	unsigned pointPositionBuffer() const;
 	void setPointPositionBuffer(unsigned pointPosBufID);
 	unsigned linePositionBuffer() const;
@@ -41,6 +42,7 @@ private:
 	std::vector<QVector3D> _points;
 	std::vector<QVector3D> _lines;
 	std::vector<std::vector<QVector3D>> _lineLoops;
+	std::vector<QVector3D> _faces;
 	unsigned _pointPosBufID = 0;
 	unsigned _linePosBufID = 0;
 	QVector3D _color = QVector3D(1.0f, 1.0f, 1.0f);
