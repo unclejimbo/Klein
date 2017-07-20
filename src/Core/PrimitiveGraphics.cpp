@@ -175,6 +175,7 @@ void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio)
 	auto mvp = projection * camera.view() * transform;
 	_shaderUnlit->setUniformValue("mvp", mvp);
 	_shaderUnlit->setUniformValue("diffuseColor", _color);
+	_shaderUnlit->setUniformValue("alpha", this->transparency());
 
 	QOpenGLVertexArrayObject vao;
 	vao.create();
@@ -239,7 +240,10 @@ void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio)
 		_shaderUnlit->enableAttributeArray(0);
 		vboFace.release();
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(_faces.size()));
+		glDisable(GL_BLEND);
 	}
 
 	// Draw point buffer

@@ -75,6 +75,7 @@ void PrimitiveVColorGraphics::_renderUnlit(const Camera& camera, float aspectRat
 	auto transform = this->sceneNode()->transform();
 	auto mvp = projection * camera.view() * transform;
 	_shaderUnlit->setUniformValue("mvp", mvp);
+	_shaderUnlit->setUniformValue("alpha", this->transparency());
 
 	QOpenGLVertexArrayObject vao;
 	vao.create();
