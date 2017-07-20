@@ -148,6 +148,11 @@ void PrimitiveGraphics::setColor(const QVector3D& color)
 	_color = color;
 }
 
+void PrimitiveGraphics::setColor(float r, float g, float b)
+{
+	_color = QVector3D(r, g, b);
+}
+
 short PrimitiveGraphics::pointSize() const
 {
 	return _pointSize;

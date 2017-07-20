@@ -28,6 +28,7 @@ public:
 	void setLinePositionBuffer(unsigned linePosBufID);
 	QVector3D color() const;
 	void setColor(const QVector3D& color);
+	void setColor(float r, float g, float b);
 	short pointSize() const;
 	void setPointSize(short pointSize);
 
