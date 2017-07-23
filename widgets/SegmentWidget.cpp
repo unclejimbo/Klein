@@ -1,4 +1,4 @@
-#include "Widgets/SegmentWidget.h"
+#include "SegmentWidget.h"
 #include "Core/ResourceManager.h"
 #include "Core/PrimitiveGraphics.h"
 #include "Core/PrimitiveVColorGraphics.h"
