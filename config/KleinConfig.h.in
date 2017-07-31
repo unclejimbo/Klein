@@ -13,9 +13,11 @@
 #define KLEIN_VERSION_MAJOR @Klein_VERSION_MAJOR@
 #define KLEIN_VERSION_MINOR @Klein_VERSION_MINOR@
 #define KLEIN_VERSION_PATCH @Klein_VERSION_PATCH@
+#define KLEIN_PATH "@PROJECT_SOURCE_DIR@/"
 #define KLEIN_CONTENTS_PATH "@PROJECT_SOURCE_DIR@/contents/"
 #define KLEIN_IMPORT_PATH "@PROJECT_SOURCE_DIR@/contents/meshes/"
 #define KLEIN_MESH_PATH "@PROJECT_SOURCE_DIR@/contents/meshes/"
 #define KLEIN_SHADER_PATH "@PROJECT_SOURCE_DIR@/contents/shaders/"
 #define KLEIN_SCRIPT_PATH "@PROJECT_SOURCE_DIR@/contents/scripts/"
 #define KLEIN_SCREEN_SHOT_PATH "@PROJECT_SOURCE_DIR@/contents/screenshots/"
+#define KLEIN_SAVE_PATH "@PROJECT_SOURCE_DIR@/contents/save/"
