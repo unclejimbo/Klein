@@ -33,9 +33,8 @@ template<typename Archive, typename Scalar, int Rows,
 inline void load(Archive& arch,
 	Eigen::Matrix<Scalar, Rows, Cols, Opts, MaxRows, MaxCols>& matrix)
 {
-	int rows = matrix.rows();
+	int rows, cols;
 	arch(rows);
-	int cols = matrix.cols();
 	arch(cols);
 	matrix.resize(rows, cols);
 	for (auto c = 0; c < cols; ++c) {
@@ -66,9 +65,8 @@ template<typename Archive, typename Scalar, int Rows,
 inline void load(Archive& arch,
 	Eigen::Matrix<Scalar, Rows, Cols, Opts, MaxRows, MaxCols>& matrix)
 {
-	int rows = matrix.rows();
+	int rows, cols;
 	arch(rows);
-	int cols = matrix.cols();
 	arch(cols);
 	matrix.resize(rows, cols);
 	arch(binary_data(matrix.data(), static_cast<size_t>(rows * cols * sizeof(Scalar))));
