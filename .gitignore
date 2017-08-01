@@ -1,5 +1,5 @@
-build/*
-!build/klein.pro
-bin/*
-contents/screenshots/*
+build/
+bin/
+contents/screenshots/
+contents/save/
 x64/
