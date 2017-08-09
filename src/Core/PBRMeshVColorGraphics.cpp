@@ -79,7 +79,7 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera,
 		return;
 	}
 
-	if (this->shadingMethod() == ShadingMethod::shaded || this->shadingMethod() == ShadingMethod::hiddenLine) {
+	if (this->shadingMethod() == MeshShadingMethod::shaded || this->shadingMethod() == MeshShadingMethod::hiddenLine) {
 		_shaderLit->bind();
 		QMatrix4x4 projection;
 		projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
@@ -125,7 +125,7 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera,
 		_shaderLit->release();
 	}
 
-	if (this->shadingMethod() == ShadingMethod::wireframe || this->shadingMethod() == ShadingMethod::hiddenLine) {
+	if (this->shadingMethod() == MeshShadingMethod::wireframe || this->shadingMethod() == MeshShadingMethod::hiddenLine) {
 		_shaderUnlit->bind();
 		QMatrix4x4 projection;
 		projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
@@ -148,7 +148,7 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera,
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_POLYGON_OFFSET_LINE);
-		glPolygonOffset(-1.0f, 1.0f);
+		glPolygonOffset(-2.0f, 0.1f);
 		glDrawArrays(GL_TRIANGLES, 0, bufferSize / sizeof(QVector3D));
 		glDisable(GL_POLYGON_OFFSET_LINE);
 
@@ -190,14 +190,14 @@ void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera, float aspectRatio
 	_shaderUnlit->enableAttributeArray(1);
 	colorBuf->release();
 
-	if (this->shadingMethod() == ShadingMethod::shaded || this->shadingMethod() == ShadingMethod::hiddenLine) {
+	if (this->shadingMethod() == MeshShadingMethod::shaded || this->shadingMethod() == MeshShadingMethod::hiddenLine) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDrawArrays(GL_TRIANGLES, 0, bufferSize / sizeof(QVector3D));
 	}
-	if (this->shadingMethod() == ShadingMethod::wireframe || this->shadingMethod() == ShadingMethod::hiddenLine) {
+	if (this->shadingMethod() == MeshShadingMethod::wireframe || this->shadingMethod() == MeshShadingMethod::hiddenLine) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_POLYGON_OFFSET_LINE);
-		glPolygonOffset(-1.0f, 1.0f);
+		glPolygonOffset(-2.0f, 0.1f);
 		glDrawArrays(GL_TRIANGLES, 0, bufferSize / sizeof(QVector3D));
 		glDisable(GL_POLYGON_OFFSET_LINE);
 	}

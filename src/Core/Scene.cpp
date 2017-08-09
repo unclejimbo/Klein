@@ -144,7 +144,7 @@ bool Scene::setLight(int lightID, const QVector3D& position_w, const QVector3D& 
 	}
 }
 
-void Scene::setShadingMethod(ShadingMethod shading)
+void Scene::setShadingMethod(MeshShadingMethod shading)
 {
 	for (auto&& node : _graphicsNodes) {
 		node.second->graphicsComponent()->setShadingMethod(shading);

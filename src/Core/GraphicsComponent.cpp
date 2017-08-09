@@ -105,12 +105,12 @@ bool GraphicsComponent::setShaderUnlit(const std::string & shaderID)
 	}
 }
 
-ShadingMethod GraphicsComponent::shadingMethod() const
+MeshShadingMethod GraphicsComponent::shadingMethod() const
 {
 	return _shading;
 }
 
-void GraphicsComponent::setShadingMethod(ShadingMethod shading)
+void GraphicsComponent::setShadingMethod(MeshShadingMethod shading)
 {
 	_shading = shading;
 }

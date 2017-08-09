@@ -278,19 +278,19 @@ void MainWindow::_screenShot()
 
 void MainWindow::_shaded()
 {
-	_scene->setShadingMethod(ShadingMethod::shaded);
+	_scene->setShadingMethod(MeshShadingMethod::shaded);
 	_glWidget->update();
 }
 
 void MainWindow::_wireframe()
 {
-	_scene->setShadingMethod(ShadingMethod::wireframe);
+	_scene->setShadingMethod(MeshShadingMethod::wireframe);
 	_glWidget->update();
 }
 
 void MainWindow::_hiddenline()
 {
-	_scene->setShadingMethod(ShadingMethod::hiddenLine);
+	_scene->setShadingMethod(MeshShadingMethod::hiddenLine);
 	_glWidget->update();
 }
 

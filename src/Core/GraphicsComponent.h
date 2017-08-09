@@ -11,7 +11,7 @@
 #include <QOpenGLShaderProgram>
 #include <array>
 
-enum class ShadingMethod
+enum class MeshShadingMethod
 {
 	shaded,
 	wireframe,
@@ -66,8 +66,8 @@ public:
 	void setUnlit(bool unlit);
 	bool setShaderLit(const std::string& shaderID);
 	bool setShaderUnlit(const std::string& shaderID);
-	ShadingMethod shadingMethod() const;
-	void setShadingMethod(ShadingMethod shading);
+	MeshShadingMethod shadingMethod() const;
+	void setShadingMethod(MeshShadingMethod shading);
 	int renderPass() const;
 	void addRenderPass(int renderPass);
 	void removeRenderPass(int renderPass);
@@ -98,6 +98,6 @@ private:
 	int _layer;
 	bool _visible = true;
 	bool _unlit = false;
-	ShadingMethod _shading = ShadingMethod::shaded;
+	MeshShadingMethod _shading = MeshShadingMethod::shaded;
 	int _renderPass = RENDER_ONSCREEN;
 };
