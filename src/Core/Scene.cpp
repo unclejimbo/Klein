@@ -144,14 +144,14 @@ bool Scene::setLight(int lightID, const QVector3D& position_w, const QVector3D& 
 	}
 }
 
-void Scene::setShadingMethod(MeshShadingMethod shading)
+void Scene::setGlobalMeshRenderMode(MeshRenderMode mode)
 {
-	for (auto&& node : _graphicsNodes) {
-		node.second->graphicsComponent()->setShadingMethod(shading);
-	}
-	for (auto&& node : _transparentGraphicsNodes) {
-		node.second->graphicsComponent()->setShadingMethod(shading);
-	}
+	_globalMeshRenderMode = mode;
+}
+
+void Scene::setGlobalPrimitiveRenderMode(PrimitiveRenderMode mode)
+{
+	_globalPrimitiveRenderMode = mode;
 }
 
 void Scene::setPickingPrimitive(PickingPrimitive picking)
@@ -178,7 +178,8 @@ void Scene::render(RenderPass renderPass, float aspectRatio)
 				graphics->renderPick(_picking, *_camera, aspectRatio);
 			}
 			else {
-				graphics->render(*_camera, _lights, aspectRatio);
+				graphics->render(*_camera, _lights, aspectRatio,
+					_globalMeshRenderMode, _globalPrimitiveRenderMode);
 			}
 		}
 	}
@@ -189,7 +190,8 @@ void Scene::render(RenderPass renderPass, float aspectRatio)
 				graphics->renderPick(_picking, *_camera, aspectRatio);
 			}
 			else {
-				graphics->render(*_camera, _lights, aspectRatio);
+				graphics->render(*_camera, _lights, aspectRatio,
+					_globalMeshRenderMode, _globalPrimitiveRenderMode);
 			}
 		}
 	}

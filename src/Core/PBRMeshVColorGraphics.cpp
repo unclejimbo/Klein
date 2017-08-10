@@ -56,7 +56,9 @@ void PBRMeshVColorGraphics::setMaterial(const std::string& materialID)
 
 void PBRMeshVColorGraphics::_renderLit(const Camera& camera,
 	const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
-	float aspectRatio)
+	float aspectRatio,
+	MeshRenderMode meshRenderMode,
+	PrimitiveRenderMode primitiveRenderMode)
 {
 	auto posBuf = ResourceManager::instance().glBuffer(_posBufID);
 	auto normBuf = ResourceManager::instance().glBuffer(_normBufID);
@@ -79,7 +81,7 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera,
 		return;
 	}
 
-	if (this->shadingMethod() == MeshShadingMethod::shaded || this->shadingMethod() == MeshShadingMethod::hiddenLine) {
+	if (meshRenderMode == MeshRenderMode::shaded || meshRenderMode == MeshRenderMode::hiddenLine) {
 		_shaderLit->bind();
 		QMatrix4x4 projection;
 		projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
@@ -125,7 +127,7 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera,
 		_shaderLit->release();
 	}
 
-	if (this->shadingMethod() == MeshShadingMethod::wireframe || this->shadingMethod() == MeshShadingMethod::hiddenLine) {
+	if (meshRenderMode == MeshRenderMode::wireframe || meshRenderMode == MeshRenderMode::hiddenLine) {
 		_shaderUnlit->bind();
 		QMatrix4x4 projection;
 		projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
@@ -157,7 +159,8 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera,
 	}
 }
 
-void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera, float aspectRatio)
+void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera, float aspectRatio,
+	MeshRenderMode meshRenderMode, PrimitiveRenderMode primitiveRenderMode)
 {
 	auto posBuf = ResourceManager::instance().glBuffer(_posBufID);
 	auto colorBuf = ResourceManager::instance().glBuffer(_colorBufID);
@@ -190,11 +193,11 @@ void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera, float aspectRatio
 	_shaderUnlit->enableAttributeArray(1);
 	colorBuf->release();
 
-	if (this->shadingMethod() == MeshShadingMethod::shaded || this->shadingMethod() == MeshShadingMethod::hiddenLine) {
+	if (meshRenderMode == MeshRenderMode::shaded || meshRenderMode == MeshRenderMode::hiddenLine) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDrawArrays(GL_TRIANGLES, 0, bufferSize / sizeof(QVector3D));
 	}
-	if (this->shadingMethod() == MeshShadingMethod::wireframe || this->shadingMethod() == MeshShadingMethod::hiddenLine) {
+	if (meshRenderMode == MeshRenderMode::wireframe || meshRenderMode == MeshRenderMode::hiddenLine) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_POLYGON_OFFSET_LINE);
 		glPolygonOffset(-2.0f, 0.1f);

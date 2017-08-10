@@ -11,11 +11,19 @@
 #include <QOpenGLShaderProgram>
 #include <array>
 
-enum class MeshShadingMethod
+enum class MeshRenderMode
 {
+	global,
 	shaded,
 	wireframe,
 	hiddenLine
+};
+
+enum class PrimitiveRenderMode
+{
+	global,
+	basic,
+	solid
 };
 
 enum PickingPrimitive : unsigned
@@ -66,8 +74,10 @@ public:
 	void setUnlit(bool unlit);
 	bool setShaderLit(const std::string& shaderID);
 	bool setShaderUnlit(const std::string& shaderID);
-	MeshShadingMethod shadingMethod() const;
-	void setShadingMethod(MeshShadingMethod shading);
+	MeshRenderMode meshRenderMode() const;
+	void setMeshRenderMode(MeshRenderMode mode);
+	PrimitiveRenderMode primitiveRenderMode() const;
+	void setPrimitiveRenderMode(PrimitiveRenderMode mode);
 	int renderPass() const;
 	void addRenderPass(int renderPass);
 	void removeRenderPass(int renderPass);
@@ -75,7 +85,9 @@ public:
 	
 	void render(const Camera& camera,
 		const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
-		float aspectRatio);
+		float aspectRatio,
+		MeshRenderMode meshRenderMode,
+		PrimitiveRenderMode primitiveRenderMode);
 	void renderPick(PickingPrimitive primitive,
 		Camera& camera, float aspectRatio);
 
@@ -85,8 +97,14 @@ protected:
 
 private:
 	virtual void _renderLit(const Camera& camera,
-		const std::array<Light, KLEIN_MAX_LIGHTS>& lights, float aspectRatio) = 0;
-	virtual void _renderUnlit(const Camera& camera, float aspectRatio) = 0;
+		const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
+		float aspectRatio,
+		MeshRenderMode meshRenderMode,
+		PrimitiveRenderMode primitiveRenderMode) = 0;
+	virtual void _renderUnlit(const Camera& camera,
+		float aspectRatio,
+		MeshRenderMode meshRenderMode,
+		PrimitiveRenderMode primitiveRenderMode) = 0;
 	virtual void _renderPickVertex(const Camera& camera, float aspectRatio);
 	virtual void _renderPickLine(const Camera& camera, float aspectRatio);
 	virtual void _renderPickFace(const Camera& camera, float aspectRatio);
@@ -98,6 +116,7 @@ private:
 	int _layer;
 	bool _visible = true;
 	bool _unlit = false;
-	MeshShadingMethod _shading = MeshShadingMethod::shaded;
+	MeshRenderMode _meshRenderMode = MeshRenderMode::global;
+	PrimitiveRenderMode _primitiveRenderMode = PrimitiveRenderMode::global;
 	int _renderPass = RENDER_ONSCREEN;
 };

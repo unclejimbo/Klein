@@ -19,8 +19,13 @@ public:
 private:
 	void _renderLit(const Camera& camera,
 		const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
-		float aspectRatio) override;
-	void _renderUnlit(const Camera& camera, float aspectRatio) override;
+		float aspectRatio,
+		MeshRenderMode meshRenderMode,
+		PrimitiveRenderMode primitiveRenderMode) override;
+	void _renderUnlit(const Camera& camera,
+		float aspectRatio,
+		MeshRenderMode meshRenderMode,
+		PrimitiveRenderMode primitiveRenderMode) override;
 	void _renderPickVertex(const Camera& camera, float aspectRatio) override;
 	void _renderPickFace(const Camera& camera, float aspectRatio) override;
 

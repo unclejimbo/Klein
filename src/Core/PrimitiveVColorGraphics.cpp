@@ -62,12 +62,15 @@ void PrimitiveVColorGraphics::setPointSize(short pointSize)
 
 void PrimitiveVColorGraphics::_renderLit(const Camera& camera,
 	const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
-	float aspectRatio)
+	float aspectRatio,
+	MeshRenderMode meshRenderMode,
+	PrimitiveRenderMode primitiveRenderMode)
 {
-	_renderUnlit(camera, aspectRatio);
+	_renderUnlit(camera, aspectRatio, meshRenderMode, primitiveRenderMode);
 }
 
-void PrimitiveVColorGraphics::_renderUnlit(const Camera& camera, float aspectRatio)
+void PrimitiveVColorGraphics::_renderUnlit(const Camera& camera, float aspectRatio,
+	MeshRenderMode meshRenderMode, PrimitiveRenderMode primitiveRenderMode)
 {
 	_shaderUnlit->bind();
 	QMatrix4x4 projection;

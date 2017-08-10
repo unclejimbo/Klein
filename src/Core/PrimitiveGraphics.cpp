@@ -165,12 +165,15 @@ void PrimitiveGraphics::setPointSize(short pointSize)
 
 void PrimitiveGraphics::_renderLit(const Camera& camera,
 	const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
-	float aspectRatio)
+	float aspectRatio,
+	MeshRenderMode meshRenderMode,
+	PrimitiveRenderMode primitiveRenderMode)
 {
-	_renderUnlit(camera, aspectRatio);
+	_renderUnlit(camera, aspectRatio, meshRenderMode, primitiveRenderMode);
 }
 
-void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio)
+void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio,
+	MeshRenderMode meshRenderMode, PrimitiveRenderMode primitiveRenderMode)
 {
 
 	_shaderUnlit->bind();

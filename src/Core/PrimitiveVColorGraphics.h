@@ -25,8 +25,13 @@ public:
 private:
 	void _renderLit(const Camera& camera,
 		const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
-		float aspectRatio) override;
-	void _renderUnlit(const Camera& camera, float aspectRatio) override;
+		float aspectRatio,
+		MeshRenderMode meshRenderMode,
+		PrimitiveRenderMode primitiveRendermode) override;
+	void _renderUnlit(const Camera& camera,
+		float aspectRatio,
+		MeshRenderMode meshRenderMode,
+		PrimitiveRenderMode primitiveRenderMode) override;
 
 private:
 	std::vector<QVector3D> _pointPositions;

@@ -309,29 +309,32 @@ void MainWindow::_screenShot()
 
 void MainWindow::_shaded()
 {
-	_scene->setShadingMethod(MeshShadingMethod::shaded);
+	_scene->setGlobalMeshRenderMode(MeshRenderMode::shaded);
 	_glWidget->update();
 }
 
 void MainWindow::_wireframe()
 {
-	_scene->setShadingMethod(MeshShadingMethod::wireframe);
+	_scene->setGlobalMeshRenderMode(MeshRenderMode::wireframe);
 	_glWidget->update();
 }
 
 void MainWindow::_hiddenline()
 {
-	_scene->setShadingMethod(MeshShadingMethod::hiddenLine);
+	_scene->setGlobalMeshRenderMode(MeshRenderMode::hiddenLine);
 	_glWidget->update();
 }
 
 void MainWindow::_primitive()
 {
-
+	_scene->setGlobalPrimitiveRenderMode(PrimitiveRenderMode::basic);
+	_glWidget->update();
 }
 
 void MainWindow::_solid()
 {
+	_scene->setGlobalPrimitiveRenderMode(PrimitiveRenderMode::solid);
+	_glWidget->update();
 }
 
 void MainWindow::_backgroundWall()

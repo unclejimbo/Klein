@@ -105,14 +105,24 @@ bool GraphicsComponent::setShaderUnlit(const std::string & shaderID)
 	}
 }
 
-MeshShadingMethod GraphicsComponent::shadingMethod() const
+MeshRenderMode GraphicsComponent::meshRenderMode() const
 {
-	return _shading;
+	return _meshRenderMode;
 }
 
-void GraphicsComponent::setShadingMethod(MeshShadingMethod shading)
+void GraphicsComponent::setMeshRenderMode(MeshRenderMode mode)
 {
-	_shading = shading;
+	_meshRenderMode = mode;
+}
+
+PrimitiveRenderMode GraphicsComponent::primitiveRenderMode() const
+{
+	return _primitiveRenderMode;
+}
+
+void GraphicsComponent::setPrimitiveRenderMode(PrimitiveRenderMode mode)
+{
+	_primitiveRenderMode = mode;
 }
 
 int GraphicsComponent::renderPass() const
@@ -137,13 +147,19 @@ void GraphicsComponent::setRenderPass(int renderPass)
 
 void GraphicsComponent::render(const Camera& camera,
 	const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
-	float aspectRatio)
+	float aspectRatio,
+	MeshRenderMode meshRenderMode,
+	PrimitiveRenderMode primitiveRenderMode)
 {
+	auto meshMode = _meshRenderMode == MeshRenderMode::global ?
+		meshRenderMode : _meshRenderMode;
+	auto primitiveMode = _primitiveRenderMode == PrimitiveRenderMode::global ?
+		primitiveRenderMode : _primitiveRenderMode;
 	if (!_unlit) {
-		_renderLit(camera, lights, aspectRatio);
+		_renderLit(camera, lights, aspectRatio, meshMode, primitiveMode);
 	}
 	else {
-		_renderUnlit(camera, aspectRatio);
+		_renderUnlit(camera, aspectRatio, meshMode, primitiveMode);
 	}
 }
 
