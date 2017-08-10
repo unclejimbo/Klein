@@ -39,7 +39,12 @@ private Q_SLOTS:
 	void _shaded();
 	void _wireframe();
 	void _hiddenline();
+	void _primitive();
+	void _solid();
+	void _backgroundWall();
 	void _unlit();
+	void _shadow();
+	void _advancedRender();
 
 private:
 	GLWidget* _glWidget;
@@ -56,7 +61,12 @@ private:
 	QAction* _aShaded;
 	QAction* _aWireframe;
 	QAction* _aHiddenline;
+	QAction* _aPrimitive;
+	QAction* _aSolid;
+	QAction* _aBackgroundWall;
 	QAction* _aUnlit;
+	QAction* _aShadow;
+	QAction* _aAdvancedRender;
 
 	Scene* _scene;
 	GeomInfo _geomInfo;

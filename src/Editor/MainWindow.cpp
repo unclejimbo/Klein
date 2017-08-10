@@ -62,25 +62,48 @@ void MainWindow::_createActions()
 	_aScreenShot = new QAction("Screen Shot", this);
 	connect(_aScreenShot, &QAction::triggered, this, &MainWindow::_screenShot);
 
-	auto shadingActions = new QActionGroup(this);
+	auto meshShading = new QActionGroup(this);
 
-	_aShaded = new QAction("Shaded", shadingActions);
+	_aShaded = new QAction("Shaded Mesh", meshShading);
 	_aShaded->setCheckable(true);
 	_aShaded->setChecked(true);
 	connect(_aShaded, &QAction::triggered, this, &MainWindow::_shaded);
 
-	_aWireframe = new QAction("Wireframe", shadingActions);
+	_aWireframe = new QAction("Wireframe Mesh", meshShading);
 	_aWireframe->setCheckable(true);
 	connect(_aWireframe, &QAction::triggered, this, &MainWindow::_wireframe);
 
-	_aHiddenline = new QAction("Hiddenline", shadingActions);
+	_aHiddenline = new QAction("Hiddenline Mesh", meshShading);
 	_aHiddenline->setCheckable(true);
 	connect(_aHiddenline, &QAction::triggered, this, &MainWindow::_hiddenline);
 
-	_aUnlit = new QAction("Unlit", this);
+	auto primitiveShading = new QActionGroup(this);
+
+	_aPrimitive = new QAction("Basic Primitive", primitiveShading);
+	_aPrimitive->setCheckable(true);
+	_aPrimitive->setChecked(true);
+	connect(_aPrimitive, &QAction::triggered, this, &MainWindow::_primitive);
+
+	_aSolid = new QAction("Solid Primitive", primitiveShading);
+	_aSolid->setCheckable(true);
+	connect(_aSolid, &QAction::triggered, this, &MainWindow::_solid);
+
+	_aBackgroundWall = new QAction("Background Wall", this);
+	_aBackgroundWall->setCheckable(true);
+	connect(_aBackgroundWall, &QAction::triggered, this, &MainWindow::_backgroundWall);
+		
+	_aUnlit = new QAction("Light Off", this);
 	_aUnlit->setCheckable(true);
 	_aUnlit->setChecked(false);
 	connect(_aUnlit, &QAction::triggered, this, &MainWindow::_unlit);
+
+	_aShadow = new QAction("Shadow On", this);
+	_aShadow->setCheckable(true);
+	_aShadow->setChecked(false);
+	connect(_aShadow, &QAction::triggered, this, &MainWindow::_shadow);
+
+	_aAdvancedRender = new QAction("Advanced Options", this);
+	connect(_aAdvancedRender, &QAction::triggered, this, &MainWindow::_advancedRender);
 }
 
 void MainWindow::_createMenuBar()
@@ -96,13 +119,21 @@ void MainWindow::_createMenuBar()
 	file->addAction(_aScreenShot);
 	file->addSeparator();
 	file->addAction(_aQuit);
-	
-	auto view = _menuBar->addMenu("View");
-	view->addAction(_aShaded);
-	view->addAction(_aWireframe);
-	view->addAction(_aHiddenline);
-	view->addSeparator();
-	view->addAction(_aUnlit);
+
+	auto render = _menuBar->addMenu("Render");
+	render->addAction(_aShaded);
+	render->addAction(_aWireframe);
+	render->addAction(_aHiddenline);
+	render->addSeparator();
+	render->addAction(_aPrimitive);
+	render->addAction(_aSolid);
+	render->addSeparator();
+	render->addAction(_aBackgroundWall);
+	render->addSeparator();
+	render->addAction(_aUnlit);
+	render->addAction(_aShadow);
+	render->addSeparator();
+	render->addAction(_aAdvancedRender);
 }
 
 void MainWindow::_createToolBar()
@@ -294,6 +325,19 @@ void MainWindow::_hiddenline()
 	_glWidget->update();
 }
 
+void MainWindow::_primitive()
+{
+
+}
+
+void MainWindow::_solid()
+{
+}
+
+void MainWindow::_backgroundWall()
+{
+}
+
 void MainWindow::_unlit()
 {
 	if (_aUnlit->isChecked()) {
@@ -303,4 +347,12 @@ void MainWindow::_unlit()
 		_scene->setUnlit(false);
 	}
 	_glWidget->update();
+}
+
+void MainWindow::_shadow()
+{
+}
+
+void MainWindow::_advancedRender()
+{
 }
