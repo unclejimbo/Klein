@@ -42,12 +42,12 @@ Point_3 Mesh::point(unsigned idx)
 	return _points[idx];
 }
 
-Point_3 Mesh::pointAt(unsigned idx)
+Point_3 Mesh::pointAtIndex(unsigned idx)
 {
 	return _points[_indices[idx]];
 }
 
-unsigned Mesh::pointIndex(unsigned idx)
+unsigned Mesh::pointVectorIndex(unsigned idx)
 {
 	return _indices[idx];
 }

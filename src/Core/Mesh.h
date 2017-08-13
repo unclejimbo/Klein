@@ -35,9 +35,12 @@ public:
 
 	unsigned id() const;
 	bool isManifold() const;
+	// Directly index into the raw points
 	Point_3 point(unsigned idx);
-	Point_3 pointAt(unsigned idx);
-	unsigned pointIndex(unsigned idx);
+	// Find the point by index
+	Point_3 pointAtIndex(unsigned idx);
+	// Return raw point position by index
+	unsigned pointVectorIndex(unsigned idx);
 	std::vector<Point_3>& points();
 	const std::vector<Point_3>& points() const;
 	std::vector<unsigned>& indices();
