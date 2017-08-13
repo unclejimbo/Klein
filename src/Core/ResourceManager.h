@@ -4,6 +4,7 @@
 #include "Core/Mesh.h"
 #include "Core/PointCloud.h"
 #include "Core/GLBuffer.h"
+#include "Core/Logger.h"
 
 #include <QOpenGLShaderProgram>
 #include <QOpenGLWidget>
@@ -38,13 +39,8 @@ public:
 	PointCloud* pointCloud(unsigned id);
 	bool removePointCloud(unsigned id);
 
-	unsigned addGLBuffer(const std::vector<float>& data, unsigned bufferSpec,
-		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
-		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
-	unsigned addGLBuffer(const std::vector<QVector3D>& data, unsigned bufferSpec,
-		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
-		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
-	unsigned addGLBuffer(const std::vector<QVector4D>& data, unsigned bufferSpec,
+	template<typename T>
+	unsigned addGLBuffer(const std::vector<T>& data, unsigned bufferSpec,
 		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
 		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
 	GLBuffer* glBuffer(unsigned bufferID);
@@ -71,3 +67,29 @@ private:
 	PBRMaterialMap _pbrMaterialMap;
 	ShaderMap _shaderMap;
 };
+
+template<typename T>
+inline unsigned ResourceManager::addGLBuffer(const std::vector<T>& data, unsigned bufferSpec,
+	QOpenGLBuffer::Type type, QOpenGLBuffer::UsagePattern usage)
+{
+	if (_context != nullptr) {
+		_context->makeCurrent();
+		auto buffer = std::make_unique<GLBuffer>(bufferSpec, type);
+		buffer->create();
+		buffer->setUsagePattern(usage);
+		buffer->bind();
+		buffer->allocate(data.data(), static_cast<int>(data.size() * sizeof(T)));
+		buffer->release();
+		_context->doneCurrent();
+
+		auto id = buffer->bufferId();
+		if (!_bufferMap.insert_or_assign(id, std::move(buffer)).second) {
+			KLEIN_LOG_WARNING(QString("OpenGL Buffer Object %1 already exists and is replaced").arg(id));
+		}
+		return id;
+	}
+	else {
+		KLEIN_LOG_CRITICAL("Invalid OpenGL context");
+		return 0;
+	}
+}

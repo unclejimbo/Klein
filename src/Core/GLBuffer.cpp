@@ -1,6 +1,9 @@
 #include "Core/GLBuffer.h"
 
-GLBuffer::GLBuffer() = default;
+GLBuffer::GLBuffer(unsigned bufferSpec)
+	: QOpenGLBuffer(), _bufferSpec(bufferSpec)
+{
+}
 
 GLBuffer::GLBuffer(unsigned bufferSpec, QOpenGLBuffer::Type type)
 	: QOpenGLBuffer(type), _bufferSpec(bufferSpec)
