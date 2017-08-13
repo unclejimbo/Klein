@@ -269,6 +269,8 @@ bool PlyIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 		}
 		geomInfo->id = ResourceManager::instance().addMesh(vertices, vIndices,
 			positionBufferID, normalBufferID);
+		ResourceManager::instance().glBuffer(positionBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
+		ResourceManager::instance().glBuffer(normalBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
 
 		recordGeomInfo(geomInfo, vertices, nVertices, nFaces);
 	}
@@ -324,9 +326,11 @@ bool PlyIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 	if (geomInfo != nullptr) {
 		if (hasNormal) {
 			geomInfo->id = ResourceManager::instance().addPointCloud(vertices, normals, positionBufferID);
+			ResourceManager::instance().glBuffer(positionBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
 		}
 		else {
 			geomInfo->id = ResourceManager::instance().addPointCloud(vertices, positionBufferID);
+			ResourceManager::instance().glBuffer(positionBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
 		}
 
 		recordGeomInfo(geomInfo, vertices, nVertices, -1);

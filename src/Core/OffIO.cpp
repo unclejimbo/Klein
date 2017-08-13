@@ -153,6 +153,8 @@ bool OffIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 	if (geomInfo != nullptr) {
 		geomInfo->id = ResourceManager::instance().addMesh(vertices, indices,
 			positionBufferID, normalBufferID);
+		ResourceManager::instance().glBuffer(positionBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
+		ResourceManager::instance().glBuffer(normalBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
 
 		recordGeomInfo(geomInfo, vertices, -1, static_cast<int>(fnormals.size()));
 	}
@@ -220,6 +222,7 @@ bool OffIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 
 	if (geomInfo != nullptr) {
 		geomInfo->id = ResourceManager::instance().addPointCloud(vertices, positionBufferID);
+		ResourceManager::instance().glBuffer(positionBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
 
 		recordGeomInfo(geomInfo, vertices, -1, -1);
 	}

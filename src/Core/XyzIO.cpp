@@ -49,6 +49,7 @@ bool XyzIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 		vertexBuffer.push_back(v.z());
 	}
 	positionBufferID = ResourceManager::instance().addGLBuffer(vertexBuffer, GL_POINTS);
+	ResourceManager::instance().glBuffer(positionBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
 
 	// Record geomInfo
 	if (geomInfo != nullptr) {

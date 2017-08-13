@@ -157,6 +157,8 @@ bool ObjIO::_readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned&
 	if (geomInfo != nullptr) {
 		geomInfo->id = ResourceManager::instance().addMesh(vertices, vIndices,
 			positionBufferID, normalBufferID);
+		ResourceManager::instance().glBuffer(positionBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
+		ResourceManager::instance().glBuffer(normalBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
 		
 		auto faceCount = static_cast<int>(vIndices.size()) / 3;
 		recordGeomInfo(geomInfo, vertices, -1, faceCount);
@@ -187,9 +189,11 @@ bool ObjIO::_readPointCloud(QTextStream& stream, unsigned& positionBufferID,
 	if (geomInfo != nullptr) {
 		if (vertices.size() == normals.size()) { // Per-vertex normals
 			geomInfo->id = ResourceManager::instance().addPointCloud(vertices, normals, positionBufferID);
+			ResourceManager::instance().glBuffer(positionBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
 		}
 		else {
 			geomInfo->id = ResourceManager::instance().addPointCloud(vertices, positionBufferID);
+			ResourceManager::instance().glBuffer(positionBufferID)->attachGeom(GEOM_TYPE_MESH, geomInfo->id);
 		}
 
 		recordGeomInfo(geomInfo, vertices, -1, -1);
