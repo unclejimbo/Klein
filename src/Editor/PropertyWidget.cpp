@@ -504,7 +504,7 @@ void PropertyWidget::_drawVertexArea()
 	auto mesh = ResourceManager::instance().mesh(_id);
 	auto surfaceMesh = mesh->surfaceMesh();
 	auto picked = _primID->text().toUInt();
-	auto pointID = mesh->pointIndex(picked);
+	auto pointID = mesh->pointVectorIndex(picked);
 	Surface_mesh::Vertex_index v(pointID);
 	QMatrix4x4 transform;
 	transform.scale(1.001f);

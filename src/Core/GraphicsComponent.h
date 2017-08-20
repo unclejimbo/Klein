@@ -42,6 +42,13 @@ enum RenderPass : unsigned
 	RENDER_PICK = 0x100
 };
 
+// Together with nodeID, bufferSpec, bufferID,
+// primitiveType and primitiveID,
+// a unique primitive could be resolved.
+// Since buffers could be shared by nodes, so a bufferID is needed.
+// And we could for example pick vertex from a triangle buffer,
+// so both bufferSpec and primitiveType are needed in order to
+// correctly resolve the true primitive id.
 struct PickingInfo
 {
 	PickingInfo();
@@ -49,10 +56,10 @@ struct PickingInfo
 	PickingInfo(const PickingInfo& info);
 	~PickingInfo();
 
-	unsigned bufferSpec;
-	unsigned primitiveType;
 	unsigned nodeID;
+	unsigned bufferSpec;
 	unsigned bufferID;
+	unsigned primitiveType;
 	unsigned primitiveID;
 };
 Q_DECLARE_METATYPE(PickingInfo);
@@ -63,6 +70,7 @@ public:
 	GraphicsComponent(QOpenGLWidget& context, bool transparent = false, int layer = 0);
 	virtual ~GraphicsComponent();
 
+	QOpenGLWidget* context();
 	bool transparent() const;
 	float transparency() const;
 	bool setTransparency(float transparency);

@@ -3,7 +3,6 @@
 #include "Core/ResourceManager.h"
 #include "Core/Logger.h"
 
-#include <QOpenGLVertexArrayObject>
 #include <QtMath>
 
 PrimitiveGraphics::PrimitiveGraphics(QOpenGLWidget& context, bool transparent, int layer)
@@ -11,6 +10,12 @@ PrimitiveGraphics::PrimitiveGraphics(QOpenGLWidget& context, bool transparent, i
 {
 	this->setShaderLit("KLEIN_Unlit");
 	this->setShaderUnlit("KLEIN_Unlit");
+
+	context.makeCurrent();
+	_vaoLit.create();
+	_vaoUnlit.create();
+	_vaoPick.create();
+	context.doneCurrent();
 }
 
 void PrimitiveGraphics::addPoint(const QVector3D& point)
@@ -118,24 +123,30 @@ void PrimitiveGraphics::addTriangleFill(const QVector3D& p1, const QVector3D& p2
 	_faces.push_back(p3);
 }
 
-unsigned PrimitiveGraphics::pointPositionBuffer() const
+bool PrimitiveGraphics::addPointPositionBuffer(unsigned pointPosBufID)
 {
-	return _pointPosBufID;
+	auto buffer = ResourceManager::instance().glBuffer(pointPosBufID);
+	if (buffer == nullptr) {
+		KLEIN_LOG_CRITICAL("Invalid position buffer");
+		return false;
+	}
+	else {
+		_pointBuffers.insert(pointPosBufID);
+		return true;
+	}
 }
 
-void PrimitiveGraphics::setPointPositionBuffer(unsigned pointPosBufID)
+bool PrimitiveGraphics::addLinePositionBuffer(unsigned linePosBufID)
 {
-	_pointPosBufID = pointPosBufID;
-}
-
-unsigned PrimitiveGraphics::linePositionBuffer() const
-{
-	return _linePosBufID;
-}
-
-void PrimitiveGraphics::setLinePositionBuffer(unsigned linePosBufID)
-{
-	_linePosBufID = linePosBufID;
+	auto buffer = ResourceManager::instance().glBuffer(linePosBufID);
+	if (buffer == nullptr) {
+		KLEIN_LOG_CRITICAL("Invalid position buffer");
+		return false;
+	}
+	else {
+		_pointBuffers.insert(linePosBufID);
+		return true;
+	}
 }
 
 QVector3D PrimitiveGraphics::color() const
@@ -161,6 +172,16 @@ short PrimitiveGraphics::pointSize() const
 void PrimitiveGraphics::setPointSize(short pointSize)
 {
 	_pointSize = pointSize;
+}
+
+short PrimitiveGraphics::lineWidth() const
+{
+	return _lineWidth;
+}
+
+void PrimitiveGraphics::setLineWidth(short lineWidth)
+{
+	_lineWidth = lineWidth;
 }
 
 void PrimitiveGraphics::_renderLit(const Camera& camera,
@@ -255,8 +276,8 @@ void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio,
 	}
 
 	// Draw point buffer
-	if (_pointPosBufID != 0) {
-		auto pointPosBuf = ResourceManager::instance().glBuffer(_pointPosBufID);
+	for (auto buf : _pointBuffers) {
+		auto pointPosBuf = ResourceManager::instance().glBuffer(buf);
 		pointPosBuf->bind();
 		_shaderUnlit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
 		_shaderUnlit->enableAttributeArray(0);
@@ -271,8 +292,8 @@ void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio,
 	}
 
 	// Draw line buffer
-	if (_linePosBufID != 0) {
-		auto linePosBuf = ResourceManager::instance().glBuffer(_linePosBufID);
+	for (auto buf : _lineBuffers) {
+		auto linePosBuf = ResourceManager::instance().glBuffer(buf);
 		linePosBuf->bind();
 		_shaderUnlit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
 		_shaderUnlit->enableAttributeArray(0);
@@ -288,13 +309,6 @@ void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio,
 
 void PrimitiveGraphics::_renderPickVertex(const Camera& camera, float aspectRatio)
 {
-	auto pointPosBuf = ResourceManager::instance().glBuffer(_pointPosBufID);
-	if (pointPosBuf == nullptr) {
-		KLEIN_LOG_CRITICAL("There is no PointCloud associated with this component,\
-			so it is impossible to do picking");
-		return;
-	}
-
 	auto shaderPicking = ResourceManager::instance().shaderProgram("KLEIN_Picking");
 	shaderPicking->bind();
 	QMatrix4x4 projection;
@@ -306,27 +320,31 @@ void PrimitiveGraphics::_renderPickVertex(const Camera& camera, float aspectRati
 	auto ptLocation = shaderPicking->uniformLocation("primitiveType");
 	auto nidLocation = shaderPicking->uniformLocation("nodeID");
 	auto bidLocation = shaderPicking->uniformLocation("bufferID");
-	glUniform1ui(bsLocation, pointPosBuf->bufferSpec()); // Use native calls since Qt doesn't support uniform1ui
 	glUniform1ui(ptLocation, PICKING_PRIMITIVE_VERTEX);
 	glUniform1ui(nidLocation, this->sceneNode()->id());
-	glUniform1ui(bidLocation, pointPosBuf->bufferId());
 
-	QOpenGLVertexArrayObject vao;
-	vao.create();
-	vao.bind();
-	pointPosBuf->bind();
-	shaderPicking->setAttributeBuffer(0, GL_FLOAT, 0, 3);
-	shaderPicking->enableAttributeArray(0);
-	auto bufferSize = pointPosBuf->size();
-	pointPosBuf->release();
+	for (auto buf : _pointBuffers) {
+		auto pointPosBuf = ResourceManager::instance().glBuffer(buf);
+		glUniform1ui(bsLocation, pointPosBuf->bufferSpec());
+		glUniform1ui(bidLocation, pointPosBuf->bufferId());
 
-	glEnable(GL_PROGRAM_POINT_SIZE);
-	glPointSize(10);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-	glDrawArrays(GL_POINTS, 0, bufferSize / sizeof(QVector3D));
-	glPointSize(1);
-	glDisable(GL_PROGRAM_POINT_SIZE);
+		QOpenGLVertexArrayObject vao;
+		vao.create();
+		vao.bind();
+		pointPosBuf->bind();
+		shaderPicking->setAttributeBuffer(0, GL_FLOAT, 0, 3);
+		shaderPicking->enableAttributeArray(0);
+		auto bufferSize = pointPosBuf->size();
+		pointPosBuf->release();
 
-	vao.release();
-	shaderPicking->release();
+		glEnable(GL_PROGRAM_POINT_SIZE);
+		glPointSize(10);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		glDrawArrays(GL_POINTS, 0, bufferSize / sizeof(QVector3D));
+		glPointSize(1);
+		glDisable(GL_PROGRAM_POINT_SIZE);
+
+		vao.release();
+		shaderPicking->release();
+	}
 }

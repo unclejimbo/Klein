@@ -271,7 +271,7 @@ void MainWindow::_importPointCloud()
 			node->setTransform(transform);
 
 			auto graphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			graphics->setPointPositionBuffer(posBufID);
+			graphics->addPointPositionBuffer(posBufID);
 			graphics->setColor(QVector3D(1.0f, 1.0f, 1.0f));
 			graphics->addRenderPass(RENDER_PICK);
 			node->addGraphicsComponent(std::move(graphics));

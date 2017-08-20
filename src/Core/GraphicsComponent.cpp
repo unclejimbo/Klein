@@ -29,6 +29,11 @@ GraphicsComponent::~GraphicsComponent()
 {
 }
 
+QOpenGLWidget* GraphicsComponent::context()
+{
+	return &_context;
+}
+
 bool GraphicsComponent::transparent() const
 {
 	return _transparent;

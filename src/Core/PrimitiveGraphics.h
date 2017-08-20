@@ -3,7 +3,9 @@
 #include "Core/GraphicsComponent.h"
 
 #include <QVector3D>
+#include <QOpenGLVertexArrayObject>
 #include <vector>
+#include <set>
 
 class GLBuffer;
 
@@ -22,15 +24,15 @@ public:
 		const QVector3D& rbf, const QVector3D& rtb, const QVector3D& rtf);
 	void addSphere(const QVector3D& center, float radius);
 	void addTriangleFill(const QVector3D& p1, const QVector3D& p2, const QVector3D& p3);
-	unsigned pointPositionBuffer() const;
-	void setPointPositionBuffer(unsigned pointPosBufID);
-	unsigned linePositionBuffer() const;
-	void setLinePositionBuffer(unsigned linePosBufID);
+	bool addPointPositionBuffer(unsigned pointPosBufID);
+	bool addLinePositionBuffer(unsigned linePosBufID);
 	QVector3D color() const;
 	void setColor(const QVector3D& color);
 	void setColor(float r, float g, float b);
 	short pointSize() const;
 	void setPointSize(short pointSize);
+	short lineWidth() const;
+	void setLineWidth(short lineWidth);
 
 private:
 	void _renderLit(const Camera& camera,
@@ -49,8 +51,12 @@ private:
 	std::vector<QVector3D> _lines;
 	std::vector<std::vector<QVector3D>> _lineLoops;
 	std::vector<QVector3D> _faces;
-	unsigned _pointPosBufID = 0;
-	unsigned _linePosBufID = 0;
+	std::set<unsigned> _pointBuffers;
+	std::set<unsigned> _lineBuffers;
+	QOpenGLVertexArrayObject _vaoLit;
+	QOpenGLVertexArrayObject _vaoUnlit;
+	QOpenGLVertexArrayObject _vaoPick;
 	QVector3D _color = QVector3D(1.0f, 1.0f, 1.0f);
 	short _pointSize = 1;
+	short _lineWidth = 1;
 };
