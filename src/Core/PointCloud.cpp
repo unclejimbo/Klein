@@ -7,6 +7,7 @@ unsigned PointCloud::_inc = 1;
 
 PointCloud::PointCloud(const std::vector<Point_3>& rawPoints,
 	unsigned pointBuffer)
+	: _pointBufferID(pointBuffer)
 {
 	_pointSet.reserve(rawPoints.size());
 	for (const auto& p : rawPoints) {
@@ -17,6 +18,7 @@ PointCloud::PointCloud(const std::vector<Point_3>& rawPoints,
 PointCloud::PointCloud(const std::vector<Point_3>& rawPoints,
 	const std::vector<Vector_3>& rawNormals,
 	unsigned pointBuffer)
+	: _pointBufferID(pointBuffer)
 {
 	_pointSet.reserve(rawPoints.size());
 	_pointSet.add_normal_map();
