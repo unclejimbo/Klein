@@ -6,6 +6,7 @@
 #include "Core/GLBuffer.h"
 #include "Core/Logger.h"
 
+#include <Euclid/Geometry/MeshProperties.h>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLWidget>
 #include <QVector3D>
@@ -13,6 +14,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 
 using MeshMap = std::unordered_map<unsigned, std::unique_ptr<Mesh>>;
 using PointCloudMap = std::unordered_map<unsigned, std::unique_ptr<PointCloud>>;
@@ -42,6 +44,9 @@ public:
 	template<typename T>
 	unsigned addGLBuffer(const std::vector<T>& data, unsigned bufferSpec,
 		QOpenGLBuffer::Type type = QOpenGLBuffer::Type::VertexBuffer,
+		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
+	template<typename Mesh>
+	std::pair<unsigned, unsigned> addGLBuffer(const Mesh& mesh,
 		QOpenGLBuffer::UsagePattern usage = QOpenGLBuffer::UsagePattern::StaticDraw);
 	GLBuffer* glBuffer(unsigned bufferID);
 	bool removeGLBuffer(unsigned bufferID);
@@ -91,5 +96,64 @@ inline unsigned ResourceManager::addGLBuffer(const std::vector<T>& data, unsigne
 	else {
 		KLEIN_LOG_CRITICAL("Invalid OpenGL context");
 		return 0;
+	}
+}
+
+template<typename Mesh>
+inline std::pair<unsigned, unsigned>
+ResourceManager::addGLBuffer(const Mesh& mesh, QOpenGLBuffer::UsagePattern usage)
+{
+	if (_context != nullptr) {
+		auto vpmap = get(boost::vertex_point, mesh);
+		std::vector<float> points;
+		std::vector<float> normals;
+		points.reserve(num_faces(mesh) * 3);
+		normals.reserve(num_faces(mesh) * 3);
+		for (const auto& f : faces(mesh)) {
+			for (const auto& v : vertices_around_face(halfedge(f, mesh), mesh)) {
+				points.push_back(vpmap[v].x());
+				points.push_back(vpmap[v].y());
+				points.push_back(vpmap[v].z());
+			}
+			auto n = Euclid::face_normal(f, mesh);
+			normals.push_back(n.x());
+			normals.push_back(n.y());
+			normals.push_back(n.z());
+			normals.push_back(n.x());
+			normals.push_back(n.y());
+			normals.push_back(n.z());
+			normals.push_back(n.x());
+			normals.push_back(n.y());
+			normals.push_back(n.z());
+		}
+
+		_context->makeCurrent();
+		auto posBuf = std::make_unique<GLBuffer>(GL_TRIANGLES, QOpenGLBuffer::VertexBuffer);
+		posBuf->create();
+		posBuf->setUsagePattern(usage);
+		posBuf->bind();
+		posBuf->allocate(points.data(), static_cast<int>(points.size() * sizeof(float)));
+		posBuf->release();
+		auto normBuf = std::make_unique<GLBuffer>(GL_TRIANGLES, QOpenGLBuffer::VertexBuffer);
+		normBuf->create();
+		normBuf->setUsagePattern(usage);
+		normBuf->bind();
+		normBuf->allocate(normals.data(), static_cast<int>(normals.size() * sizeof(float)));
+		normBuf->release();
+		_context->doneCurrent();
+
+		auto posID = posBuf->bufferId();
+		if (!_bufferMap.insert_or_assign(posID, std::move(posBuf)).second) {
+			KLEIN_LOG_WARNING(QString("OpenGL Buffer Object %1 already exists and is replaced").arg(posID));
+		}
+		auto normID = normBuf->bufferId();
+		if (!_bufferMap.insert_or_assign(normID, std::move(normBuf)).second) {
+			KLEIN_LOG_WARNING(QString("OpenGL Buffer Object %1 already exists and is replaced").arg(normID));
+		}
+		return { posID, normID };
+	}
+	else {
+		KLEIN_LOG_CRITICAL("Invalid OpenGL context");
+		return { 0, 0 };
 	}
 }
