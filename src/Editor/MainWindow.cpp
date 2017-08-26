@@ -9,6 +9,7 @@
 #include "Core/SceneNode.h"
 #include "Core/PBRMeshGraphics.h"
 #include "Core/PrimitiveGraphics.h"
+#include "Core/Message.h"
 #include "Editor/GLWidget.h"
 #include "Editor/ProcessPanel.h"
 
@@ -91,7 +92,7 @@ void MainWindow::_createActions()
 	_aBackgroundWall = new QAction("Background Wall", this);
 	_aBackgroundWall->setCheckable(true);
 	connect(_aBackgroundWall, &QAction::triggered, this, &MainWindow::_backgroundWall);
-		
+
 	_aUnlit = new QAction("Light Off", this);
 	_aUnlit->setCheckable(true);
 	_aUnlit->setChecked(false);
@@ -170,6 +171,172 @@ void MainWindow::_updateStatusLabel(size_t nVertices, size_t nFaces)
 	_statusLabel->setText(info);
 }
 
+void MainWindow::_createMeshNode(const Geometry& geometry,
+	unsigned& pointBuffer, unsigned& normalBuffer)
+{
+	_scene->removeNode("MainMesh");
+	auto node = _scene->addNode(_scene->rootNode(), "MainMesh");
+
+	// Transform the geometry to fit into the screen
+	auto xmax = geometry.vertices[0];
+	auto ymax = geometry.vertices[1];
+	auto zmax = geometry.vertices[2];
+	auto xmin = xmax;
+	auto ymin = ymax;
+	auto zmin = zmax;
+	auto xsum = 0.0;
+	auto ysum = 0.0;
+	auto zsum = 0.0;
+	for (size_t i = 0; i < geometry.vertices.size(); i += 3) {
+		auto x = geometry.vertices[i];
+		auto y = geometry.vertices[i + 1];
+		auto z = geometry.vertices[i + 2];
+		if (x > xmax) xmax = x;
+		if (y > ymax) ymax = y;
+		if (z > zmax) zmax = z;
+		if (x < xmin) xmin = x;
+		if (y < ymin) ymin = y;
+		if (z < zmin) zmin = z;
+		xsum += x;
+		ysum += y;
+		zsum += z;
+	}
+	auto nVertices = geometry.vertices.size() / 3;
+	QVector3D center(xsum / nVertices, ysum / nVertices, zsum / nVertices);
+	auto diag = (QVector3D(xmax - xmin, ymax - ymin, zmax - zmin) * 0.5f).length();
+	QMatrix4x4 transform;
+	transform.scale(1.0f / diag);
+	transform.translate(-center);
+	node->setTransform(transform);
+
+	// Create point buffer
+	std::vector<float> points;
+	points.reserve(geometry.vindices.size() * 3);
+	for (auto i : geometry.vindices) {
+		points.push_back(geometry.vertices[3 * i]);
+		points.push_back(geometry.vertices[3 * i + 1]);
+		points.push_back(geometry.vertices[3 * i + 2]);
+	}
+	pointBuffer = ResourceManager::instance().addGLBuffer(points, GL_TRIANGLES);
+
+	// Create normal buffer
+	std::vector<QVector3D> normals;
+	normals.reserve(geometry.vindices.size() * 3);
+	if (geometry.normals.empty()) { // Normals not provided, need to compute face normals
+		for (auto i = 0; i < geometry.vindices.size(); i += 3) {
+			auto i1 = geometry.vindices[i];
+			auto i2 = geometry.vindices[i + 1];
+			auto i3 = geometry.vindices[i + 2];
+			QVector3D p1(geometry.vertices[3 * i1], geometry.vertices[3 * i1 + 1], geometry.vertices[3 * i1 + 2]);
+			QVector3D p2(geometry.vertices[3 * i2], geometry.vertices[3 * i2 + 1], geometry.vertices[3 * i2 + 2]);
+			QVector3D p3(geometry.vertices[3 * i3], geometry.vertices[3 * i3 + 1], geometry.vertices[3 * i3 + 2]);
+			auto normal = QVector3D::crossProduct(p2 - p1, p3 - p1).normalized();
+			normals.push_back(normal);
+			normals.push_back(normal);
+			normals.push_back(normal);
+		}
+	}
+	else if (!geometry.nindices.empty()) { // Normals with indices
+		for (auto i : geometry.nindices) {
+			QVector3D n(geometry.normals[3 * i], geometry.normals[3 * i + 1], geometry.normals[3 * i + 2]);
+			normals.push_back(n);
+		}
+	}
+	else if (geometry.vertices.size() == geometry.normals.size()) { // Vertex normals
+		for (auto i : geometry.vindices) {
+			QVector3D n(geometry.normals[3 * i], geometry.normals[3 * i + 1], geometry.normals[3 * i + 2]);
+			normals.push_back(n);
+		}
+	}
+	else { // Face normals
+		for (auto i : geometry.vindices) {
+			QVector3D n(geometry.normals[3 * i], geometry.normals[3 * i + 1], geometry.normals[3 * i + 2]);
+			normals.push_back(n);
+			normals.push_back(n);
+			normals.push_back(n);
+		}
+	}
+	normalBuffer = ResourceManager::instance().addGLBuffer(normals, GL_TRIANGLES);
+
+	// Create GraphicsComponent
+	auto graphics = std::make_unique<PBRMeshGraphics>(*_glWidget);
+	graphics->setPositionBuffer(pointBuffer);
+	graphics->setNormalBuffer(normalBuffer);
+	graphics->addRenderPass(RENDER_PICK);
+	node->addGraphicsComponent(std::move(graphics));
+}
+
+void MainWindow::_createPointCloudNode(
+	const Geometry& geometry, unsigned& pointBuffer)
+{
+	_scene->removeNode("MainMesh");
+	auto node = _scene->addNode(_scene->rootNode(), "MainMesh");
+
+	// Transform the geometry to fit into the screen
+	auto xmax = geometry.vertices[0];
+	auto ymax = geometry.vertices[1];
+	auto zmax = geometry.vertices[2];
+	auto xmin = xmax;
+	auto ymin = ymax;
+	auto zmin = zmax;
+	auto xsum = 0.0;
+	auto ysum = 0.0;
+	auto zsum = 0.0;
+	for (size_t i = 0; i < geometry.vertices.size(); i += 3) {
+		auto x = geometry.vertices[i];
+		auto y = geometry.vertices[i + 1];
+		auto z = geometry.vertices[i + 2];
+		if (x > xmax) xmax = x;
+		if (y > ymax) ymax = y;
+		if (z > zmax) zmax = z;
+		if (x < xmin) xmin = x;
+		if (y < ymin) ymin = y;
+		if (z < zmin) zmin = z;
+		xsum += x;
+		ysum += y;
+		zsum += z;
+	}
+	auto nVertices = geometry.vertices.size() / 3;
+	QVector3D center(xsum / nVertices, ysum / nVertices, zsum / nVertices);
+	auto diag = (QVector3D(xmax - xmin, ymax - ymin, zmax - zmin) * 0.5f).length();
+	QMatrix4x4 transform;
+	transform.scale(1.0f / diag);
+	transform.translate(-center);
+	node->setTransform(transform);
+
+	// Create point buffer
+	std::vector<float> points(geometry.vertices.size());
+	std::transform(geometry.vertices.begin(), geometry.vertices.end(), points.begin(),
+		[](double p) { return static_cast<float>(p); });
+	pointBuffer = ResourceManager::instance().addGLBuffer(
+		points, GL_POINTS);
+
+	// Create GraphicsComponent
+	auto graphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+	graphics->addPointPositionBuffer(pointBuffer);
+	graphics->addRenderPass(RENDER_PICK);
+	node->addGraphicsComponent(std::move(graphics));
+}
+
+unsigned MainWindow::_createMesh(const Geometry& geometry,
+	unsigned vertexBuffer, unsigned normalBuffer)
+{
+	return ResourceManager::instance().addMesh(
+		geometry.vertices, geometry.vindices, vertexBuffer, normalBuffer);
+}
+
+unsigned MainWindow::_createPointCloud(const Geometry& geometry, unsigned vertexBuffer)
+{
+	if (geometry.normals.empty()) {
+		return ResourceManager::instance().addPointCloud(
+			geometry.vertices, vertexBuffer);
+	}
+	else {
+		return ResourceManager::instance().addPointCloud(
+			geometry.vertices, geometry.normals, vertexBuffer);
+	}
+}
+
 void MainWindow::_importMesh()
 {
 	auto path = QFileDialog::getOpenFileName(nullptr, "Import Mesh",
@@ -187,42 +354,18 @@ void MainWindow::_importMesh()
 		else if (QFileInfo(path).suffix() == "ply") {
 			geomIO = std::make_unique<PlyIO>();
 		}
-		else {
-			// Empty
-		}
 
-		unsigned posBufID;
-		unsigned normBufID;
-		GeomInfo geomInfo;
-		if (geomIO->readMesh(path, posBufID, normBufID, &geomInfo)) {
-			ResourceManager::instance().removeMesh(_geomInfo.id);
-			_geomInfo = geomInfo;
-			_scene->removeNode("MainMesh");
-			auto node = _scene->addNode(_scene->rootNode(), "MainMesh");
-
-			QMatrix4x4 transform;
-			auto diag = QVector3D(geomInfo.maxX - geomInfo.minX,
-				geomInfo.maxY - geomInfo.minY, geomInfo.maxZ - geomInfo.minZ);
-			diag *= 0.5f;
-			transform.scale(1.0f / diag.length());
-			transform.translate(-geomInfo.center);
-			node->setTransform(transform);
-
-			auto graphics = std::make_unique<PBRMeshGraphics>(*_glWidget);
-			graphics->setShaderLit("KLEIN_CookTorrance");
-			graphics->setShaderUnlit("KLEIN_Unlit");
-			graphics->setPositionBuffer(posBufID);
-			graphics->setNormalBuffer(normBufID);
-			graphics->setMaterial("KLEIN_PBR_Default");
-			graphics->addRenderPass(RENDER_PICK);
-			node->addGraphicsComponent(std::move(graphics));
-
-			_scene->camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
-
+		Geometry geometry;
+		if (geomIO->readMesh(path, geometry)) {
+			unsigned pointBuffer, normalBuffer;
+			_createMeshNode(geometry, pointBuffer, normalBuffer);
+			auto id = _createMesh(geometry, pointBuffer, normalBuffer);
+			_scene->camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(), QVector3D(0.0f, 1.0f, 0.0f));
 			_lastOpenFile = QFileInfo(path).path();
 			_changeTitle(QFileInfo(path).fileName());
-			_updateStatusLabel(geomInfo.nVertices, geomInfo.nFaces);
-			Q_EMIT geomImported(&_geomInfo);
+			_updateStatusLabel(geometry.vertices.size(), geometry.vindices.size());
+			GeomInfo geomInfo{ path, GEOM_TYPE_MESH, id };
+			Q_EMIT geomImported(geomInfo);
 		}
 
 		_glWidget->update();
@@ -250,38 +393,18 @@ void MainWindow::_importPointCloud()
 		else if (QFileInfo(path).suffix() == "xyz") {
 			geomIO = std::make_unique<XyzIO>();
 		}
-		else {
-			// Empty
-		}
 
-		unsigned posBufID;
-		GeomInfo geomInfo;
-		if (geomIO->readPointCloud(path, posBufID, &geomInfo)) {
-			ResourceManager::instance().removePointCloud(_geomInfo.id);
-			_geomInfo = geomInfo;
-			_scene->removeNode("MainMesh");
-			auto node = _scene->addNode(_scene->rootNode(), "MainMesh");
-
-			QMatrix4x4 transform;
-			auto diag = QVector3D(_geomInfo.maxX - _geomInfo.minX,
-				_geomInfo.maxY - _geomInfo.minY, _geomInfo.maxZ - _geomInfo.minZ);
-			diag *= 0.5f;
-			transform.scale(1.0f / diag.length());
-			transform.translate(-_geomInfo.center);
-			node->setTransform(transform);
-
-			auto graphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			graphics->addPointPositionBuffer(posBufID);
-			graphics->setColor(QVector3D(1.0f, 1.0f, 1.0f));
-			graphics->addRenderPass(RENDER_PICK);
-			node->addGraphicsComponent(std::move(graphics));
-
-			_scene->camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
-
+		Geometry geometry;
+		if (geomIO->readPointCloud(path, geometry)) {
+			unsigned pointBuffer;
+			_createPointCloudNode(geometry, pointBuffer);
+			auto id = _createPointCloud(geometry, pointBuffer);
+			_scene->camera()->lookAt(QVector3D(2.0f, 2.0f, 2.0f), QVector3D(), QVector3D(0.0f, 1.0f, 0.0f));
 			_lastOpenFile = QFileInfo(path).path();
 			_changeTitle(QFileInfo(path).fileName());
-			_updateStatusLabel(_geomInfo.nVertices, _geomInfo.nFaces);
-			Q_EMIT geomImported(&_geomInfo);
+			_updateStatusLabel(geometry.vertices.size(), 0);
+			GeomInfo geomInfo{ path, GEOM_TYPE_POINTCLOUD, id };
+			Q_EMIT geomImported(geomInfo);
 		}
 
 		_glWidget->update();
@@ -291,8 +414,7 @@ void MainWindow::_importPointCloud()
 
 void MainWindow::_clearAll()
 {
-	_scene->removeNode("MainMesh");
-	Q_EMIT geomImported(nullptr);
+	Q_EMIT clearAll();
 	_glWidget->update();
 }
 

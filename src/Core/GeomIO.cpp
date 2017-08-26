@@ -3,17 +3,12 @@
 
 #include <QFile>
 
-bool GeomIO::readMesh(const QString& filename, unsigned& positionBufferID, unsigned& normalBufferID,
-	GeomInfo* geomInfo)
+bool GeomIO::readMesh(const QString& filename, Geometry& geometry)
 {
 	QFile file(filename);
 	if (file.open(QIODevice::ReadOnly)) {
-		if (geomInfo != nullptr) {
-			geomInfo->type = GEOM_TYPE_MESH;
-			geomInfo->fileName = filename;
-		}
 		QTextStream stream(&file);
-		return _readMesh(stream, positionBufferID, normalBufferID, geomInfo);
+		return _readMesh(stream, geometry);
 	}
 	else {
 		KLEIN_LOG_CRITICAL(QString("Can't open file %1").arg(filename));
@@ -21,17 +16,12 @@ bool GeomIO::readMesh(const QString& filename, unsigned& positionBufferID, unsig
 	}
 }
 
-bool GeomIO::readPointCloud(const QString& filename, unsigned& positionBufferID,
-	GeomInfo* geomInfo)
+bool GeomIO::readPointCloud(const QString& filename, Geometry& geometry)
 {
 	QFile file(filename);
 	if (file.open(QIODevice::ReadOnly)) {
-		if (geomInfo != nullptr) {
-			geomInfo->type = GEOM_TYPE_POINTCLOUD;
-			geomInfo->fileName = filename;
-		}
 		QTextStream stream(&file);
-		return _readPointCloud(stream, positionBufferID, geomInfo);
+		return _readPointCloud(stream, geometry);
 	}
 	else {
 		KLEIN_LOG_CRITICAL(QString("Can't open file %1").arg(filename));

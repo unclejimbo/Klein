@@ -1,17 +1,19 @@
 #pragma once
 
+#include "Core/GeomIO.h"
+
 #include <QDockWidget>
+#include <QString>
 #include <memory>
 
 class Scene;
 class MainWindow;
 class GLWidget;
 class ProcessWidget;
-struct GeomInfo;
-struct PickingInfo;
 class QStackedWidget;
 class QComboBox;
-class QString;
+struct GeomInfo;
+struct PickingInfo;
 
 class ProcessPanel : public QDockWidget
 {
@@ -25,7 +27,8 @@ public:
 
 public Q_SLOTS:
 	void onCurrentWidgetChanged(int id);
-	void onImport(GeomInfo* info);
+	void onImport(const GeomInfo& info);
+	void onClear();
 	void onPicked(const PickingInfo& info);
 
 private:
@@ -37,6 +40,5 @@ private:
 	GLWidget* _glWidget;
 	QStackedWidget* _stackedWidget;
 	QComboBox* _comboBox;
-	std::unique_ptr<GeomInfo> _geomInfo = nullptr;
 	ProcessWidget* _activatedWidget = nullptr;
 };

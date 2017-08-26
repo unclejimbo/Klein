@@ -3,42 +3,25 @@
 #include <QString>
 #include <QTextStream>
 #include <QVector3D>
+#include <vector>
 
-enum GeomType : unsigned
+struct Geometry
 {
-	GEOM_TYPE_NONE = 0,
-	GEOM_TYPE_MESH,
-	GEOM_TYPE_POINTCLOUD
-};
-
-struct GeomInfo
-{
-	GeomType type;
-	unsigned id;
-	QString fileName;
-	int nVertices;
-	int nEdges;
-	int nFaces;
-	QVector3D center;
-	float minX;
-	float maxX;
-	float minY;
-	float maxY;
-	float minZ;
-	float maxZ;
+	std::vector<double> vertices;
+	std::vector<double> texcoords;
+	std::vector<double> normals;
+	std::vector<unsigned> vindices;
+	std::vector<unsigned> tindices;
+	std::vector<unsigned> nindices;
 };
 
 class GeomIO
 {
 public:
-	bool readMesh(const QString& filename, unsigned& positionBufferID, unsigned& normalBufferID,
-		GeomInfo* geomInfo = nullptr);
-	bool readPointCloud(const QString& filename, unsigned& positionBufferID,
-		GeomInfo* geomInfo = nullptr);
+	bool readMesh(const QString& filename, Geometry& geometry);
+	bool readPointCloud(const QString& filename, Geometry& geometry);
 
 private:
-	virtual bool _readMesh(QTextStream& stream, unsigned& positionBufferID, unsigned& normalBufferID,
-		GeomInfo* geomInfo) = 0;
-	virtual bool _readPointCloud(QTextStream& stream, unsigned& positionBufferID,
-		GeomInfo* geomInfo) = 0;
+	virtual bool _readMesh(QTextStream& stream, Geometry& geometry) = 0;
+	virtual bool _readPointCloud(QTextStream& stream, Geometry& geometry) = 0;
 };

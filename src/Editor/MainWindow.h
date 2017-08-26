@@ -2,10 +2,10 @@
 
 #include "Core/Common.h"
 #include "Core/GeomIO.h"
+#include "Core/Message.h"
 
 #include <QMainWindow>
 #include <QtWidgets>
-#include <memory>
 
 class Scene;
 class GLWidget;
@@ -19,7 +19,8 @@ public:
 	MainWindow(Scene* scene, QWidget* parent = 0);
 
 Q_SIGNALS:
-	void geomImported(GeomInfo*);
+	void geomImported(const GeomInfo& info);
+	void clearAll();
 
 private:
 	void _createCentralWidget();
@@ -30,6 +31,13 @@ private:
 	void _createStatusBar();
 	void _changeTitle(const QString& title);
 	void _updateStatusLabel(size_t nVertices, size_t nFaces);
+	void _createMeshNode(const Geometry& geometry,
+		unsigned& pointBuffer, unsigned& normalBuffer);
+	void _createPointCloudNode(const Geometry& geometry,
+		unsigned& pointBuffer);
+	unsigned _createMesh(const Geometry& geometry,
+		unsigned pointBuffer, unsigned normalBuffer);
+	unsigned _createPointCloud(const Geometry& geometry, unsigned pointBuffer);
 
 private Q_SLOTS:
 	void _importMesh();
@@ -69,6 +77,5 @@ private:
 	QAction* _aAdvancedRender;
 
 	Scene* _scene;
-	GeomInfo _geomInfo;
 	QString _lastOpenFile = KLEIN_IMPORT_PATH;
 };

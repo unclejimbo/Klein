@@ -95,37 +95,43 @@ PropertyWidget::PropertyWidget(Scene* scene, QWidget* parent, GLWidget* glWidget
 	visLayout->addWidget(_color, 1, 1, 1, 2);
 
 	connect(_nothingBtn, &QRadioButton::clicked,
-		[this, glWidget](bool) 
-		{ 
-			_scene->setPickingPrimitive(PICKING_PRIMITIVE_NONE);
-			_scene->removeNode("PropertyPick");
-			_scene->removeNode("BarycentricArea");
-			_scene->removeNode("VoronoiArea");
-			_scene->removeNode("MixedArea");
-			glWidget->update();
-		}
+		[this, glWidget](bool)
+	{
+		_scene->setPickingPrimitive(PICKING_PRIMITIVE_NONE);
+		_scene->removeNode("PropertyPick");
+		_scene->removeNode("BarycentricArea");
+		_scene->removeNode("VoronoiArea");
+		_scene->removeNode("MixedArea");
+		_primType->setText("");
+		_primID->setText("");
+		glWidget->update();
+	}
 	);
 	connect(_vertexBtn, &QRadioButton::clicked,
 		[this, glWidget](bool)
-		{
-			_scene->setPickingPrimitive(PICKING_PRIMITIVE_VERTEX);
-			_scene->removeNode("PropertyPick");
-			_scene->removeNode("BarycentricArea");
-			_scene->removeNode("VoronoiArea");
-			_scene->removeNode("MixedArea");
-			glWidget->update();
-		}
+	{
+		_scene->setPickingPrimitive(PICKING_PRIMITIVE_VERTEX);
+		_scene->removeNode("PropertyPick");
+		_scene->removeNode("BarycentricArea");
+		_scene->removeNode("VoronoiArea");
+		_scene->removeNode("MixedArea");
+		_primType->setText("");
+		_primID->setText("");
+		glWidget->update();
+	}
 	);
 	connect(_faceBtn, &QRadioButton::clicked,
 		[this, glWidget](bool)
-		{
-			_scene->setPickingPrimitive(PICKING_PRIMITIVE_FACE);
-			_scene->removeNode("PropertyPick");
-			_scene->removeNode("BarycentricArea");
-			_scene->removeNode("VoronoiArea");
-			_scene->removeNode("MixedArea");
-			glWidget->update();
-		}
+	{
+		_scene->setPickingPrimitive(PICKING_PRIMITIVE_FACE);
+		_scene->removeNode("PropertyPick");
+		_scene->removeNode("BarycentricArea");
+		_scene->removeNode("VoronoiArea");
+		_scene->removeNode("MixedArea");
+		_primType->setText("");
+		_primID->setText("");
+		glWidget->update();
+	}
 	);
 	connect(_areaType, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
 		this, &PropertyWidget::onAreaTypeChanged);
@@ -133,194 +139,6 @@ PropertyWidget::PropertyWidget(Scene* scene, QWidget* parent, GLWidget* glWidget
 	connect(_obb, &QCheckBox::stateChanged, this, &PropertyWidget::showOBB);
 	connect(_color, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
 		this, &PropertyWidget::onColorChanged);
-}
-
-void PropertyWidget::activate()
-{
-	auto node = _scene->node("PropertyPick");
-	if (node != nullptr) {
-		node->graphicsComponent()->setVisible(true);
-	}
-	if (_nothingBtn->isChecked()) {
-		_scene->setPickingPrimitive(PICKING_PRIMITIVE_NONE);
-	}
-	if (_vertexBtn->isChecked()) {
-		_scene->setPickingPrimitive(PICKING_PRIMITIVE_VERTEX);
-	}
-	if (_faceBtn->isChecked()) {
-		_scene->setPickingPrimitive(PICKING_PRIMITIVE_FACE);
-	}
-	_glWidget->update();
-}
-
-void PropertyWidget::deactivate()
-{
-	auto node = _scene->node("PropertyPick");
-	if (node != nullptr) {
-		node->graphicsComponent()->setVisible(false);
-	}
-	_scene->setPickingPrimitive(PICKING_PRIMITIVE_NONE);
-	_glWidget->update();
-}
-
-void PropertyWidget::onImport(GeomInfo* info)
-{
-	_scene->removeNode("AABB");
-	_scene->removeNode("OBB");
-	_scene->removeNode("Sphere");
-	_scene->removeNode("BarycentricArea");
-	_scene->removeNode("VoronoiArea");
-	_scene->removeNode("MixedArea");
-	_scene->removeNode("MainMeshValence");
-	_scene->removeNode("MainMeshGaussian");
-	_scene->removeNode("MainMeshMean");
-	_scene->removeNode("PropertyPick");
-	_clearResources();
-
-	if (info != nullptr) {
-		_valid = true;
-		_id = info->id;
-
-		if (info->type == GEOM_TYPE_MESH) {
-			auto aabbNode = _scene->addNode("MainMesh", "AABB");
-			auto aabbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			aabbGraphics->addBox(QVector3D(info->minX, info->minY, info->minZ),
-				info->maxX - info->minX, info->maxY - info->minY, info->maxZ - info->minZ);
-			aabbGraphics->setVisible(false);
-			aabbNode->addGraphicsComponent(std::move(aabbGraphics));
-
-			auto obbNode = _scene->addNode("MainMesh", "OBB");
-			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			auto cMesh = ResourceManager::instance().mesh(_id)->surfaceMesh();
-			if (cMesh != nullptr) {
-				Euclid::OBB<Kernel::FT> obb(*cMesh);
-				auto lbb = cgalToQt(obb.lbb());
-				auto lbf = cgalToQt(obb.lbf());
-				auto ltb = cgalToQt(obb.ltb());
-				auto ltf = cgalToQt(obb.ltf());
-				auto rbb = cgalToQt(obb.rbb());
-				auto rbf = cgalToQt(obb.rbf());
-				auto rtb = cgalToQt(obb.rtb());
-				auto rtf = cgalToQt(obb.rtf());
-				obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
-			}
-			else {
-				Euclid::OBB<float>
-					obb(ResourceManager::instance().mesh(_id)->points());
-				auto lbb = cgalToQt(obb.lbb());
-				auto lbf = cgalToQt(obb.lbf());
-				auto ltb = cgalToQt(obb.ltb());
-				auto ltf = cgalToQt(obb.ltf());
-				auto rbb = cgalToQt(obb.rbb());
-				auto rbf = cgalToQt(obb.rbf());
-				auto rtb = cgalToQt(obb.rtb());
-				auto rtf = cgalToQt(obb.rtf());
-				obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
-			}
-			obbGraphics->setVisible(false);
-			obbNode->addGraphicsComponent(std::move(obbGraphics));
-
-			_fileName->setText(info->fileName);
-			_nVertices->setNum(static_cast<int>(info->nVertices));
-			_nFaces->setNum(static_cast<int>(info->nFaces));
-			_center->setText(QString("(%1, %2, %3)").arg(info->center.x()).
-				arg(info->center.y()).arg(info->center.z()));
-			_minX->setNum(info->minX);
-			_maxX->setNum(info->maxX);
-			_minY->setNum(info->minY);
-			_maxY->setNum(info->maxY);
-			_minZ->setNum(info->minZ);
-			_maxZ->setNum(info->maxZ);
-			_aabb->setChecked(false);
-			_aabb->setCheckable(true);
-			_obb->setChecked(false);
-			_obb->setCheckable(true);
-
-			_color->setCurrentIndex(0);
-			if (!ResourceManager::instance().mesh(_id)->isManifold()) {
-				_color->removeItem(1);
-				_color->removeItem(1);
-				_color->removeItem(1);
-			}
-			else {
-				if (_color->count() == 1) {
-					_color->addItem("Valence");
-					_color->addItem("Gaussian Curvature");
-					_color->addItem("Mean Curvature");
-				}
-			}
-
-			_areaType->setEnabled(true);
-		}
-
-		if (info->type == GEOM_TYPE_POINTCLOUD) {
-			auto aabbNode = _scene->addNode("MainMesh", "AABB");
-			auto aabbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			aabbGraphics->addBox(QVector3D(info->minX, info->minY, info->minZ),
-				info->maxX - info->minX, info->maxY - info->minY, info->maxZ - info->minZ);
-			aabbGraphics->setVisible(false);
-			aabbNode->addGraphicsComponent(std::move(aabbGraphics));
-
-			auto obbNode = _scene->addNode("MainMesh", "OBB");
-			auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
-			Euclid::OBB<Kernel::FT>
-				obb(ResourceManager::instance().pointCloud(_id)->pointSet());
-			auto lbb = cgalToQt(obb.lbb());
-			auto lbf = cgalToQt(obb.lbf());
-			auto ltb = cgalToQt(obb.ltb());
-			auto ltf = cgalToQt(obb.ltf());
-			auto rbb = cgalToQt(obb.rbb());
-			auto rbf = cgalToQt(obb.rbf());
-			auto rtb = cgalToQt(obb.rtb());
-			auto rtf = cgalToQt(obb.rtf());
-			obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
-
-			obbGraphics->setVisible(false);
-			obbNode->addGraphicsComponent(std::move(obbGraphics));
-
-			_fileName->setText(info->fileName);
-			_nVertices->setNum(static_cast<int>(info->nVertices));
-			_nFaces->setNum(static_cast<int>(info->nFaces));
-			_center->setText(QString("(%1, %2, %3)").arg(info->center.x()).
-				arg(info->center.y()).arg(info->center.z()));
-			_minX->setNum(info->minX);
-			_maxX->setNum(info->maxX);
-			_minY->setNum(info->minY);
-			_maxY->setNum(info->maxY);
-			_minZ->setNum(info->minZ);
-			_maxZ->setNum(info->maxZ);
-			_aabb->setChecked(false);
-			_aabb->setCheckable(true);
-			_obb->setChecked(false);
-			_obb->setCheckable(true);
-			_color->setCurrentIndex(0);
-			_color->removeItem(1);
-			_color->removeItem(1);
-			_color->removeItem(1);
-			_areaType->setEnabled(false);
-		}
-	}
-	else { // if (info != nullptr)
-		_valid = false;
-
-		_fileName->setText("");
-		_nVertices->setText("");
-		_nFaces->setText("");
-		_center->setText("");
-		_minX->setText("");
-		_maxX->setText("");
-		_minY->setText("");
-		_maxY->setText("");
-		_minZ->setText("");
-		_maxZ->setText("");
-		_aabb->setCheckable(false);
-		_obb->setCheckable(false);
-		_color->setCurrentIndex(0);
-		_color->removeItem(1);
-		_color->removeItem(1);
-		_color->removeItem(1);
-		_areaType->setEnabled(false);
-	}
 }
 
 void PropertyWidget::onAreaTypeChanged(int state)
@@ -332,48 +150,27 @@ void PropertyWidget::onAreaTypeChanged(int state)
 	}
 }
 
-void PropertyWidget::onPicked(const PickingInfo& info)
+void PropertyWidget::showOBB(int state)
 {
-	_primID->setNum(static_cast<int>(info.primitiveID));
-	if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
-		_primType->setText("Vertex");
-		if (_areaType->isEnabled()) {
-			_scene->removeNode("BarycentricArea");
-			_scene->removeNode("VoronoiArea");
-			_scene->removeNode("MixedArea");
-			_drawVertexArea();
-		}
-	}
-	if (info.primitiveType == PICKING_PRIMITIVE_LINE) {
-		_primType->setText("Line");
-	}
-	if (info.primitiveType == PICKING_PRIMITIVE_FACE) {
-		_primType->setText("Face");
-	}
-	_glWidget->renderPicked(info, "PropertyPick");
-}
-
-void PropertyWidget::showAABB(int state)
-{
-	if (_valid) {
+	if (this->initialized()) {
 		if (state == Qt::Checked) {
-			_scene->node("AABB")->graphicsComponent()->setVisible(true);
+			_scene->node("OBB")->graphicsComponent()->setVisible(true);
 		}
 		else {
-			_scene->node("AABB")->graphicsComponent()->setVisible(false);
+			_scene->node("OBB")->graphicsComponent()->setVisible(false);
 		}
 		_glWidget->update();
 	}
 }
 
-void PropertyWidget::showOBB(int state)
+void PropertyWidget::showAABB(int state)
 {
-	if (_valid) {
+	if (this->initialized()) {
 		if (state == Qt::Checked) {
-			_scene->node("OBB")->graphicsComponent()->setVisible(true);
-		} 
+			_scene->node("AABB")->graphicsComponent()->setVisible(true);
+		}
 		else {
-			_scene->node("OBB")->graphicsComponent()->setVisible(false);
+			_scene->node("AABB")->graphicsComponent()->setVisible(false);
 		}
 		_glWidget->update();
 	}
@@ -462,6 +259,210 @@ void PropertyWidget::onColorChanged(int state)
 	}
 
 	_glWidget->update();
+}
+
+void PropertyWidget::_onActivated()
+{
+	auto node = _scene->node("PropertyPick");
+	if (node != nullptr) {
+		node->graphicsComponent()->setVisible(true);
+	}
+	if (_nothingBtn->isChecked()) {
+		_scene->setPickingPrimitive(PICKING_PRIMITIVE_NONE);
+	}
+	if (_vertexBtn->isChecked()) {
+		_scene->setPickingPrimitive(PICKING_PRIMITIVE_VERTEX);
+	}
+	if (_faceBtn->isChecked()) {
+		_scene->setPickingPrimitive(PICKING_PRIMITIVE_FACE);
+	}
+	_glWidget->update();
+}
+
+void PropertyWidget::_onDeactivated()
+{
+	auto node = _scene->node("PropertyPick");
+	if (node != nullptr) {
+		node->graphicsComponent()->setVisible(false);
+	}
+	_scene->setPickingPrimitive(PICKING_PRIMITIVE_NONE);
+	_glWidget->update();
+}
+
+void PropertyWidget::_onImport(const GeomInfo& info)
+{
+	if (this->initialized()) {
+		_scene->removeNode("AABB");
+		_scene->removeNode("OBB");
+		_scene->removeNode("Sphere");
+		_scene->removeNode("BarycentricArea");
+		_scene->removeNode("VoronoiArea");
+		_scene->removeNode("MixedArea");
+		_scene->removeNode("MainMeshValence");
+		_scene->removeNode("MainMeshGaussian");
+		_scene->removeNode("MainMeshMean");
+		_scene->removeNode("PropertyPick");
+		_clearResources();
+	}
+	_id = info.id;
+
+	double xmin, xmax, ymin, ymax, zmin, zmax;
+	QVector3D lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf, center;
+	if (info.type == GEOM_TYPE_MESH) {
+		auto mesh = ResourceManager::instance().mesh(_id);
+
+		// Compute aabb
+		xmin = xmax = mesh->point(0).x();
+		ymin = ymax = mesh->point(0).y();
+		zmin = zmax = mesh->point(0).z();
+		for (const auto& p : mesh->points()) {
+			if (p.x() < xmin) xmin = p.x();
+			if (p.x() > xmax) xmax = p.x();
+			if (p.y() < ymin) ymin = p.y();
+			if (p.y() > ymax) ymax = p.y();
+			if (p.z() < zmin) zmin = p.z();
+			if (p.z() > zmax) zmax = p.z();
+			center += cgalToQt(p);
+		}
+		center /= mesh->points().size();
+
+		// Compute obb
+		Euclid::OBB<float> obb(mesh->points());
+		lbb = cgalToQt(obb.lbb());
+		lbf = cgalToQt(obb.lbf());
+		ltb = cgalToQt(obb.ltb());
+		ltf = cgalToQt(obb.ltf());
+		rbb = cgalToQt(obb.rbb());
+		rbf = cgalToQt(obb.rbf());
+		rtb = cgalToQt(obb.rtb());
+		rtf = cgalToQt(obb.rtf());
+
+		_nVertices->setNum(static_cast<int>(sizeof(mesh->points().size())));
+		_nFaces->setNum(static_cast<int>(sizeof(mesh->indices().size() / 3)));
+		_color->setCurrentIndex(0);
+		if (!ResourceManager::instance().mesh(_id)->isManifold()) {
+			_color->removeItem(1);
+			_color->removeItem(1);
+			_color->removeItem(1);
+		}
+		else {
+			if (_color->count() == 1) {
+				_color->addItem("Valence");
+				_color->addItem("Gaussian Curvature");
+				_color->addItem("Mean Curvature");
+			}
+		}
+		_faceBtn->setEnabled(true);
+		_areaType->setEnabled(true);
+	}
+	else if (info.type == GEOM_TYPE_POINTCLOUD) {
+		auto pc = ResourceManager::instance().pointCloud(_id)->pointSet();
+
+		// Compute aabb
+		xmin = xmax = pc.point(0).x();
+		ymin = ymax = pc.point(0).y();
+		zmin = zmax = pc.point(0).z();
+		for (const auto& p : pc.points()) {
+			if (p.x() < xmin) xmin = p.x();
+			if (p.x() > xmax) xmax = p.x();
+			if (p.y() < ymin) ymin = p.y();
+			if (p.y() > ymax) ymax = p.y();
+			if (p.z() < zmin) zmin = p.z();
+			if (p.z() > zmax) zmax = p.z();
+			center += cgalToQt(p);
+		}
+		center /= pc.points().size();
+
+		// Compute obb
+		Euclid::OBB<float> obb(pc);
+		lbb = cgalToQt(obb.lbb());
+		lbf = cgalToQt(obb.lbf());
+		ltb = cgalToQt(obb.ltb());
+		ltf = cgalToQt(obb.ltf());
+		rbb = cgalToQt(obb.rbb());
+		rbf = cgalToQt(obb.rbf());
+		rtb = cgalToQt(obb.rtb());
+		rtf = cgalToQt(obb.rtf());
+
+		_nVertices->setNum(static_cast<int>(pc.number_of_points()));
+		_nFaces->setNum(0);
+		_color->setCurrentIndex(0);
+		_color->removeItem(1);
+		_color->removeItem(1);
+		_color->removeItem(1);
+		_faceBtn->setEnabled(false);
+		_areaType->setEnabled(false);
+	}
+
+	auto aabbNode = _scene->addNode("MainMesh", "AABB");
+	auto aabbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+	aabbGraphics->addBox(QVector3D(xmin, ymin, zmin),
+		xmax - xmin, ymax - ymin, zmax - zmin);
+	aabbGraphics->setVisible(false);
+	aabbNode->addGraphicsComponent(std::move(aabbGraphics));
+
+	auto obbNode = _scene->addNode("MainMesh", "OBB");
+	auto obbGraphics = std::make_unique<PrimitiveGraphics>(*_glWidget);
+	obbGraphics->addBox(lbb, lbf, ltb, ltf, rbb, rbf, rtb, rtf);
+	obbGraphics->setVisible(false);
+	obbNode->addGraphicsComponent(std::move(obbGraphics));
+
+	// Other settings
+	_fileName->setText(info.filename);
+	_center->setText(QString("(%1, %2, %3)").
+		arg(center.x()).arg(center.y()).arg(center.z()));
+	_minX->setNum(xmin);
+	_maxX->setNum(xmax);
+	_minY->setNum(ymin);
+	_maxY->setNum(ymax);
+	_minZ->setNum(zmin);
+	_maxZ->setNum(zmax);
+	_aabb->setChecked(false);
+	_aabb->setCheckable(true);
+	_obb->setChecked(false);
+	_obb->setCheckable(true);
+}
+
+void PropertyWidget::_onClear()
+{
+	_fileName->setText("");
+	_nVertices->setText("");
+	_nFaces->setText("");
+	_center->setText("");
+	_minX->setText("");
+	_maxX->setText("");
+	_minY->setText("");
+	_maxY->setText("");
+	_minZ->setText("");
+	_maxZ->setText("");
+	_aabb->setCheckable(false);
+	_obb->setCheckable(false);
+	_color->setCurrentIndex(0);
+	_color->removeItem(1);
+	_color->removeItem(1);
+	_color->removeItem(1);
+	_areaType->setEnabled(false);
+}
+
+void PropertyWidget::_onPicked(const PickingInfo& info)
+{
+	_primID->setNum(static_cast<int>(info.primitiveID));
+	if (info.primitiveType == PICKING_PRIMITIVE_VERTEX) {
+		_primType->setText("Vertex");
+		if (_areaType->isEnabled()) {
+			_scene->removeNode("BarycentricArea");
+			_scene->removeNode("VoronoiArea");
+			_scene->removeNode("MixedArea");
+			_drawVertexArea();
+		}
+	}
+	if (info.primitiveType == PICKING_PRIMITIVE_LINE) {
+		_primType->setText("Line");
+	}
+	if (info.primitiveType == PICKING_PRIMITIVE_FACE) {
+		_primType->setText("Face");
+	}
+	_glWidget->renderPicked(info, "PropertyPick");
 }
 
 void PropertyWidget::_clearResources()

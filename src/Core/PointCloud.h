@@ -13,10 +13,15 @@ using Point_set = CGAL::Point_set_3<Point_3>;
 class PointCloud
 {
 public:
-	PointCloud(const std::vector<Point_3>& rawPoints,
+	PointCloud(const std::vector<double>& points,
 		unsigned pointBuffer);
-	PointCloud(const std::vector<Point_3>& rawPoints,
-		const std::vector<Vector_3>& rawNormals,
+	PointCloud(const std::vector<double>& points,
+		const std::vector<double>& normals,
+		unsigned pointBuffer);
+	PointCloud(const std::vector<Point_3>& points,
+		unsigned pointBuffer);
+	PointCloud(const std::vector<Point_3>& points,
+		const std::vector<Vector_3>& normals,
 		unsigned pointBuffer);
 	PointCloud(const PointCloud& rhs) = delete; // TODO, delete for now to prevent using
 	PointCloud& operator=(const PointCloud& rhs) = delete;

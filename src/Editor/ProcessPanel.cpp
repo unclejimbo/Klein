@@ -2,6 +2,7 @@
 #include "Editor/MainWindow.h"
 #include "Editor/GLWidget.h"
 #include "Editor/PropertyWidget.h"
+#include "Core/Message.h"
 
 #include <QString>
 #include <QtWidgets>
@@ -26,29 +27,26 @@ void ProcessPanel::addWidget(ProcessWidget* widget, const QString& name)
 
 void ProcessPanel::onCurrentWidgetChanged(int id)
 {
-	_activatedWidget->deactivate();
 	auto curWidget = dynamic_cast<ProcessWidget*>(_stackedWidget->currentWidget());
-	if (curWidget->initialized()) {
-		curWidget->activate();
-	}
-	else {
-		curWidget->onImport(_geomInfo.get());
-		curWidget->setInitialized(true);
-	}
+	_activatedWidget->onDeactivated();
+	curWidget->onActivated();
 	_activatedWidget = curWidget;
 }
 
-void ProcessPanel::onImport(GeomInfo* info)
+void ProcessPanel::onImport(const GeomInfo& info)
 {
-	_geomInfo = std::make_unique<GeomInfo>(*info);
-
 	for (auto i = 0; i < _stackedWidget->count(); ++i) {
 		auto processWidget = dynamic_cast<ProcessWidget*>(_stackedWidget->widget(i));
-		processWidget->setInitialized(false);
+		processWidget->onImport(info);
 	}
+}
 
-	_activatedWidget->onImport(info);
-	_activatedWidget->setInitialized(true);
+void ProcessPanel::onClear()
+{
+	for (auto i = 0; i < _stackedWidget->count(); ++i) {
+		auto processWidget = dynamic_cast<ProcessWidget*>(_stackedWidget->widget(i));
+		processWidget->onClear();
+	}
 }
 
 void ProcessPanel::onPicked(const PickingInfo& info)

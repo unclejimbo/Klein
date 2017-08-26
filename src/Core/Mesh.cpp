@@ -11,6 +11,20 @@
 
 unsigned Mesh::_inc = 1;
 
+Mesh::Mesh(const std::vector<double>& points,
+	const std::vector<unsigned>& indices,
+	unsigned pointBuffer,
+	unsigned normalBuffer)
+	: _indices(indices), _pointBufferID(pointBuffer),
+	_normalBufferID(normalBuffer), _id(_inc++)
+{
+	_points.reserve(points.size() / 3);
+	for (auto i = 0; i < points.size(); i += 3) {
+		_points.emplace_back(points[i], points[i + 1], points[i + 2]);
+	}
+	_isManifold = _buildSurfaceMesh();
+}
+
 Mesh::Mesh(const std::vector<Point_3>& rawPoints,
 	const std::vector<unsigned>& rawIndices,
 	unsigned pointBuffer,

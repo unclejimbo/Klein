@@ -7,18 +7,20 @@ class PropertyWidget : public ProcessWidget
 	Q_OBJECT
 
 public:
-	PropertyWidget(Scene* scene, QWidget* parent, GLWidget* glWidget);
-
-	void activate() override;
-	void deactivate() override;
-	void onImport(GeomInfo* info) override;
-	void onPicked(const PickingInfo& info) override;
+	PropertyWidget(Scene* scene, QWidget* parent, GLWidget* glWidget);	
 
 public Q_SLOTS:
 	void onAreaTypeChanged(int state);
 	void showAABB(int state);
 	void showOBB(int state);
 	void onColorChanged(int state);
+
+protected:	
+	void _onImport(const GeomInfo& info) override;
+	void _onActivated() override;
+	void _onDeactivated() override;
+	void _onClear() override;
+	void _onPicked(const PickingInfo& info) override;
 
 private:
 	void _clearResources();
@@ -27,7 +29,6 @@ private:
 	void _drawVertexArea();
 	 
 private:
-	bool _valid = false;
 	QLabel* _fileName;
 	QLabel* _nVertices;
 	QLabel* _nFaces;
