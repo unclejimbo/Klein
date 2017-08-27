@@ -173,9 +173,17 @@ bool PlyIO::_readPointCloud(QTextStream& stream, Geometry& geometry)
 	}
 
 	if (format == PlyFormat::ascii) {
-		if (!readPlyAscii(stream, nVertices, nFaces,
-			&geometry.vertices, nullptr, &geometry.vindices)) {
-			return false;
+		if (hasNormal) {
+			if (!readPlyAscii(stream, nVertices, nFaces,
+				&geometry.vertices, &geometry.normals, nullptr)) {
+				return false;
+			}
+		}
+		else {
+			if (!readPlyAscii(stream, nVertices, nFaces,
+				&geometry.vertices, nullptr, nullptr)) {
+				return false;
+			}
 		}
 	}
 	else if (format == PlyFormat::binary_little_endian) {
