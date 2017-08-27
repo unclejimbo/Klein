@@ -92,7 +92,7 @@ ResourceManager::addGLBuffer(const Mesh& mesh, QOpenGLBuffer::UsagePattern usage
 		points.reserve(num_faces(mesh) * 3);
 		normals.reserve(num_faces(mesh) * 3);
 		for (const auto& f : faces(mesh)) {
-			for (const auto& v : points_around_face(halfedge(f, mesh), mesh)) {
+			for (const auto& v : vertices_around_face(halfedge(f, mesh), mesh)) {
 				points.push_back(vpmap[v].x());
 				points.push_back(vpmap[v].y());
 				points.push_back(vpmap[v].z());
