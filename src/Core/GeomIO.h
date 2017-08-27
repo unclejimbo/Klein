@@ -20,8 +20,10 @@ class GeomIO
 public:
 	bool readMesh(const QString& filename, Geometry& geometry);
 	bool readPointCloud(const QString& filename, Geometry& geometry);
+	bool write(const QString& filename, const Geometry& geometry);
 
 private:
 	virtual bool _readMesh(QTextStream& stream, Geometry& geometry) = 0;
 	virtual bool _readPointCloud(QTextStream& stream, Geometry& geometry) = 0;
+	virtual bool _write(QTextStream& stream, const Geometry& geoemtry) = 0;
 };

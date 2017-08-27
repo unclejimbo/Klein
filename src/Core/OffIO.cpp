@@ -91,3 +91,8 @@ bool OffIO::_readPointCloud(QTextStream& stream, Geometry& geometry)
 {
 	return readOffFile(stream, &geometry.vertices, nullptr);
 }
+
+bool OffIO::_write(QTextStream& stream, const Geometry& geometry)
+{
+	return false;
+}

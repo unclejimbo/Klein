@@ -33,3 +33,8 @@ bool XyzIO::_readPointCloud(QTextStream& stream, Geometry& geometry)
 	}
 	return true;
 }
+
+bool XyzIO::_write(QTextStream& stream, const Geometry& geometry)
+{
+	return false;
+}

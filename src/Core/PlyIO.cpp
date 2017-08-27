@@ -191,3 +191,8 @@ bool PlyIO::_readPointCloud(QTextStream& stream, Geometry& geometry)
 
 	return true;
 }
+
+bool PlyIO::_write(QTextStream& stream, const Geometry& geometry)
+{
+	return false;
+}

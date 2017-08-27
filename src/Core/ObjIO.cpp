@@ -98,3 +98,8 @@ bool ObjIO::_readPointCloud(QTextStream& stream, Geometry& geometry)
 		&geometry.vertices, nullptr, &geometry.normals,
 		nullptr, nullptr, nullptr);
 }
+
+bool ObjIO::_write(QTextStream& stream, const Geometry& geometry)
+{
+	return false;
+}
