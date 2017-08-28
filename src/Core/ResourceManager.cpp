@@ -204,13 +204,79 @@ bool ResourceManager::removeGLBuffer(unsigned bufferID)
 	}
 }
 
-void ResourceManager::addPBRMaterial(const std::string& name, const QVector3D& albedo,
-	const float roughness, const float metallic, float ao)
+bool ResourceManager::addPBRMaterial(const std::string& name, const QVector3D& albedo,
+	float roughness, float metallic, float ao)
 {
+	if (albedo.x() > 1.0f || albedo.y() > 1.0f || albedo.z() > 1.0f ||
+		albedo.x() < 0.0f || albedo.y() < 0.0f || albedo.z() < 0.0f) {
+		KLEIN_LOG_CRITICAL("Albedo value should be in range [0.0, 1.0]");
+		return false;
+	}
+	if (roughness > 1.0f || roughness < 0.0f) {
+		KLEIN_LOG_CRITICAL("Roughness value should be in range [0.0, 1.0]");
+		return false;
+	}
+	if (metallic > 1.0f || metallic < 0.0f) {
+		KLEIN_LOG_CRITICAL("Metallic value should be in range [0.0, 1.0]");
+		return false;
+	}
 	PBRMaterial material{ albedo, roughness, metallic, ao };
 	if (!_pbrMaterialMap.insert_or_assign(name, material).second) {
 		KLEIN_LOG_WARNING(QString("Material %1 already exists and is replaced").arg(name.c_str()));
 	}
+	return true;
+}
+
+bool ResourceManager::addPBRMaterial(const std::string& name,
+	float r, float g, float b,
+	float roughness, float metallic, float ao)
+{
+	if (r > 1.0f || g > 1.0f || b > 1.0f ||
+		r < 0.0f || g < 0.0f || b < 0.0f) {
+		KLEIN_LOG_CRITICAL("Albedo value should be in range [0.0, 1.0]");
+		return false;
+
+	}
+	if (roughness > 1.0f || roughness < 0.0f) {
+		KLEIN_LOG_CRITICAL("Roughness value should be in range [0.0, 1.0]");
+		return false;
+	}
+	if (metallic > 1.0f || metallic < 0.0f) {
+		KLEIN_LOG_CRITICAL("Metallic value should be in range [0.0, 1.0]");
+		return false;
+	}
+	PBRMaterial material{ QVector3D(r, g, b), roughness, metallic, ao };
+	if (!_pbrMaterialMap.insert_or_assign(name, material).second) {
+		KLEIN_LOG_WARNING(QString("Material %1 already exists and is replaced").arg(name.c_str()));
+	}
+	return true;
+}
+
+bool ResourceManager::addPBRMaterial(const std::string& name,
+	int r, int g, int b,
+	float roughness, float metallic, float ao)
+{
+	r /= (255.0);
+	g /= (255.0);
+	b /= (255.0);
+	if (r > 1.0f || g > 1.0f || b > 1.0f ||
+		r < 0.0f || g < 0.0f || b < 0.0f) {
+		KLEIN_LOG_CRITICAL("Albedo value should be in range [0.0, 1.0]");
+		return false;
+	}
+	if (roughness > 1.0f || roughness < 0.0f) {
+		KLEIN_LOG_CRITICAL("Roughness value should be in range [0.0, 1.0]");
+		return false;
+	}
+	if (metallic > 1.0f || metallic < 0.0f) {
+		KLEIN_LOG_CRITICAL("Metallic value should be in range [0.0, 1.0]");
+		return false;
+	}
+	PBRMaterial material{ QVector3D(r, g, b), roughness, metallic, ao };
+	if (!_pbrMaterialMap.insert_or_assign(name, material).second) {
+		KLEIN_LOG_WARNING(QString("Material %1 already exists and is replaced").arg(name.c_str()));
+	}
+	return true;
 }
 
 PBRMaterial* ResourceManager::pbrMaterial(const std::string & name)

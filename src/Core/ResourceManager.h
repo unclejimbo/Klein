@@ -59,8 +59,14 @@ public:
 	GLBuffer* glBuffer(unsigned bufferID);
 	bool removeGLBuffer(unsigned bufferID);
 
-	void addPBRMaterial(const std::string& name, const QVector3D& albedo,
-		const float roughness, const float metallic, float ao);
+	bool addPBRMaterial(const std::string& name, const QVector3D& albedo,
+		float roughness, float metallic, float ao);
+	bool addPBRMaterial(const std::string& name,
+		float r, float g, float b,
+		float roughness, float metallic, float ao);
+	bool addPBRMaterial(const std::string& name,
+		int r, int g, int b,
+		float roughness, float metallic, float ao);
 	PBRMaterial* pbrMaterial(const std::string& name);
 	bool removePBRMaterial(const std::string& name);
 
