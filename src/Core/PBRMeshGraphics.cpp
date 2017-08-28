@@ -172,7 +172,10 @@ void PBRMeshGraphics::_renderLit(const Camera& camera,
 
 		_vaoLit.bind();
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDrawArrays(GL_TRIANGLES, 0, primCount);
+		glDisable(GL_BLEND);
 		_vaoLit.release();
 
 		_shaderLit->release();
@@ -222,7 +225,10 @@ void PBRMeshGraphics::_renderUnlit(const Camera& camera, float aspectRatio,
 	_vaoUnlit.bind();
 	if (meshRenderMode == MeshRenderMode::shaded || meshRenderMode == MeshRenderMode::hiddenLine) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDrawArrays(GL_TRIANGLES, 0, primCount);
+		glDisable(GL_BLEND);
 	}
 	if (meshRenderMode == MeshRenderMode::wireframe || meshRenderMode == MeshRenderMode::hiddenLine) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
