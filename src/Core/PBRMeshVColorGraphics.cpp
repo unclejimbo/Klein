@@ -215,11 +215,14 @@ void PBRMeshVColorGraphics::_renderLit(const Camera& camera,
 		_shaderLit->setUniformValue("alpha", this->transparency());
 
 		_vaoLit.bind();
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDrawArrays(GL_TRIANGLES, 0, primCount);
 		glDisable(GL_BLEND);
+		glDisable(GL_CULL_FACE);
 		_vaoLit.release();
 
 		_shaderLit->release();
@@ -266,10 +269,13 @@ void PBRMeshVColorGraphics::_renderUnlit(const Camera& camera, float aspectRatio
 	_vaoUnlit.bind();
 	if (meshRenderMode == MeshRenderMode::shaded || meshRenderMode == MeshRenderMode::hiddenLine) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDrawArrays(GL_TRIANGLES, 0, primCount);
 		glDisable(GL_BLEND);
+		glDisable(GL_CULL_FACE);
 	}
 	if (meshRenderMode == MeshRenderMode::wireframe || meshRenderMode == MeshRenderMode::hiddenLine) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
