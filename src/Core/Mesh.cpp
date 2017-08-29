@@ -153,7 +153,7 @@ void Mesh::updateGLBuffer() const
 bool Mesh::_buildSurfaceMesh()
 {
 	_surfaceMesh = std::make_unique<Surface_mesh>();
-	return Euclid::build_surface_mesh(_points, _indices, *_surfaceMesh);
+	return Euclid::build_surface_mesh(*_surfaceMesh, _points, _indices);
 }
 
 bool Mesh::_buildPolyhedron()
