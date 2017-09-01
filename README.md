@@ -17,7 +17,7 @@ The purpose of Klein is to ease the process to develop 3D geometry processing al
 - Eigen 3.3
 - OpenCV 3.2
 - [Euclid](https://github.com/unclejimbo/Euclid)
-- C++17 compatable compiler
+- C++17 compatible compiler
 
 # Installation
 Use CMake to build.
