@@ -46,9 +46,31 @@ QVector3D Camera::position() const
 	return _position;
 }
 
+void Camera::setPosition(const QVector3D& pos)
+{
+	_position = pos;
+	_direction = (_position - _focus).normalized();
+	_right = QVector3D::crossProduct(_up, _direction);
+	_up = QVector3D::crossProduct(_direction, _right);
+	_invViewDirty = true;
+	_view.setToIdentity();
+	_view.lookAt(_position, _focus, _up);
+}
+
 QVector3D Camera::focus() const
 {
 	return _focus;
+}
+
+void Camera::setFocus(const QVector3D& focus)
+{
+	_focus = focus;
+	_direction = (_position - _focus).normalized();
+	_right = QVector3D::crossProduct(_up, _direction);
+	_up = QVector3D::crossProduct(_direction, _right);
+	_invViewDirty = true;
+	_view.setToIdentity();
+	_view.lookAt(_position, _focus, _up);
 }
 
 QVector3D Camera::direction() const
@@ -59,6 +81,21 @@ QVector3D Camera::direction() const
 QVector3D Camera::up() const
 {
 	return _up;
+}
+
+void Camera::setUp(const QVector3D& up)
+{
+	_right = QVector3D::crossProduct(up.normalized(), _direction);
+	_up = QVector3D::crossProduct(_direction, _right);
+	if (_up.y() >= 0.0f) {
+		_worldUp = QVector3D(0.0f, 1.0f, 0.0f);
+	}
+	else {
+		_worldUp = QVector3D(0.0f, -1.0f, 0.0f);
+	}
+	_invViewDirty = true;
+	_view.setToIdentity();
+	_view.lookAt(_position, _focus, _up);
 }
 
 QVector3D Camera::worldUp() const

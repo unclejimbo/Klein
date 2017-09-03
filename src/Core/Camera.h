@@ -14,9 +14,12 @@ public:
 	QMatrix4x4 view() const;
 	QMatrix4x4 invView() const;
 	QVector3D position() const;
+	void setPosition(const QVector3D& pos);
 	QVector3D focus() const;
+	void setFocus(const QVector3D& focus);
 	QVector3D direction() const;
 	QVector3D up() const;
+	void setUp(const QVector3D& up);
 	QVector3D worldUp() const;
 	QVector3D right() const;
 	float fov() const;
