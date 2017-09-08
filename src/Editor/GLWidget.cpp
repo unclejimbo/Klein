@@ -64,9 +64,8 @@ void GLWidget::readDepthBuffer(std::vector<float>& depth)
 	glBindFramebuffer(GL_FRAMEBUFFER, _fboDepth);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	_scene->render(RENDER_OFFSCREEN, _aspectRatio);
-
 	auto buf = new GLfloat[this->width() * this->height()];
 	glReadPixels(0, 0, this->width(), this->height(), GL_DEPTH_COMPONENT, GL_FLOAT, buf);
 	depth.reserve(this->width() * this->height());
@@ -176,7 +175,6 @@ void GLWidget::initializeGL()
 	format.setTextureTarget(GL_TEXTURE_2D);
 	_fboOffscreen = std::make_unique<QOpenGLFramebufferObject>(this->width(), this->height(), format);
 
-	GLuint _fboDepth;
 	glGenFramebuffers(1, &_fboDepth);
 	glBindFramebuffer(GL_FRAMEBUFFER, _fboDepth);
 	GLuint colorBuffer;
@@ -191,7 +189,6 @@ void GLWidget::initializeGL()
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
-	glBindFramebuffer(GL_FRAMEBUFFER, _fboDepth);
 	glViewport(0, 0, this->width(), this->height());
 
 	glGenFramebuffers(1, &_fboPick);
@@ -209,6 +206,8 @@ void GLWidget::initializeGL()
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 	glViewport(0, 0, this->width(), this->height());
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Default contents should be initialized here
 	ResourceManager::instance().initialize(this);
