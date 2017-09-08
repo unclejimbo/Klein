@@ -22,7 +22,7 @@ public:
 	void addBox(const QVector3D& lbb, const QVector3D& lbf, // Left-Right Bottom-Top Back-Front
 		const QVector3D& ltb, const QVector3D& ltf, const QVector3D& rbb,
 		const QVector3D& rbf, const QVector3D& rtb, const QVector3D& rtf);
-	void addSphere(const QVector3D& center, float radius);
+	void addCircle(const QVector3D& center, const QVector3D& normal, float radius);
 	void addTriangleFill(const QVector3D& p1, const QVector3D& p2, const QVector3D& p3);
 	bool addPointPositionBuffer(unsigned pointPosBufID);
 	bool addLinePositionBuffer(unsigned linePosBufID);
@@ -49,6 +49,7 @@ private:
 private:
 	std::vector<QVector3D> _points;
 	std::vector<QVector3D> _lines;
+	std::vector<std::vector<QVector3D>> _lineStrips;
 	std::vector<std::vector<QVector3D>> _lineLoops;
 	std::vector<QVector3D> _faces;
 	std::set<unsigned> _pointBuffers;

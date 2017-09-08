@@ -98,22 +98,25 @@ void PrimitiveGraphics::addBox(const QVector3D& lbb, const QVector3D& lbf,
 	_lines.push_back(rtf);
 }
 
-void PrimitiveGraphics::addSphere(const QVector3D& center, float radius)
+void PrimitiveGraphics::addCircle(const QVector3D& center, const QVector3D& normal, float radius)
 {
-	const int len = 200;
-	std::vector<QVector3D> circle1(len);
-	std::vector<QVector3D> circle2(len);
-	std::vector<QVector3D> circle3(len);
-	auto pi = qDegreesToRadians(360.0f);
-	for (auto i = 0; i < len; ++i) {
-		auto theta = i * 2 * pi / len;
-		circle1[i] = center + QVector3D(static_cast<float>(qCos(theta)), static_cast<float>(qSin(theta)), 0.0f) * radius;
-		circle2[i] = center + QVector3D(static_cast<float>(qCos(theta)), 0.0f, static_cast<float>(qSin(theta))) * radius;
-		circle3[i] = center + QVector3D(0.0f, static_cast<float>(qCos(theta)), static_cast<float>(qSin(theta))) * radius;
+	const float inc = M_PI / 180;
+	QVector3D a, b;
+	if (normal == QVector3D(0.0f, 1.0f, 0.0f) || normal == QVector3D(0.0f, -1.0f, 0.0f)) {
+		a = QVector3D::crossProduct(normal, QVector3D(0.0f, 1.0f, 0.0f));
+		b = QVector3D::crossProduct(normal, a);
 	}
-	_lineLoops.push_back(circle1);
-	_lineLoops.push_back(circle2);
-	_lineLoops.push_back(circle3);
+	else {
+		a = QVector3D::crossProduct(normal, QVector3D(1.0f, 0.0f, 0.0f));
+		b = QVector3D::crossProduct(normal, a);
+	}
+	std::vector<QVector3D> circle;
+	circle.reserve(360);
+	for (auto i = 0; i < M_PI * 0.2; i += inc) {
+		auto p = center + radius * std::cos(i) * a + radius * std::sin(i) * b;
+		circle.push_back(p);
+	}
+	_lineLoops.push_back(circle);
 }
 
 void PrimitiveGraphics::addTriangleFill(const QVector3D& p1, const QVector3D& p2, const QVector3D& p3)
@@ -196,7 +199,8 @@ void PrimitiveGraphics::_renderLit(const Camera& camera,
 void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio,
 	MeshRenderMode meshRenderMode, PrimitiveRenderMode primitiveRenderMode)
 {
-
+	// TODO: drawing commands are suboptimal
+	// should manually maintain a gpu memory pool
 	_shaderUnlit->bind();
 	QMatrix4x4 projection;
 	projection.perspective(camera.fov(), aspectRatio, camera.nearPlane(), camera.farPlane());
