@@ -102,7 +102,7 @@ void PrimitiveGraphics::addCircle(const QVector3D& center, const QVector3D& norm
 {
 	const float inc = M_PI / 180;
 	QVector3D a, b;
-	if (normal == QVector3D(0.0f, 1.0f, 0.0f) || normal == QVector3D(0.0f, -1.0f, 0.0f)) {
+	if (normal != QVector3D(0.0f, 1.0f, 0.0f) || normal != QVector3D(0.0f, -1.0f, 0.0f)) {
 		a = QVector3D::crossProduct(normal, QVector3D(0.0f, 1.0f, 0.0f));
 		b = QVector3D::crossProduct(normal, a);
 	}
@@ -112,7 +112,7 @@ void PrimitiveGraphics::addCircle(const QVector3D& center, const QVector3D& norm
 	}
 	std::vector<QVector3D> circle;
 	circle.reserve(360);
-	for (auto i = 0; i < M_PI * 0.2; i += inc) {
+	for (auto i = 0.0; i < M_PI * 2.0; i += inc) {
 		auto p = center + radius * std::cos(i) * a + radius * std::sin(i) * b;
 		circle.push_back(p);
 	}
