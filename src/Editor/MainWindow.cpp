@@ -89,6 +89,9 @@ void MainWindow::_createActions()
 	_aSolid->setCheckable(true);
 	connect(_aSolid, &QAction::triggered, this, &MainWindow::_solid);
 
+	_aBackgroudColor = new QAction("Background Color", this);
+	connect(_aBackgroudColor, &QAction::triggered, this, &MainWindow::_backgroundColor);
+
 	_aBackgroundWall = new QAction("Background Wall", this);
 	_aBackgroundWall->setCheckable(true);
 	connect(_aBackgroundWall, &QAction::triggered, this, &MainWindow::_backgroundWall);
@@ -129,6 +132,7 @@ void MainWindow::_createMenuBar()
 	render->addAction(_aPrimitive);
 	render->addAction(_aSolid);
 	render->addSeparator();
+	render->addAction(_aBackgroudColor);
 	render->addAction(_aBackgroundWall);
 	render->addSeparator();
 	render->addAction(_aUnlit);
@@ -457,6 +461,12 @@ void MainWindow::_solid()
 {
 	_scene->setGlobalPrimitiveRenderMode(PrimitiveRenderMode::solid);
 	_glWidget->update();
+}
+
+void MainWindow::_backgroundColor()
+{
+	auto color = QColorDialog::getColor(_glWidget->backgroundColor());
+	_glWidget->setBackgroundColor(color);
 }
 
 void MainWindow::_backgroundWall()

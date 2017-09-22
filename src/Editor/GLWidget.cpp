@@ -14,13 +14,12 @@
 #include <QOpenGLDebugMessage>
 #include <QImage>
 #include <QPainter>
-#include <QColor>
 #include <QMatrix4x4>
 #include <QVector3D>
 #include <QVector2D>
 
 GLWidget::GLWidget(Scene* scene, QWidget* parent)
-	: QOpenGLWidget(parent), _scene(scene)
+	: QOpenGLWidget(parent), _scene(scene), _bgColor(112, 128, 144)
 {
 	_aspectRatio = this->width() / (this->height() + 0.00001f);
 	_cameraController = std::make_unique<ArcballController>(*_scene->camera(), this->width(), this->height());
@@ -31,9 +30,8 @@ void GLWidget::renderToTexture(QImage& img)
 	this->makeCurrent();
 	_fboOffscreen->bind();
 
-	auto bgColor = QColor(112, 128, 144);
-	glClearColor(static_cast<float>(bgColor.redF()), static_cast<float>(bgColor.greenF()),
-		static_cast<float>(bgColor.blueF()), static_cast<float>(bgColor.alphaF()));
+	glClearColor(static_cast<float>(_bgColor.redF()), static_cast<float>(_bgColor.greenF()),
+		static_cast<float>(_bgColor.blueF()), 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	// Models in shading pass got rendered to texture, see readColorBuffer for difference
 	_scene->render(RENDER_ONSCREEN, _aspectRatio);
@@ -153,6 +151,16 @@ void GLWidget::renderPicked(const PickingInfo& info, const std::string& pickNode
 	this->update();
 }
 
+const QColor GLWidget::backgroundColor() const
+{
+	return _bgColor;
+}
+
+void GLWidget::setBackgroundColor(const QColor& color)
+{
+	_bgColor = color;
+}
+
 void GLWidget::initializeGL()
 {
 	this->initializeOpenGLFunctions();
@@ -236,10 +244,9 @@ void GLWidget::initializeGL()
 
 void GLWidget::paintGL()
 {
-	auto bgColor = QColor(112, 128, 144);
-	glClearColor(static_cast<float>(bgColor.redF()), static_cast<float>(bgColor.greenF()),
-		static_cast<float>(bgColor.blueF()), static_cast<float>(bgColor.alphaF()));
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(static_cast<float>(_bgColor.redF()), static_cast<float>(_bgColor.greenF()),
+		static_cast<float>(_bgColor.blueF()), 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	_scene->render(RENDER_ONSCREEN, _aspectRatio);
 	_paintAxis();
 }

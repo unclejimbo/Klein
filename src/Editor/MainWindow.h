@@ -49,6 +49,7 @@ private Q_SLOTS:
 	void _hiddenline();
 	void _primitive();
 	void _solid();
+	void _backgroundColor();
 	void _backgroundWall();
 	void _unlit();
 	void _shadow();
@@ -71,6 +72,7 @@ private:
 	QAction* _aHiddenline;
 	QAction* _aPrimitive;
 	QAction* _aSolid;
+	QAction* _aBackgroudColor;
 	QAction* _aBackgroundWall;
 	QAction* _aUnlit;
 	QAction* _aShadow;

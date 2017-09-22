@@ -2,6 +2,7 @@
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_3_Core>
+#include <QColor>
 #include <memory>
 #include <vector>
 #include <string>
@@ -25,6 +26,8 @@ public:
 	void readDepthBuffer(std::vector<float>& depth);
 	PickingInfo pick(int x, int y);
 	void renderPicked(const PickingInfo& info, const std::string& pickNodeID);
+	const QColor backgroundColor() const;
+	void setBackgroundColor(const QColor& color);
 
 Q_SIGNALS:
 	void picked(const PickingInfo& info);
@@ -54,4 +57,5 @@ private:
 	GLuint _fboDepth;
 	GLuint _fboPick;
 	float _aspectRatio;
+	QColor _bgColor;
 };
