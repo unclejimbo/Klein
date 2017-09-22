@@ -69,7 +69,7 @@ void PrimitiveGraphics::addBox(const QVector3D& minCorner, float xLen, float yLe
 }
 
 void PrimitiveGraphics::addBox(const QVector3D& lbb, const QVector3D& lbf,
-	const QVector3D& ltb, const QVector3D& ltf, const QVector3D& rbb, 
+	const QVector3D& ltb, const QVector3D& ltf, const QVector3D& rbb,
 	const QVector3D& rbf, const QVector3D& rtb, const QVector3D& rtf)
 {
 	_lines.push_back(lbb);
@@ -139,7 +139,7 @@ bool PrimitiveGraphics::addPointPositionBuffer(unsigned pointPosBufID)
 	}
 }
 
-bool PrimitiveGraphics::addLinePositionBuffer(unsigned linePosBufID)
+bool PrimitiveGraphics::addLinePositionBuffer(unsigned linePosBufID, unsigned specification)
 {
 	auto buffer = ResourceManager::instance().glBuffer(linePosBufID);
 	if (buffer == nullptr) {
@@ -147,8 +147,22 @@ bool PrimitiveGraphics::addLinePositionBuffer(unsigned linePosBufID)
 		return false;
 	}
 	else {
-		_pointBuffers.insert(linePosBufID);
-		return true;
+		if (specification == GL_LINES) {
+			_lineBuffers.insert(linePosBufID);
+			return true;
+		}
+		else if (specification == GL_LINE_STRIP) {
+			_lineStripBuffers.insert(linePosBufID);
+			return true;
+		}
+		else if (specification == GL_LINE_LOOP) {
+			_lineLoopBuffers.insert(linePosBufID);
+			return true;
+		}
+		else {
+			KLEIN_LOG_CRITICAL("Invalid line spec");
+			return false;
+		}
 	}
 }
 
@@ -177,16 +191,6 @@ void PrimitiveGraphics::setPointSize(short pointSize)
 	_pointSize = pointSize;
 }
 
-short PrimitiveGraphics::lineWidth() const
-{
-	return _lineWidth;
-}
-
-void PrimitiveGraphics::setLineWidth(short lineWidth)
-{
-	_lineWidth = lineWidth;
-}
-
 void PrimitiveGraphics::_renderLit(const Camera& camera,
 	const std::array<Light, KLEIN_MAX_LIGHTS>& lights,
 	float aspectRatio,
@@ -213,7 +217,7 @@ void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio,
 	QOpenGLVertexArrayObject vao;
 	vao.create();
 	vao.bind();
-	
+
 	// Draw points
 	if (!_points.empty()) {
 		QOpenGLBuffer vboPoint(QOpenGLBuffer::VertexBuffer);
@@ -247,19 +251,17 @@ void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio,
 	}
 
 	// Draw line loops
-	if (!_lineLoops.empty()) {
-		for (const auto& loop : _lineLoops) {
-			QOpenGLBuffer vboLoop(QOpenGLBuffer::VertexBuffer);
-			vboLoop.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-			vboLoop.create();
-			vboLoop.bind();
-			vboLoop.allocate(loop.data(), static_cast<int>(loop.size() * sizeof(QVector3D)));
-			_shaderUnlit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
-			_shaderUnlit->enableAttributeArray(0);
-			vboLoop.release();
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glDrawArrays(GL_LINE_LOOP, 0, static_cast<int>(loop.size()));
-		}
+	for (const auto& loop : _lineLoops) {
+		QOpenGLBuffer vboLoop(QOpenGLBuffer::VertexBuffer);
+		vboLoop.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+		vboLoop.create();
+		vboLoop.bind();
+		vboLoop.allocate(loop.data(), static_cast<int>(loop.size() * sizeof(QVector3D)));
+		_shaderUnlit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
+		_shaderUnlit->enableAttributeArray(0);
+		vboLoop.release();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawArrays(GL_LINE_LOOP, 0, static_cast<int>(loop.size()));
 	}
 
 	// Draw faces
@@ -305,6 +307,30 @@ void PrimitiveGraphics::_renderUnlit(const Camera& camera, float aspectRatio,
 		linePosBuf->release();
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDrawArrays(GL_LINES, 0, bufsize / sizeof(QVector3D));
+	}
+
+	// Draw line strip buffer
+	for (const auto& buf : _lineStripBuffers) {
+		auto linePosBuf = ResourceManager::instance().glBuffer(buf);
+		linePosBuf->bind();
+		_shaderUnlit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
+		_shaderUnlit->enableAttributeArray(0);
+		auto bufsize = static_cast<int>(linePosBuf->size());
+		linePosBuf->release();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawArrays(GL_LINE_STRIP, 0, bufsize / sizeof(QVector3D));
+	}
+
+	// Draw line loop buffer
+	for (const auto& buf : _lineLoopBuffers) {
+		auto linePosBuf = ResourceManager::instance().glBuffer(buf);
+		linePosBuf->bind();
+		_shaderUnlit->setAttributeBuffer(0, GL_FLOAT, 0, 3);
+		_shaderUnlit->enableAttributeArray(0);
+		auto bufsize = static_cast<int>(linePosBuf->size());
+		linePosBuf->release();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawArrays(GL_LINE_LOOP, 0, bufsize / sizeof(QVector3D));
 	}
 
 	vao.release();

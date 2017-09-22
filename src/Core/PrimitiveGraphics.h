@@ -25,14 +25,12 @@ public:
 	void addCircle(const QVector3D& center, const QVector3D& normal, float radius);
 	void addTriangleFill(const QVector3D& p1, const QVector3D& p2, const QVector3D& p3);
 	bool addPointPositionBuffer(unsigned pointPosBufID);
-	bool addLinePositionBuffer(unsigned linePosBufID);
+	bool addLinePositionBuffer(unsigned linePosBufID, unsigned specification);
 	QVector3D color() const;
 	void setColor(const QVector3D& color);
 	void setColor(float r, float g, float b);
 	short pointSize() const;
 	void setPointSize(short pointSize);
-	short lineWidth() const;
-	void setLineWidth(short lineWidth);
 
 private:
 	void _renderLit(const Camera& camera,
@@ -54,10 +52,11 @@ private:
 	std::vector<QVector3D> _faces;
 	std::set<unsigned> _pointBuffers;
 	std::set<unsigned> _lineBuffers;
+	std::set<unsigned> _lineStripBuffers;
+	std::set<unsigned> _lineLoopBuffers;
 	QOpenGLVertexArrayObject _vaoLit;
 	QOpenGLVertexArrayObject _vaoUnlit;
 	QOpenGLVertexArrayObject _vaoPick;
 	QVector3D _color = QVector3D(1.0f, 1.0f, 1.0f);
 	short _pointSize = 1;
-	short _lineWidth = 1;
 };
