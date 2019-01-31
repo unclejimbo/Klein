@@ -1,61 +1,114 @@
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.00)
-        message(FATAL_ERROR "Require MSVC140 or higher")
-    endif()
-    add_compile_options("/std:c++latest")
-    add_definitions(-D_HAS_AUTO_PTR_ETC)
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    message("GCC compilation is not tested")
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
-        message(FATAL_ERROR "Require GCC 7.0 or higher")
-    endif()
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    if(MSVC)
-        message(FATAL_ERROR "Clang/c2 is not supported")
-    else()
-        message("Clang compilation is not tested")
-        if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.8)
-            message(FATAL_ERROR "Require Clang 3.8 or higher")
-        endif()
-    endif()
-endif()
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CONFIG})
+set(CMAKE_AUTOMOC ON)
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Eigen3 REQUIRED)
-find_package(CGAL REQUIRED)
-find_package(CGAL REQUIRED COMPONENTS CGAL_Core)
-find_package(Euclid REQUIRED)
-find_package(OpenCV REQUIRED core imgproc)
+find_package(Qt53DCore REQUIRED)
+find_package(Qt53DLogic REQUIRED)
+find_package(Qt53DRender REQUIRED)
+find_package(Qt53DExtras REQUIRED)
 
-set(WITH_OPENMP TRUE CACHE BOOL "Enable OpenMP")
-if (WITH_OPENMP)
-    find_package(OpenMP)
-    if (OPENMP_FOUND)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-    endif()
-endif()
+add_library(Klein
+    # add headers for automoc to work
+    ${CMAKE_SOURCE_DIR}/include/Klein/Gui/AbstractQt3DWindow.h
+    ${CMAKE_SOURCE_DIR}/include/Klein/Input/TrackballCameraController.h
+    ${CMAKE_SOURCE_DIR}/include/Klein/Render/CheckerboardTextureImage.h
+    ${CMAKE_SOURCE_DIR}/include/Klein/Render/ForwardRenderingEffect.h
+    ${CMAKE_SOURCE_DIR}/include/Klein/Render/OffscreenRenderTarget.h
+    ${CMAKE_SOURCE_DIR}/include/Klein/Render/PBRMaterial.h
+    ${CMAKE_SOURCE_DIR}/include/Klein/Render/ResourceManager.h
 
-include(${CGAL_USE_FILE})
+    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Input/TrackballCameraController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/CheckerboardTextureImage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/ForwardRenderingEffect.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/OffscreenRenderTarget.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRMaterial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/ResourceManager.cpp
+)
+add_library(Klein::Klein ALIAS Klein)
 
-include_directories(${CGAL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR} ${Euclid_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+option(BUILD_SHARED_LIBS "Build shared library" ON)
+include(GenerateExportHeader)
+generate_export_header(Klein
+    EXPORT_MACRO_NAME KLEIN_API
+    EXPORT_FILE_NAME ${CMAKE_BINARY_DIR}/include/Klein/Core/Export.h
+)
 
-add_definitions(-DQT_NO_KEYWORDS)
+target_compile_features(Klein PUBLIC cxx_std_14)
 
-file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
-file(GLOB_RECURSE SHADERS ${CMAKE_SOURCE_DIR}/contents/shaders/*)
-source_group("Shaders" FILES ${SHADERS})
+target_include_directories(Klein
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/external/imgui>
+        $<INSTALL_INTERFACE:include>
+)
 
-add_executable(Klein ${SOURCES} ${HEADERS} ${SHADERS})
-set_target_properties(Klein PROPERTIES COMPILE_FLAGS "/wd4819")
+target_link_libraries(Klein
+    PUBLIC
+        Qt5::Core
+        Qt5::Widgets
+        Qt5::3DCore
+        Qt5::3DLogic
+        Qt5::3DRender
+        Qt5::3DExtras
+)
 
-qt5_use_modules(Klein Core Widgets Gui)
-target_link_libraries(Klein ${CGAL_LIBRARIES} ${OpenCV_LIBS})
+set_target_properties(Klein PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+include(GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Klein)
+
+install(TARGETS Klein
+    EXPORT Klein-targets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/Klein
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+install(DIRECTORY ${CMAKE_BINARY_DIR}/include/Klein
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT Klein-targets
+    FILE KleinTargets.cmake
+    NAMESPACE Klein::
+    DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+    ${CMAKE_BINARY_DIR}/cmake/KleinConfigVersion.cmake
+    VERSION ${Klein_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(
+    ${CMAKE_SOURCE_DIR}/cmake/KleinConfig.cmake.in
+    ${CMAKE_BINARY_DIR}/cmake/KleinConfig.cmake
+    INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/cmake/KleinConfig.cmake
+        ${CMAKE_BINARY_DIR}/cmake/KleinConfigVersion.cmake
+    DESTINATION
+        ${INSTALL_CONFIGDIR}
+)
+
+export(EXPORT Klein-targets
+    FILE ${CMAKE_BINARY_DIR}/cmake/KleinTargets.cmake
+    NAMESPACE Klein::
+)
+
+export(PACKAGE Klein)

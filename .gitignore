@@ -1,5 +1,3 @@
 build/
-bin/
-contents/screenshots/
-contents/save/
-x64/
+.vscode/
+.vs
