@@ -17,6 +17,8 @@ PBRMaterial::PBRMaterial(Qt3DCore::QNode* parent)
         QStringLiteral("baseColor"), QColor("white"), this);
     m_baseColorMap = new Qt3DRender::QParameter(
         QStringLiteral("baseColorMap"), nullptr, this);
+    m_colorMode = new Qt3DRender::QParameter(
+        QStringLiteral("colorMode"), BASECOLOR_MODE, this);
     m_metalness =
         new Qt3DRender::QParameter(QStringLiteral("metalness"), 0.0f, this);
     m_roughness =
@@ -25,16 +27,14 @@ PBRMaterial::PBRMaterial(Qt3DCore::QNode* parent)
         QStringLiteral("texCoordOffset"), 0.0f, this);
     m_texCoordScale =
         new Qt3DRender::QParameter(QStringLiteral("texCoordScale"), 1.0f, this);
-    m_useTexture =
-        new Qt3DRender::QParameter(QStringLiteral("useTexture"), false, this);
     this->addParameter(m_ambientness);
     this->addParameter(m_baseColor);
     this->addParameter(m_baseColorMap);
+    this->addParameter(m_colorMode);
     this->addParameter(m_metalness);
     this->addParameter(m_roughness);
     this->addParameter(m_texCoordOffset);
     this->addParameter(m_texCoordScale);
-    this->addParameter(m_useTexture);
     this->setEffect(
         gResourceManager().get<Qt3DRender::QEffect>(BUILTIN_EFFECT_PBR));
 }

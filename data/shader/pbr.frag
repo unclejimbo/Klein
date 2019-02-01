@@ -3,10 +3,11 @@
 in vec3 worldPosition;
 in vec3 worldNormal;
 in vec2 texCoord;
+in vec3 vcolor;
 
 out vec4 fragColor;
 
-uniform bool useTexture;
+uniform int colorMode;
 uniform vec3 baseColor;
 uniform sampler2D baseColorMap;
 
@@ -15,13 +16,17 @@ uniform sampler2D baseColorMap;
 
 void main()
 {
-    if (useTexture) {
+    if (colorMode == 0) {
+        vec3 color = shadeMetalRough(worldPosition, worldNormal, baseColor);
+        fragColor = vec4(color, 1.0f);
+    }
+    else if (colorMode == 1) {
         vec3 baseColor = vec3(texture(baseColorMap, texCoord));
         vec3 color = shadeMetalRough(worldPosition, worldNormal, baseColor);
         fragColor = vec4(color, 1.0f);
     }
     else {
-        vec3 color = shadeMetalRough(worldPosition, worldNormal, baseColor);
+        vec3 color = shadeMetalRough(worldPosition, worldNormal, vcolor);
         fragColor = vec4(color, 1.0f);
     }
 }
