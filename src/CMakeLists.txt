@@ -24,7 +24,6 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ForwardRenderingEffect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/OffscreenRenderTarget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRMaterial.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Render/ResourceManager.cpp
 )
 add_library(Klein::Klein ALIAS Klein)
 

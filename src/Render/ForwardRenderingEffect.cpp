@@ -1,5 +1,6 @@
 #include <Klein/Render/ForwardRenderingEffect.h>
 
+#include <Qt3DRender/QEffect>
 #include <Qt3DRender/QFilterKey>
 #include <Qt3DRender/QGraphicsApiFilter>
 #include <Qt3DRender/QRenderPass>
@@ -9,12 +10,13 @@
 namespace Klein
 {
 
-QSharedPointer<Qt3DRender::QEffect> createForwardRenderingEffect(
+Qt3DRender::QEffect* createForwardRenderingEffect(
     Qt3DRender::QShaderProgram* shader,
     int glMajorVersion,
-    int glMinorVersion)
+    int glMinorVersion,
+    Qt3DCore::QNode* parent)
 {
-    QSharedPointer<Qt3DRender::QEffect> effect(new Qt3DRender::QEffect);
+    auto effect = new Qt3DRender::QEffect(parent);
     auto technique = new Qt3DRender::QTechnique;
     auto pass = new Qt3DRender::QRenderPass;
     pass->setShaderProgram(shader);
