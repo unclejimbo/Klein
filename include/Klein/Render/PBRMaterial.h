@@ -3,44 +3,64 @@
 
 #include <Klein/Core/Export.h>
 
-#include <QSharedPointer>
+#include <QColor>
+#include <QVariant>
 #include <Qt3DRender/QMaterial>
-
-namespace Qt3DRender
-{
-class QEffect;
-class QParameter;
-} // namespace Qt3DRender
+#include <Qt3DRender/QParameter>
+#include <Qt3DRender/QTexture>
 
 namespace Klein
 {
 
-struct KLEIN_API PBRMaterialParams
-{
-    Qt3DRender::QParameter* ambientness = nullptr;
-    Qt3DRender::QParameter* baseColor = nullptr;
-    Qt3DRender::QParameter* baseColorMap = nullptr;
-    Qt3DRender::QParameter* metalness = nullptr;
-    Qt3DRender::QParameter* roughness = nullptr;
-    Qt3DRender::QParameter* texCoordOffset = nullptr;
-    Qt3DRender::QParameter* texCoordScale = nullptr;
-    Qt3DRender::QParameter* useTexture = nullptr;
-};
-
 class KLEIN_API PBRMaterial : public Qt3DRender::QMaterial
 {
-    Q_OBJECT
-
 public:
     explicit PBRMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    PBRMaterial(PBRMaterialParams params, Qt3DCore::QNode* parent = nullptr);
+    float ambientness() const { return m_ambientness->value().value<float>(); }
 
-public:
-    static QSharedPointer<Qt3DRender::QEffect> pbrEffect;
+    QColor baseColor() const { return m_baseColor->value().value<QColor>(); }
 
-private:
-    void build();
+    Qt3DRender::QTexture2D* baseColorMap() const
+    {
+        return m_baseColorMap->value().value<Qt3DRender::QTexture2D*>();
+    }
+
+    float metalness() const { return m_metalness->value().value<float>(); }
+
+    float roughness() const { return m_roughness->value().value<float>(); }
+
+    float texCoordOffset() const
+    {
+        return m_texCoordOffset->value().value<float>();
+    }
+
+    float texCoordScale() const
+    {
+        return m_texCoordScale->value().value<float>();
+    }
+
+    bool useTexture() const { return m_useTexture->value().value<float>(); }
+
+public slots:
+    void setAmbientness(float value) { m_ambientness->setValue(value); }
+
+    void setBaseColor(const QColor& value) { m_baseColor->setValue(value); }
+
+    void setBaseColorMap(Qt3DRender::QTexture2D* value)
+    {
+        m_baseColorMap->setValue(QVariant::fromValue(value));
+    }
+
+    void setMetalness(float value) { m_metalness->setValue(value); }
+
+    void setRoughness(float value) { m_roughness->setValue(value); }
+
+    void setTexCoordOffset(float value) { m_texCoordOffset->setValue(value); }
+
+    void setTexCoordScale(float value) { m_texCoordScale->setValue(value); }
+
+    void setUseTexture(bool value) { m_useTexture->setValue(value); }
 
 private:
     Qt3DRender::QParameter* m_ambientness;
