@@ -7,7 +7,7 @@ in vec3 vcolor;
 
 out vec4 fragColor;
 
-uniform int colorMode;
+uniform int colorMode = 0;
 uniform vec3 baseColor;
 uniform sampler2D baseColorMap;
 

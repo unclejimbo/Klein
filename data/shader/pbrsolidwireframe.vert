@@ -29,5 +29,5 @@ void main()
     eyeNormal = transformNormal(vertexNormal, modelViewNormal);
     texCoord = transformTexCoord(vertexTexCoord);
     vcolor = vertexColor;
-    gl_Position = glPosition(vertexPosition, mvp);
+    gl_Position = glPosition(pos, mvp);
 }
