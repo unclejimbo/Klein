@@ -18,8 +18,10 @@ enum BuiltinResource : int
 {
     BUILTIN_SHADER_PBR,
     BUILTIN_SHADER_PBRSOLIDWIREFRAME,
+    BUILTIN_SHADER_PBRINSTANCED,
     BUILTIN_EFFECT_PBR,
-    BUILTIN_EFFECT_PBRSOLIDWIREFRAME
+    BUILTIN_EFFECT_PBRSOLIDWIREFRAME,
+    BUILTIN_EFFECT_PBRINSTANCED
 };
 
 class KLEIN_API ResourceManager
@@ -102,6 +104,13 @@ ResourceManager::get<Qt3DRender::QShaderProgram>(BuiltinResource bs)
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
+        case BUILTIN_SHADER_PBRINSTANCED:
+            shader =
+                createShader(shaderPath + QStringLiteral("pbrinstanced.vert"),
+                             shaderPath + QStringLiteral("pbr.frag"));
+            shader->setParent(m_root);
+            m_builtins[bs] = shader;
+            break;
         default: break;
         }
     }
@@ -131,6 +140,15 @@ inline Qt3DRender::QEffect* ResourceManager::get<Qt3DRender::QEffect>(
             effect = createForwardRenderingEffect(
                 gResourceManager().get<Qt3DRender::QShaderProgram>(
                     BUILTIN_SHADER_PBRSOLIDWIREFRAME),
+                3,
+                3,
+                m_root);
+            m_builtins[bs] = effect;
+            break;
+        case BUILTIN_EFFECT_PBRINSTANCED:
+            effect = createForwardRenderingEffect(
+                gResourceManager().get<Qt3DRender::QShaderProgram>(
+                    BUILTIN_SHADER_PBRINSTANCED),
                 3,
                 3,
                 m_root);
