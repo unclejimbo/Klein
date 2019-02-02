@@ -17,7 +17,9 @@ namespace Klein
 enum BuiltinResource : int
 {
     BUILTIN_SHADER_PBR,
-    BUILTIN_EFFECT_PBR
+    BUILTIN_SHADER_PBRSOLIDWIREFRAME,
+    BUILTIN_EFFECT_PBR,
+    BUILTIN_EFFECT_PBRSOLIDWIREFRAME
 };
 
 class KLEIN_API ResourceManager
@@ -92,6 +94,14 @@ ResourceManager::get<Qt3DRender::QShaderProgram>(BuiltinResource bs)
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
+        case BUILTIN_SHADER_PBRSOLIDWIREFRAME:
+            shader = createShader(
+                shaderPath + QStringLiteral("pbrsolidwireframe.vert"),
+                shaderPath + QStringLiteral("pbrsolidwireframe.geom"),
+                shaderPath + QStringLiteral("pbrsolidwireframe.frag"));
+            shader->setParent(m_root);
+            m_builtins[bs] = shader;
+            break;
         default: break;
         }
     }
@@ -112,6 +122,15 @@ inline Qt3DRender::QEffect* ResourceManager::get<Qt3DRender::QEffect>(
             effect = createForwardRenderingEffect(
                 gResourceManager().get<Qt3DRender::QShaderProgram>(
                     BUILTIN_SHADER_PBR),
+                3,
+                3,
+                m_root);
+            m_builtins[bs] = effect;
+            break;
+        case BUILTIN_EFFECT_PBRSOLIDWIREFRAME:
+            effect = createForwardRenderingEffect(
+                gResourceManager().get<Qt3DRender::QShaderProgram>(
+                    BUILTIN_SHADER_PBRSOLIDWIREFRAME),
                 3,
                 3,
                 m_root);

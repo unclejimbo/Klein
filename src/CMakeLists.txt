@@ -16,6 +16,7 @@ add_library(Klein
     ${CMAKE_SOURCE_DIR}/include/Klein/Render/ForwardRenderingEffect.h
     ${CMAKE_SOURCE_DIR}/include/Klein/Render/OffscreenRenderTarget.h
     ${CMAKE_SOURCE_DIR}/include/Klein/Render/PBRMaterial.h
+    ${CMAKE_SOURCE_DIR}/include/Klein/Render/PBRSolidWireframeMaterial.h
     ${CMAKE_SOURCE_DIR}/include/Klein/Render/ResourceManager.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
@@ -24,6 +25,7 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ForwardRenderingEffect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/OffscreenRenderTarget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRMaterial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRSolidWireframeMaterial.cpp
 )
 add_library(Klein::Klein ALIAS Klein)
 
