@@ -1,5 +1,5 @@
-float lineWidth;
-vec4 lineColor;
+uniform float lineWidth;
+uniform vec4 lineColor;
 
 vec4 shadeLine(const in vec4 color)
 {
