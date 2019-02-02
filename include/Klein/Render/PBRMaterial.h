@@ -27,6 +27,8 @@ public:
 public:
     explicit PBRMaterial(Qt3DCore::QNode* parent = nullptr);
 
+    PBRMaterial(ColorMode mode, Qt3DCore::QNode* parent = nullptr);
+
     float ambientness() const { return m_ambientness->value().value<float>(); }
 
     QColor baseColor() const { return m_baseColor->value().value<int>(); }

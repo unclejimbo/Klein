@@ -9,6 +9,10 @@ namespace Klein
 {
 
 PBRMaterial::PBRMaterial(Qt3DCore::QNode* parent)
+    : PBRMaterial(BASECOLOR_MODE, parent)
+{}
+
+PBRMaterial::PBRMaterial(ColorMode mode, Qt3DCore::QNode* parent)
     : Qt3DRender::QMaterial(parent)
 {
     m_ambientness =
@@ -17,8 +21,8 @@ PBRMaterial::PBRMaterial(Qt3DCore::QNode* parent)
         QStringLiteral("baseColor"), QColor("white"), this);
     m_baseColorMap = new Qt3DRender::QParameter(
         QStringLiteral("baseColorMap"), nullptr, this);
-    m_colorMode = new Qt3DRender::QParameter(
-        QStringLiteral("colorMode"), BASECOLOR_MODE, this);
+    m_colorMode =
+        new Qt3DRender::QParameter(QStringLiteral("colorMode"), mode, this);
     m_metalness =
         new Qt3DRender::QParameter(QStringLiteral("metalness"), 0.0f, this);
     m_roughness =
