@@ -40,8 +40,8 @@ MeshGeometry::MeshGeometry(RequiredBuffers requiredBuffers,
 }
 
 void MeshGeometry::setBuffer(Qt3DRender::QBuffer* buffer,
-                             uint count,
                              bool interleaved,
+                             uint count,
                              Qt3DRender::QAttribute::VertexBaseType dataType,
                              uint dataTypeSize)
 {
@@ -74,7 +74,7 @@ void MeshGeometry::setBuffer(Qt3DRender::QBuffer* buffer,
         m_normals->setByteStride(stride);
         if (m_texCoords != nullptr) {
             m_texCoords->setByteOffset(6 * dataTypeSize);
-            m_texCoords->setByteOffset(stride);
+            m_texCoords->setByteStride(stride);
         }
         else if (m_colors != nullptr) {
             m_colors->setByteOffset(6 * dataTypeSize);

@@ -30,8 +30,8 @@ public:
 
 public slots:
     void setBuffer(Qt3DRender::QBuffer* buffer,
+                   bool interleaved = true,
                    uint count = 0,
-                   bool interleaved = false,
                    Qt3DRender::QAttribute::VertexBaseType dataType =
                        Qt3DRender::QAttribute::Float,
                    uint dataTypeSize = sizeof(float));
