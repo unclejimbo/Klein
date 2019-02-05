@@ -10,17 +10,17 @@ find_package(Qt53DExtras REQUIRED)
 
 add_library(Klein
     # add headers for automoc to work
-    ${CMAKE_SOURCE_DIR}/include/Klein/Gui/AbstractQt3DWindow.h
-    ${CMAKE_SOURCE_DIR}/include/Klein/Input/TrackballCameraController.h
-    ${CMAKE_SOURCE_DIR}/include/Klein/Render/CheckerboardTextureImage.h
-    ${CMAKE_SOURCE_DIR}/include/Klein/Render/ForwardRenderingEffect.h
-    ${CMAKE_SOURCE_DIR}/include/Klein/Render/InstancedMesh.h
-    ${CMAKE_SOURCE_DIR}/include/Klein/Render/MeshGeometry.h
-    ${CMAKE_SOURCE_DIR}/include/Klein/Render/OffscreenRenderTarget.h
-    ${CMAKE_SOURCE_DIR}/include/Klein/Render/PBRMaterial.h
-    ${CMAKE_SOURCE_DIR}/include/Klein/Render/PBRInstancedMaterial.h
-    ${CMAKE_SOURCE_DIR}/include/Klein/Render/PBRSolidWireframeMaterial.h
-    ${CMAKE_SOURCE_DIR}/include/Klein/Render/ResourceManager.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Gui/AbstractQt3DWindow.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Input/TrackballCameraController.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/CheckerboardTextureImage.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/ForwardRenderingEffect.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/InstancedMesh.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/MeshGeometry.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/OffscreenRenderTarget.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/PBRMaterial.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/PBRInstancedMaterial.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/PBRSolidWireframeMaterial.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/ResourceManager.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Input/TrackballCameraController.cpp
@@ -46,9 +46,8 @@ target_compile_features(Klein PUBLIC cxx_std_14)
 
 target_include_directories(Klein
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/external/imgui>
         $<INSTALL_INTERFACE:include>
 )
 
@@ -78,7 +77,7 @@ install(TARGETS Klein
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/Klein
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/Klein
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 install(DIRECTORY ${CMAKE_BINARY_DIR}/include/Klein
@@ -100,7 +99,7 @@ write_basic_package_version_file(
 )
 
 configure_package_config_file(
-    ${CMAKE_SOURCE_DIR}/cmake/KleinConfig.cmake.in
+    ${PROJECT_SOURCE_DIR}/cmake/KleinConfig.cmake.in
     ${CMAKE_BINARY_DIR}/cmake/KleinConfig.cmake
     INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
 )
