@@ -14,6 +14,7 @@ add_library(Klein
     ${CMAKE_SOURCE_DIR}/include/Klein/Input/TrackballCameraController.h
     ${CMAKE_SOURCE_DIR}/include/Klein/Render/CheckerboardTextureImage.h
     ${CMAKE_SOURCE_DIR}/include/Klein/Render/ForwardRenderingEffect.h
+    ${CMAKE_SOURCE_DIR}/include/Klein/Render/InstancedMesh.h
     ${CMAKE_SOURCE_DIR}/include/Klein/Render/MeshGeometry.h
     ${CMAKE_SOURCE_DIR}/include/Klein/Render/OffscreenRenderTarget.h
     ${CMAKE_SOURCE_DIR}/include/Klein/Render/PBRMaterial.h
@@ -25,6 +26,7 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Input/TrackballCameraController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/CheckerboardTextureImage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ForwardRenderingEffect.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/InstancedMesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/MeshGeometry.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/OffscreenRenderTarget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRMaterial.cpp
