@@ -12,6 +12,16 @@ class QAspectEngine;
 class QEntity;
 } // namespace Qt3DCore
 
+namespace Qt3DRender
+{
+class QRenderSettings;
+}
+
+namespace Qt3DInput
+{
+class QInputSettings;
+}
+
 namespace Klein
 {
 
@@ -27,15 +37,16 @@ public:
 protected:
     void exposeEvent(QExposeEvent*) override;
 
-    virtual void createSceneGraph() = 0;
+    virtual Qt3DCore::QEntity* createSceneGraph() = 0;
 
-    virtual void createRenderSettings() = 0;
+    virtual Qt3DRender::QRenderSettings* createRenderSettings(
+        Qt3DCore::QEntity* root) = 0;
 
-    virtual void createInputSettings();
+    virtual Qt3DInput::QInputSettings* createInputSettings(
+        Qt3DCore::QEntity* root);
 
 protected:
     Qt3DCore::QAspectEngine* m_aspectEngine;
-    Qt3DCore::QEntity* m_rootEntity;
 
 private:
     bool m_initialized = false;

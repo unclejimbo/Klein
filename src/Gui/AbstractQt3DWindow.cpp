@@ -8,6 +8,7 @@
 #include <Qt3DInput/QInputSettings>
 #include <Qt3DLogic/QLogicAspect>
 #include <Qt3DRender/QRenderAspect>
+#include <Qt3DRender/QRenderSettings>
 
 namespace Klein
 {
@@ -30,8 +31,6 @@ AbstractQt3DWindow::AbstractQt3DWindow(QWindow* parent) : QWindow(parent)
     this->setFormat(format);
     QSurfaceFormat::setDefaultFormat(format);
 
-    m_rootEntity = new Qt3DCore::QEntity;
-
     m_aspectEngine = new Qt3DCore::QAspectEngine(this);
     m_aspectEngine->registerAspect(new Qt3DInput::QInputAspect);
     m_aspectEngine->registerAspect(new Qt3DLogic::QLogicAspect);
@@ -41,19 +40,20 @@ AbstractQt3DWindow::AbstractQt3DWindow(QWindow* parent) : QWindow(parent)
 void AbstractQt3DWindow::exposeEvent(QExposeEvent*)
 {
     if (!m_initialized && isExposed()) {
-        createSceneGraph();
-        createRenderSettings();
-        createInputSettings();
-        m_aspectEngine->setRootEntity(Qt3DCore::QEntityPtr(m_rootEntity));
+        auto root = createSceneGraph();
+        root->addComponent(createRenderSettings(root));
+        root->addComponent(createInputSettings(root));
+        m_aspectEngine->setRootEntity(Qt3DCore::QEntityPtr(root));
         m_initialized = true;
     }
 }
 
-void AbstractQt3DWindow::createInputSettings()
+Qt3DInput::QInputSettings* AbstractQt3DWindow::createInputSettings(
+    Qt3DCore::QEntity* root)
 {
-    auto settings = new Qt3DInput::QInputSettings;
+    auto settings = new Qt3DInput::QInputSettings(root);
     settings->setEventSource(this);
-    m_rootEntity->addComponent(settings);
+    return settings;
 }
 
 } // namespace Klein
