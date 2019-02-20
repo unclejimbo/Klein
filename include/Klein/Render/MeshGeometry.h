@@ -30,6 +30,8 @@ public:
     MeshGeometry(RequiredBuffers requiredBuffers = BASIC,
                  Qt3DCore::QNode* parent = nullptr);
 
+    virtual ~MeshGeometry() = default;
+
 public slots:
     void setBuffer(Qt3DRender::QBuffer* buffer,
                    bool interleaved = true,

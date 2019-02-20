@@ -22,6 +22,8 @@ public:
         Qt3DRender::QRenderTargetOutput::AttachmentPoint attatchmentPoint,
         Qt3DCore::QNode* parent = nullptr);
 
+    virtual ~OffscreenRenderTarget() = default;
+
     QSize getSize() const { return m_size; }
 
     Qt3DRender::QTexture2D* getTexture();

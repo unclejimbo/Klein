@@ -29,6 +29,8 @@ public:
     InstancedMeshRenderer(RequiredBuffers requiredBuffers = BASIC,
                           Qt3DCore::QNode* parent = nullptr);
 
+    virtual ~InstancedMeshRenderer() = default;
+
     void setBuffer(Qt3DRender::QBuffer* buffer,
                    bool interleaved = true,
                    uint count = 0,
