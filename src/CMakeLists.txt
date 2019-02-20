@@ -12,7 +12,9 @@ add_library(Klein
     # add headers for automoc to work
     ${PROJECT_SOURCE_DIR}/include/Klein/Gui/AbstractQt3DWindow.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Input/TrackballCameraController.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/BufferData.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/CheckerboardTextureImage.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/ConcretePointsRenderer.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ForwardRenderingEffect.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/InstancedMeshRenderer.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/MeshGeometry.h
@@ -21,10 +23,12 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/PBRInstancedMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/PBRSolidWireframeMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ResourceManager.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/Transformation.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Input/TrackballCameraController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/CheckerboardTextureImage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/ConcretePointsRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ForwardRenderingEffect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/InstancedMeshRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/MeshGeometry.cpp
