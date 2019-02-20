@@ -14,6 +14,7 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Input/TrackballCameraController.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/BufferData.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/CheckerboardTextureImage.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/ConcreteLinesRenderer.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ConcretePointsRenderer.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ForwardRenderingEffect.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/InstancedMeshRenderer.h
@@ -28,6 +29,7 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Input/TrackballCameraController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/CheckerboardTextureImage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/ConcreteLinesRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ConcretePointsRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ForwardRenderingEffect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/InstancedMeshRenderer.cpp

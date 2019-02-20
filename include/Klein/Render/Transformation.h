@@ -20,11 +20,12 @@ inline KLEIN_API QMatrix4x4 pointTransformation(const QVector3D& p)
 inline KLEIN_API QMatrix4x4 lineTransformation(const QVector3D& p0,
                                                const QVector3D& p1)
 {
-    QMatrix4x4 rotation, translation;
+    QMatrix4x4 scaling, rotation, translation;
+    scaling.scale(1.0f, (p0 - p1).length(), 1.0f);
     rotation.rotate(
         QQuaternion::rotationTo(QVector3D(0.0f, 1.0f, 0.0f), (p0 - p1)));
     translation.translate((p0 + p1) / 2);
-    return translation * rotation;
+    return translation * rotation * scaling;
 }
 
 } // namespace Klein
