@@ -1,6 +1,8 @@
 #ifndef KLEIN_MESHGEOMETRY_H
 #define KLEIN_MESHGEOMETRY_H
 
+#include <Klein/Core/Export.h>
+
 #include <Qt3DRender/QAttribute>
 #include <Qt3DRender/QGeometry>
 
@@ -12,7 +14,7 @@ class QBuffer;
 namespace Klein
 {
 
-class MeshGeometry : public Qt3DRender::QGeometry
+class KLEIN_API MeshGeometry : public Qt3DRender::QGeometry
 {
     Q_OBJECT
 

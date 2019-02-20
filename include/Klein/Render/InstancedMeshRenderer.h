@@ -1,6 +1,8 @@
 #ifndef KLEIN_INSTANCEDMESHRENDERER_H
 #define KLEIN_INSTANCEDMESHRENDERER_H
 
+#include <Klein/Core/Export.h>
+
 #include <Qt3DRender/QAttribute>
 #include <Qt3DRender/QGeometryRenderer>
 
@@ -11,7 +13,8 @@ class QBuffer;
 
 namespace Klein
 {
-class InstancedMeshRenderer : public Qt3DRender::QGeometryRenderer
+
+class KLEIN_API InstancedMeshRenderer : public Qt3DRender::QGeometryRenderer
 {
     Q_OBJECT
 
