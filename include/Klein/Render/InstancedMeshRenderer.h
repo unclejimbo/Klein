@@ -31,6 +31,7 @@ public:
 
     virtual ~InstancedMeshRenderer() = default;
 
+public slots:
     void setBuffer(Qt3DRender::QBuffer* buffer,
                    bool interleaved = true,
                    uint count = 0,

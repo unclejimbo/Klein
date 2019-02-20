@@ -12,7 +12,7 @@ InstancedMeshRenderer::InstancedMeshRenderer(RequiredBuffers requiredBuffers,
     m_instanceModel->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
     m_instanceModel->setVertexSize(16);
     m_instanceModel->setDivisor(1);
-    m_instanceColor == nullptr;
+    m_instanceColor = nullptr;
     if (requiredBuffers == WITH_COLOR) {
         m_instanceColor = new Qt3DRender::QAttribute(this);
         m_instanceColor->setName(QStringLiteral("instanceColor"));
@@ -49,6 +49,7 @@ void InstancedMeshRenderer::setBuffer(
     Qt3DRender::QAttribute::VertexBaseType dataType,
     uint dataTypeSize)
 {
+    this->setInstanceCount(count);
     m_instanceModel->setBuffer(buffer);
     m_instanceModel->setVertexBaseType(dataType);
     m_instanceModel->setCount(count);
@@ -85,6 +86,7 @@ void InstancedMeshRenderer::setInstanceModelMatrixBuffer(
     uint byteStride,
     Qt3DRender::QAttribute::VertexBaseType dataType)
 {
+    this->setInstanceCount(count);
     m_instanceModel->setBuffer(buffer);
     m_instanceModel->setVertexBaseType(dataType);
     m_instanceModel->setCount(count);
