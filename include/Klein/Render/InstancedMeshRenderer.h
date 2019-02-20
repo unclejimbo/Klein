@@ -1,5 +1,5 @@
-#ifndef KLEIN_INSTANCEDMESH_H
-#define KLEIN_INSTANCEDMESH_H
+#ifndef KLEIN_INSTANCEDMESHRENDERER_H
+#define KLEIN_INSTANCEDMESHRENDERER_H
 
 #include <Qt3DRender/QAttribute>
 #include <Qt3DRender/QGeometryRenderer>
@@ -11,7 +11,7 @@ class QBuffer;
 
 namespace Klein
 {
-class InstancedMesh : public Qt3DRender::QGeometryRenderer
+class InstancedMeshRenderer : public Qt3DRender::QGeometryRenderer
 {
     Q_OBJECT
 
@@ -23,8 +23,8 @@ public:
     };
 
 public:
-    InstancedMesh(RequiredBuffers requiredBuffers = BASIC,
-                  Qt3DCore::QNode* parent = nullptr);
+    InstancedMeshRenderer(RequiredBuffers requiredBuffers = BASIC,
+                          Qt3DCore::QNode* parent = nullptr);
 
     void setBuffer(Qt3DRender::QBuffer* buffer,
                    bool interleaved = true,

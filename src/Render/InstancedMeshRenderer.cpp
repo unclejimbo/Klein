@@ -1,10 +1,10 @@
-#include <Klein/Render/InstancedMesh.h>
+#include <Klein/Render/InstancedMeshRenderer.h>
 
 namespace Klein
 {
 
-InstancedMesh::InstancedMesh(RequiredBuffers requiredBuffers,
-                             Qt3DCore::QNode* parent)
+InstancedMeshRenderer::InstancedMeshRenderer(RequiredBuffers requiredBuffers,
+                                             Qt3DCore::QNode* parent)
     : Qt3DRender::QGeometryRenderer(parent)
 {
     m_instanceModel = new Qt3DRender::QAttribute(this);
@@ -42,11 +42,12 @@ InstancedMesh::InstancedMesh(RequiredBuffers requiredBuffers,
             });
 }
 
-void InstancedMesh::setBuffer(Qt3DRender::QBuffer* buffer,
-                              bool interleaved,
-                              uint count,
-                              Qt3DRender::QAttribute::VertexBaseType dataType,
-                              uint dataTypeSize)
+void InstancedMeshRenderer::setBuffer(
+    Qt3DRender::QBuffer* buffer,
+    bool interleaved,
+    uint count,
+    Qt3DRender::QAttribute::VertexBaseType dataType,
+    uint dataTypeSize)
 {
     m_instanceModel->setBuffer(buffer);
     m_instanceModel->setVertexBaseType(dataType);
@@ -77,7 +78,7 @@ void InstancedMesh::setBuffer(Qt3DRender::QBuffer* buffer,
     }
 }
 
-void InstancedMesh::setInstanceModelMatrixBuffer(
+void InstancedMeshRenderer::setInstanceModelMatrixBuffer(
     Qt3DRender::QBuffer* buffer,
     uint count,
     uint byteOffset,
@@ -91,7 +92,7 @@ void InstancedMesh::setInstanceModelMatrixBuffer(
     m_instanceModel->setByteStride(byteStride);
 }
 
-void InstancedMesh::setInstanceColorBuffer(
+void InstancedMeshRenderer::setInstanceColorBuffer(
     Qt3DRender::QBuffer* buffer,
     uint count,
     uint byteOffset,
