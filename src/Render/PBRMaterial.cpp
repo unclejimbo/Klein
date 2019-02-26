@@ -2,6 +2,7 @@
 
 #include <Klein/Render/ForwardRenderingEffect.h>
 #include <Klein/Render/ResourceManager.h>
+#include <QSharedPointer>
 #include <QString>
 #include <Qt3DRender/QEffect>
 
@@ -19,8 +20,6 @@ PBRMaterial::PBRMaterial(ColorMode mode, Qt3DCore::QNode* parent)
         new Qt3DRender::QParameter(QStringLiteral("ambientness"), 0.0f, this);
     m_baseColor = new Qt3DRender::QParameter(
         QStringLiteral("baseColor"), QColor("white"), this);
-    m_baseColorMap = new Qt3DRender::QParameter(
-        QStringLiteral("baseColorMap"), new Qt3DRender::QTexture2D(this), this);
     m_colorMode =
         new Qt3DRender::QParameter(QStringLiteral("colorMode"), mode, this);
     m_metalness =
@@ -33,7 +32,6 @@ PBRMaterial::PBRMaterial(ColorMode mode, Qt3DCore::QNode* parent)
         new Qt3DRender::QParameter(QStringLiteral("texCoordScale"), 1.0f, this);
     this->addParameter(m_ambientness);
     this->addParameter(m_baseColor);
-    this->addParameter(m_baseColorMap);
     this->addParameter(m_colorMode);
     this->addParameter(m_metalness);
     this->addParameter(m_roughness);

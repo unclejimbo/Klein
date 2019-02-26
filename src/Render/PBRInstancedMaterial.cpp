@@ -21,8 +21,6 @@ PBRInstancedMaterial::PBRInstancedMaterial(bool useInstanceColor,
         new Qt3DRender::QParameter(QStringLiteral("ambientness"), 0.0f, this);
     m_baseColor = new Qt3DRender::QParameter(
         QStringLiteral("baseColor"), QColor("white"), this);
-    m_baseColorMap = new Qt3DRender::QParameter(
-        QStringLiteral("baseColorMap"), new Qt3DRender::QTexture2D(this), this);
     m_colorMode =
         new Qt3DRender::QParameter(QStringLiteral("colorMode"), mode, this);
     m_metalness =
@@ -37,7 +35,6 @@ PBRInstancedMaterial::PBRInstancedMaterial(bool useInstanceColor,
         QStringLiteral("useInstanceColor"), false, this);
     this->addParameter(m_ambientness);
     this->addParameter(m_baseColor);
-    this->addParameter(m_baseColorMap);
     this->addParameter(m_colorMode);
     this->addParameter(m_metalness);
     this->addParameter(m_roughness);

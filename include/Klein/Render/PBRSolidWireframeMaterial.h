@@ -73,7 +73,15 @@ public slots:
 
     void setBaseColorMap(Qt3DRender::QTexture2D* value)
     {
-        m_baseColorMap->setValue(QVariant::fromValue(value));
+        if (!m_baseColorMapInitialized) {
+            m_baseColorMap = new Qt3DRender::QParameter(
+                QStringLiteral("baseColorMap"), value, this);
+            this->addParameter(m_baseColorMap);
+            m_baseColorMapInitialized = true;
+        }
+        else {
+            m_baseColorMap->setValue(QVariant::fromValue(value));
+        }
     }
 
     void setColorMode(ColorMode value) { m_colorMode->setValue(value); }
@@ -93,6 +101,7 @@ public slots:
     void setTexCoordScale(float value) { m_texCoordScale->setValue(value); }
 
 private:
+    bool m_baseColorMapInitialized = false;
     Qt3DRender::QParameter* m_ambientness;
     Qt3DRender::QParameter* m_baseColor;
     Qt3DRender::QParameter* m_baseColorMap;
