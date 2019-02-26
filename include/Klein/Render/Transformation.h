@@ -1,7 +1,7 @@
 #ifndef KLEIN_TRANSFORMATION_H
 #define KLEIN_TRANSFORMATION_H
 
-#include <Foliation/Core/Export.h>
+#include <Klein/Core/Export.h>
 
 #include <QMatrix4x4>
 #include <QQuaternion>
