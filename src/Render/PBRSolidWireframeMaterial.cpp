@@ -21,7 +21,7 @@ PBRSolidWireframeMaterial::PBRSolidWireframeMaterial(ColorMode mode,
     m_baseColor = new Qt3DRender::QParameter(
         QStringLiteral("baseColor"), QColor("white"), this);
     m_baseColorMap = new Qt3DRender::QParameter(
-        QStringLiteral("baseColorMap"), nullptr, this);
+        QStringLiteral("baseColorMap"), new Qt3DRender::QTexture2D(this), this);
     m_colorMode =
         new Qt3DRender::QParameter(QStringLiteral("colorMode"), mode, this);
     m_lineColor = new Qt3DRender::QParameter(
