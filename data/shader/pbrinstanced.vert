@@ -13,6 +13,7 @@ out vec2 texCoord;
 out vec3 vcolor;
 
 uniform bool useInstanceColor = false;
+uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
@@ -20,10 +21,11 @@ uniform mat4 projectionMatrix;
 
 void main()
 {
-    mat4 modelView = viewMatrix * instanceModel;
+    mat4 modelMat = modelMatrix * instanceModel;
+    mat4 modelView = viewMatrix * modelMat;
     mat3 modelNormalMatrix = modelNormal(modelView);
     mat4 mvp = projectionMatrix * modelView;
-    worldPosition = transformPosition(vertexPosition, instanceModel);
+    worldPosition = transformPosition(vertexPosition, modelMat);
     worldNormal = transformNormal(vertexNormal, modelNormalMatrix);
     texCoord = transformTexCoord(vertexTexCoord);
     gl_Position = glPosition(vertexPosition, mvp);
