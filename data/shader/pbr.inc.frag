@@ -4,13 +4,15 @@ uniform vec3 eyePosition; // World space eye position
 // PBR Material
 uniform float roughness;
 uniform float metalness;
-uniform float ambientness = 0.0f;
 
 // Exposure correction
 uniform float exposure = 0.0;
 
 // Gamma correction
 uniform float gamma = 2.2;
+
+// Constants
+#define PI 3.1415926538
 
 int mipLevelCount(const in samplerCube cube)
 {
@@ -51,7 +53,7 @@ float alphaToMipLevel(float alpha)
 
     // Offset of smallest miplevel we should use (corresponds to specular
     // power of 1). I.e. in the 32x32 sized mip.
-    const float mipOffset = 5.0;
+    const float mipOffset = 3.0;
 
     // The final factor is really 1 - g / g_max but as mentioned above g_max
     // is 1 by definition here so we can avoid the division. If we make the
@@ -61,52 +63,40 @@ float alphaToMipLevel(float alpha)
     return mipLevel;
 }
 
-float normalDistribution(const in vec3 n, const in vec3 h, const in float alpha)
+float D_GGX(const in vec3 n, const in vec3 h, const in float alpha)
 {
-    // Blinn-Phong approximation - see
-    // http://graphicrants.blogspot.co.uk/2013/08/specular-brdf-reference.html
-    float specPower = 2.0 / (alpha * alpha) - 2.0;
-    return (specPower + 2.0) / (2.0 * 3.14159) *
-           pow(max(dot(n, h), 0.0), specPower);
+    // Normal Distribution Function - GGX (Trobridge-Reitz)
+    float nDotH = max(dot(n, h), 0.0);
+    float a = nDotH * alpha;
+    float k = alpha / (1.0 - nDotH * nDotH + a * a);
+    return k * k * (1.0 / PI);
 }
 
-vec3 fresnelFactor(const in vec3 color, const in float cosineFactor)
+float G_SmithGGX(const in float lDotN,
+                 const in float vDotN,
+                 const in float alpha)
 {
-    // Calculate the Fresnel effect value
-    vec3 f = color;
-    vec3 F = f + (1.0 - f) * pow(1.0 - cosineFactor, 5.0);
-    return clamp(F, f, vec3(1.0));
+    // Geometric Shadowing - Smith GGX
+    // Optimized with the denominator of the BRDF
+    float a2 = alpha * alpha;
+    float G1 = lDotN * sqrt(vDotN * vDotN * (1.0 - a2) + a2);
+    float G2 = vDotN * sqrt(lDotN * lDotN * (1.0 - a2) + a2);
+    return 0.5 / (G1 + G2);
 }
 
-float geometricModel(const in float lDotN,
-                     const in float vDotN,
-                     const in vec3 h)
+vec3 F_Schlick(const in vec3 F0, const in float cosineFactor)
 {
-    // Implicit geometric model (equal to denominator in specular model).
-    // This currently assumes that there is no attenuation by geometric
-    // shadowing or masking according to the microfacet theory.
-    return lDotN * vDotN;
+    // Fresnel - Schlick
+    return F0 + (vec3(1.0) - F0) * pow(1.0 - cosineFactor, 5.0);
 }
 
-vec3 specularModel(const in vec3 F0,
-                   const in float sDotH,
-                   const in float sDotN,
-                   const in float vDotN,
-                   const in vec3 n,
-                   const in vec3 h)
+vec3 F_SchlickRoughness(const in vec3 F0,
+                        const in float cosineFactor,
+                        const in float alpha)
 {
-    // Clamp sDotN and vDotN to small positive value to prevent the
-    // denominator in the reflection equation going to infinity. Balance this
-    // by using the clamped values in the geometric factor function to
-    // avoid ugly seams in the specular lighting.
-    float sDotNPrime = max(sDotN, 0.001);
-    float vDotNPrime = max(vDotN, 0.001);
-
-    vec3 F = fresnelFactor(F0, sDotH);
-    float G = geometricModel(sDotNPrime, vDotNPrime, h);
-
-    vec3 cSpec = F * G / (4.0 * sDotNPrime * vDotNPrime);
-    return clamp(cSpec, vec3(0.0), vec3(1.0));
+    // Fresnel - Schlick
+    return F0 +
+           (max(vec3(1.0 - alpha), F0) - F0) * pow(1.0 - cosineFactor, 5.0);
 }
 
 vec3 pbrModel(const in int lightIndex,
@@ -115,7 +105,8 @@ vec3 pbrModel(const in int lightIndex,
               const in vec3 wView,
               const in vec3 baseColor,
               const in float metalness,
-              const in float alpha)
+              const in float alpha,
+              const in vec3 F0)
 {
     // Calculate some useful quantities
     vec3 n = wNormal;
@@ -162,68 +153,59 @@ vec3 pbrModel(const in int lightIndex,
         sDotN = dot(s, n);
     }
 
+    sDotN = max(sDotN, 0.0);
     h = normalize(s + v);
-    sDotH = dot(s, h);
+    sDotH = max(dot(s, h), 0.0);
 
-    // Calculate diffuse component
     vec3 diffuseColor = (1.0 - metalness) * baseColor;
-    vec3 diffuse = diffuseColor * max(sDotN, 0.0) / 3.14159;
+    vec3 diffuse = diffuseColor / PI;
 
-    // Calculate specular component
-    vec3 dielectricColor = vec3(0.04);
-    vec3 F0 = mix(dielectricColor, baseColor, metalness);
-    vec3 specularFactor = vec3(0.0);
+    float D = 0.0;
+    float G = 0.0;
+    vec3 F = vec3(0.0);
     if (sDotN > 0.0) {
-        specularFactor = specularModel(F0, sDotH, sDotN, vDotN, n, h);
-        specularFactor *= normalDistribution(n, h, alpha);
+        D = D_GGX(n, h, alpha);
+        G = G_SmithGGX(sDotN, vDotN, alpha);
+        F = F_Schlick(F0, sDotH);
     }
-    vec3 specularColor = lights[lightIndex].color;
-    vec3 specular = specularColor * specularFactor;
+    vec3 specular = D * G * F;
 
     // Blend between diffuse and specular to conserver energy
-    vec3 color = lights[lightIndex].intensity *
-                 (specular + diffuse * (vec3(1.0) - specular));
+    // Use Fresnel term as the fraction of specular reflectance
+    vec3 radiance =
+        lights[lightIndex].intensity * lights[lightIndex].color * att;
+    vec3 irradiance = radiance * sDotN * (specular + diffuse * (vec3(1.0) - F));
 
-    return color;
+    return irradiance;
 }
 
 vec3 pbrIblModel(const in vec3 wNormal,
                  const in vec3 wView,
                  const in vec3 baseColor,
                  const in float metalness,
-                 const in float alpha)
+                 const in float alpha,
+                 const in vec3 F0)
 {
-    // Calculate reflection direction of view vector about surface normal
-    // vector in world space. This is used in the fragment shader to sample
-    // from the environment textures for a light source. This is equivalent
-    // to the l vector for punctual light sources. Armed with this, calculate
-    // the usual factors needed
     vec3 n = wNormal;
     vec3 l = reflect(-wView, n);
     vec3 v = wView;
-    vec3 h = normalize(l + v);
     float vDotN = dot(v, n);
-    float lDotN = dot(l, n);
-    float lDotH = dot(l, h);
 
-    // Calculate diffuse component
     vec3 diffuseColor = (1.0 - metalness) * baseColor;
-    vec3 diffuse = diffuseColor * texture(envLight.irradiance, l).rgb;
-
-    // Calculate specular component
-    vec3 dielectricColor = vec3(0.04);
-    vec3 F0 = mix(dielectricColor, baseColor, metalness);
-    vec3 specularFactor = specularModel(F0, lDotH, lDotN, vDotN, n, h);
+    vec3 diffuse = diffuseColor * texture(envLight.irradiance, n).rgb;
 
     float lod = alphaToMipLevel(alpha);
-
-    vec3 specularSkyColor = textureLod(envLight.specular, l, lod).rgb;
-    vec3 specular = specularSkyColor * specularFactor;
+    vec3 specularColor = textureLod(envLight.specular, l, lod).rgb;
+    vec2 envBRDF = texture(envLight.brdf, vec2(max(vDotN, 0.0), alpha)).rg;
+    vec3 F = F_SchlickRoughness(F0, vDotN, alpha);
+    vec3 specular = specularColor * (F * envBRDF.x + envBRDF.y);
 
     // Blend between diffuse and specular to conserve energy
-    vec3 iblColor = specular + diffuse * (vec3(1.0) - specularFactor);
+    // Use Fresnel term as the fraction of specular reflectance
+    vec3 irradiance =
+        envLight.intensity * (specular + diffuse * (vec3(1.0) - F));
 
-    return iblColor;
+    return irradiance;
 }
 
 vec3 toneMap(const in vec3 c)
@@ -245,11 +227,15 @@ vec3 shadeMetalRough(vec3 worldPosition, vec3 worldNormal, vec3 baseColor)
     // Remap roughness for a perceptually more linear correspondence
     float alpha = remapRoughness(roughness);
 
-    for (int i = 0; i < envLightCount; ++i) {
-        cLinear +=
-            pbrIblModel(worldNormal, worldView, baseColor, metalness, alpha);
-    }
+    // Approaximate F0 using dielectric and metalness
+    vec3 dielectricColor = vec3(0.04);
+    vec3 F0 = mix(dielectricColor, baseColor, metalness);
 
+    // Image-based lighting
+    cLinear +=
+        pbrIblModel(worldNormal, worldView, baseColor, metalness, alpha, F0);
+
+    // Punctual lighting
     for (int i = 0; i < lightCount; ++i) {
         cLinear += pbrModel(i,
                             worldPosition,
@@ -257,7 +243,8 @@ vec3 shadeMetalRough(vec3 worldPosition, vec3 worldNormal, vec3 baseColor)
                             worldView,
                             baseColor.rgb,
                             metalness,
-                            alpha);
+                            alpha,
+                            F0);
     }
 
     // Apply exposure correction
@@ -269,8 +256,5 @@ vec3 shadeMetalRough(vec3 worldPosition, vec3 worldNormal, vec3 baseColor)
     // Apply gamma correction prior to display
     vec3 cGamma = gammaCorrect(cToneMapped);
 
-    // Add ambient lighting
-    vec3 color = (1.0f - ambientness) * cGamma + ambientness * baseColor;
-
-    return color;
+    return cGamma;
 }

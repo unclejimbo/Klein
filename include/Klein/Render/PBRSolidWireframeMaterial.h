@@ -32,8 +32,6 @@ public:
 
     virtual ~PBRSolidWireframeMaterial() = default;
 
-    float ambientness() const { return m_ambientness->value().value<float>(); }
-
     QColor baseColor() const { return m_baseColor->value().value<int>(); }
 
     Qt3DRender::QTexture2D* baseColorMap() const
@@ -67,8 +65,6 @@ public:
     }
 
 public slots:
-    void setAmbientness(float value) { m_ambientness->setValue(value); }
-
     void setBaseColor(const QColor& value) { m_baseColor->setValue(value); }
 
     void setBaseColorMap(Qt3DRender::QTexture2D* value)
@@ -102,7 +98,6 @@ public slots:
 
 private:
     bool m_baseColorMapInitialized = false;
-    Qt3DRender::QParameter* m_ambientness;
     Qt3DRender::QParameter* m_baseColor;
     Qt3DRender::QParameter* m_baseColorMap;
     Qt3DRender::QParameter* m_colorMode;

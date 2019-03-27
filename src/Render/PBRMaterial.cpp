@@ -16,8 +16,6 @@ PBRMaterial::PBRMaterial(Qt3DCore::QNode* parent)
 PBRMaterial::PBRMaterial(ColorMode mode, Qt3DCore::QNode* parent)
     : Qt3DRender::QMaterial(parent)
 {
-    m_ambientness =
-        new Qt3DRender::QParameter(QStringLiteral("ambientness"), 0.0f, this);
     m_baseColor = new Qt3DRender::QParameter(
         QStringLiteral("baseColor"), QColor("white"), this);
     m_colorMode =
@@ -30,7 +28,6 @@ PBRMaterial::PBRMaterial(ColorMode mode, Qt3DCore::QNode* parent)
         QStringLiteral("texCoordOffset"), 0.0f, this);
     m_texCoordScale =
         new Qt3DRender::QParameter(QStringLiteral("texCoordScale"), 1.0f, this);
-    this->addParameter(m_ambientness);
     this->addParameter(m_baseColor);
     this->addParameter(m_colorMode);
     this->addParameter(m_metalness);

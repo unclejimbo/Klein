@@ -22,6 +22,7 @@ struct EnvironmentLight
 {
     samplerCube irradiance;
     samplerCube specular;
+    sampler2D brdf;
+    float intensity;
 };
 uniform EnvironmentLight envLight;
-uniform int envLightCount = 0;

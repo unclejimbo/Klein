@@ -17,8 +17,6 @@ PBRInstancedMaterial::PBRInstancedMaterial(bool useInstanceColor,
                                            Qt3DCore::QNode* parent)
     : Qt3DRender::QMaterial(parent)
 {
-    m_ambientness =
-        new Qt3DRender::QParameter(QStringLiteral("ambientness"), 0.0f, this);
     m_baseColor = new Qt3DRender::QParameter(
         QStringLiteral("baseColor"), QColor("white"), this);
     m_colorMode =
@@ -32,8 +30,7 @@ PBRInstancedMaterial::PBRInstancedMaterial(bool useInstanceColor,
     m_texCoordScale =
         new Qt3DRender::QParameter(QStringLiteral("texCoordScale"), 1.0f, this);
     m_useInstanceColor = new Qt3DRender::QParameter(
-        QStringLiteral("useInstanceColor"), false, this);
-    this->addParameter(m_ambientness);
+        QStringLiteral("useInstanceColor"), useInstanceColor, this);
     this->addParameter(m_baseColor);
     this->addParameter(m_colorMode);
     this->addParameter(m_metalness);
