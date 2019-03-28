@@ -189,14 +189,14 @@ vec3 pbrIblModel(const in vec3 wNormal,
     vec3 n = wNormal;
     vec3 l = reflect(-wView, n);
     vec3 v = wView;
-    float vDotN = dot(v, n);
+    float vDotN = max(dot(v, n), 0.0);
 
     vec3 diffuseColor = (1.0 - metalness) * baseColor;
     vec3 diffuse = diffuseColor * texture(envLight.irradiance, n).rgb;
 
     float lod = alphaToMipLevel(alpha);
     vec3 specularColor = textureLod(envLight.specular, l, lod).rgb;
-    vec2 envBRDF = texture(envLight.brdf, vec2(max(vDotN, 0.0), alpha)).rg;
+    vec2 envBRDF = texture(envLight.brdf, vec2(vDotN, alpha)).rg;
     vec3 F = F_SchlickRoughness(F0, vDotN, alpha);
     vec3 specular = specularColor * (F * envBRDF.x + envBRDF.y);
 
