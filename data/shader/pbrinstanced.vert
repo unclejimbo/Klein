@@ -23,7 +23,7 @@ void main()
 {
     mat4 modelMat = modelMatrix * instanceModel;
     mat4 modelView = viewMatrix * modelMat;
-    mat3 modelNormalMatrix = modelNormal(modelView);
+    mat3 modelNormalMatrix = modelNormal(modelMat);
     mat4 mvp = projectionMatrix * modelView;
     worldPosition = transformPosition(vertexPosition, modelMat);
     worldNormal = transformNormal(vertexNormal, modelNormalMatrix);

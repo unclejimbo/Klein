@@ -7,9 +7,9 @@ vec2 transformTexCoord(vec2 texCoord)
     return vec2(texCoordOffset, texCoordOffset) + texCoord * texCoordScale;
 }
 
-mat3 modelNormal(mat4 modelView)
+mat3 modelNormal(mat4 model)
 {
-    return transpose(inverse(mat3(modelView)));
+    return mat3(transpose(inverse(model)));
 }
 
 vec3 transformPosition(vec3 position, mat4 matrix)
