@@ -208,9 +208,15 @@ vec3 pbrIblModel(const in vec3 wNormal,
     return irradiance;
 }
 
-vec3 toneMap(const in vec3 c)
+vec3 toneMap_ACES(const in vec3 color)
 {
-    return c / (c + vec3(1.0));
+    // Filmic tone mapping curve
+    const float a = 2.51f;
+    const float b = 0.03f;
+    const float c = 2.43f;
+    const float d = 0.59f;
+    const float e = 0.14f;
+    return (color * (a * color + b)) / (color * (c * color + d) + e);
 }
 
 vec3 gammaCorrect(const in vec3 color)
@@ -251,7 +257,7 @@ vec3 shadeMetalRough(vec3 worldPosition, vec3 worldNormal, vec3 baseColor)
     cLinear *= pow(2.0, exposure);
 
     // Apply simple (Reinhard) tonemap transform to get into LDR range [0, 1]
-    vec3 cToneMapped = toneMap(cLinear);
+    vec3 cToneMapped = toneMap_ACES(cLinear);
 
     // Apply gamma correction prior to display
     vec3 cGamma = gammaCorrect(cToneMapped);
