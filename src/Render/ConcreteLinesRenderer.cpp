@@ -95,21 +95,12 @@ void ConcreteLinesRenderer::setPositions(const QVector<QVector3D>& positions,
     this->setInstanceCount(cnt);
 }
 
-void ConcreteLinesRenderer::setColors(const QVector<QColor>& colors,
-                                      LineType type)
+void ConcreteLinesRenderer::setColors(const QVector<QColor>& colors)
 {
     if (m_colorBuffer != nullptr) {
-        int cnt;
-        if (type == LINES) { cnt = colors.size() / 2; }
-        else if (type == LINE_STRIP) {
-            cnt = colors.size() - 1;
-        }
-        else if (type == LINE_LOOP) {
-            cnt = colors.size();
-        }
         auto bytes = createByteArray(colors.begin(), colors.end());
         m_colorBuffer->setData(bytes);
-        m_instanceColor->setCount(cnt);
+        m_instanceColor->setCount(colors.size());
     }
 }
 

@@ -48,7 +48,7 @@ public slots:
     void setPositions(const QVector<QVector3D>& positions,
                       LineType type = LINES);
 
-    void setColors(const QVector<QColor>& colors, LineType type = LINES);
+    void setColors(const QVector<QColor>& colors);
 
 private:
     Qt3DExtras::QCylinderGeometry* m_cylinder;
