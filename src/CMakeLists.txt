@@ -12,6 +12,7 @@ add_library(Klein
     # add headers for automoc to work
     ${PROJECT_SOURCE_DIR}/include/Klein/Gui/AbstractQt3DWindow.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Input/TrackballCameraController.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/BasePBRMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/BufferData.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/CheckerboardTextureImage.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ConcreteLinesRenderer.h
@@ -28,6 +29,7 @@ add_library(Klein
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Input/TrackballCameraController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/BasePBRMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/CheckerboardTextureImage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ConcreteLinesRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ConcretePointsRenderer.cpp

@@ -1,0 +1,106 @@
+#ifndef KLEIN_BASEPBRMATERIAL_H
+#define KLEIN_BASEPBRMATERIAL_H
+
+#include <Klein/Core/Export.h>
+
+#include <QColor>
+#include <QVariant>
+#include <Qt3DRender/QMaterial>
+#include <Qt3DRender/QParameter>
+#include <Qt3DRender/QTexture>
+
+namespace Klein
+{
+
+class KLEIN_API BasePBRMaterial : public Qt3DRender::QMaterial
+{
+    Q_OBJECT
+
+public:
+    enum ColorMode : int
+    {
+        BASECOLOR_MODE = 0,
+        TEXTURE_MODE,
+        VCOLOR_MODE
+    };
+
+public:
+    explicit BasePBRMaterial(Qt3DCore::QNode* parent = nullptr);
+
+    BasePBRMaterial(ColorMode mode, Qt3DCore::QNode* parent = nullptr);
+
+    virtual ~BasePBRMaterial() = default;
+
+    QColor baseColor() const { return m_baseColor->value().value<int>(); }
+
+    Qt3DRender::QTexture2D* baseColorMap() const
+    {
+        return m_baseColorMap->value().value<Qt3DRender::QTexture2D*>();
+    }
+
+    ColorMode colorMode() const
+    {
+        return m_colorMode->value().value<ColorMode>();
+    }
+
+    float metalness() const { return m_metalness->value().value<float>(); }
+
+    float roughness() const { return m_roughness->value().value<float>(); }
+
+    float shift() const { return m_shift->value().value<float>(); }
+
+    float texCoordOffset() const
+    {
+        return m_texCoordOffset->value().value<float>();
+    }
+
+    float texCoordScale() const
+    {
+        return m_texCoordScale->value().value<float>();
+    }
+
+public slots:
+    void setBaseColor(const QColor& value) { m_baseColor->setValue(value); }
+
+    void setBaseColorMap(Qt3DRender::QTexture2D* value)
+    {
+        if (!m_baseColorMapInitialized) {
+            m_baseColorMap = new Qt3DRender::QParameter(
+                QStringLiteral("baseColorMap"), value, this);
+            this->addParameter(m_baseColorMap);
+            m_baseColorMapInitialized = true;
+        }
+        else {
+            m_baseColorMap->setValue(QVariant::fromValue(value));
+        }
+    }
+
+    void setColorMode(ColorMode value) { m_colorMode->setValue(value); }
+
+    void setMetalness(float value) { m_metalness->setValue(value); }
+
+    void setRoughness(float value) { m_roughness->setValue(value); }
+
+    void setShift(float value) { m_shift->setValue(value); }
+
+    void setTexCoordOffset(float value) { m_texCoordOffset->setValue(value); }
+
+    void setTexCoordScale(float value) { m_texCoordScale->setValue(value); }
+
+protected:
+    bool m_baseColorMapInitialized = false;
+    Qt3DRender::QParameter* m_baseColor;
+    Qt3DRender::QParameter* m_baseColorMap;
+    Qt3DRender::QParameter* m_colorMode;
+    Qt3DRender::QParameter* m_metalness;
+    Qt3DRender::QParameter* m_roughness;
+    Qt3DRender::QParameter* m_shift;
+    Qt3DRender::QParameter* m_texCoordOffset;
+    Qt3DRender::QParameter* m_texCoordScale;
+};
+
+} // namespace Klein
+
+Q_DECLARE_METATYPE(Klein::BasePBRMaterial::ColorMode)
+
+#endif
