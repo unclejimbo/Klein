@@ -15,12 +15,12 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/BasePBRMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/BufferData.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/CheckerboardTextureImage.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/ColorRenderTarget.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ConcreteLinesRenderer.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ConcretePointsRenderer.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ForwardRenderingEffect.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/InstancedMeshRenderer.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/MeshGeometry.h
-    ${PROJECT_SOURCE_DIR}/include/Klein/Render/OffscreenRenderTarget.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/PBRMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/PBRInstancedMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/PBRSolidWireframeMaterial.h
@@ -31,12 +31,12 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Input/TrackballCameraController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/BasePBRMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/CheckerboardTextureImage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/ColorRenderTarget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ConcreteLinesRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ConcretePointsRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ForwardRenderingEffect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/InstancedMeshRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/MeshGeometry.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Render/OffscreenRenderTarget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRInstancedMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRSolidWireframeMaterial.cpp
