@@ -91,23 +91,23 @@ ResourceManager::get<Qt3DRender::QShaderProgram>(BuiltinResource bs)
         QString shaderPath("data/shader/");
         switch (bs) {
         case BUILTIN_SHADER_PBR:
-            shader = createShader(shaderPath + QStringLiteral("pbr.vert"),
-                                  shaderPath + QStringLiteral("pbr.frag"));
+            shader = createShader(shaderPath + QStringLiteral("PBR.vert"),
+                                  shaderPath + QStringLiteral("PBR.frag"));
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
         case BUILTIN_SHADER_PBRSOLIDWIREFRAME:
             shader = createShader(
-                shaderPath + QStringLiteral("pbrsolidwireframe.vert"),
-                shaderPath + QStringLiteral("pbrsolidwireframe.geom"),
-                shaderPath + QStringLiteral("pbrsolidwireframe.frag"));
+                shaderPath + QStringLiteral("PBRSolidWireframe.vert"),
+                shaderPath + QStringLiteral("PBRSolidWireframe.geom"),
+                shaderPath + QStringLiteral("PBRSolidWireframe.frag"));
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
         case BUILTIN_SHADER_PBRINSTANCED:
             shader =
-                createShader(shaderPath + QStringLiteral("pbrinstanced.vert"),
-                             shaderPath + QStringLiteral("pbr.frag"));
+                createShader(shaderPath + QStringLiteral("PBRInstanced.vert"),
+                             shaderPath + QStringLiteral("PBR.frag"));
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;

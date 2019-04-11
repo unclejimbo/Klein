@@ -20,26 +20,30 @@ uniform int colorMode = 0;
 uniform vec3 baseColor;
 uniform sampler2D baseColorMap;
 
-#pragma include light.inc.frag
-#pragma include pbr.inc.frag
-#pragma include pbrsolidwireframe.inc.frag
+#pragma include Light.inc.frag
+#pragma include PBR.inc.frag
+#pragma include SolidWireframe.inc.frag
 
 void main()
 {
+    SolidWireframeData data;
+    data.edgeA = fs_in.edgeA;
+    data.edgeB = fs_in.edgeB;
+    data.configuration = fs_in.configuration;
     if (colorMode == 0) {
         vec3 color =
             shadeMetalRough(fs_in.worldPosition, fs_in.worldNormal, baseColor);
-        fragColor = shadeLine(vec4(color, 1.0f));
+        fragColor = shadeLine(vec4(color, 1.0f), data);
     }
     else if (colorMode == 1) {
         vec3 baseColor = vec3(texture(baseColorMap, fs_in.texCoord));
         vec3 color =
             shadeMetalRough(fs_in.worldPosition, fs_in.worldNormal, baseColor);
-        fragColor = shadeLine(vec4(color, 1.0f));
+        fragColor = shadeLine(vec4(color, 1.0f), data);
     }
     else {
         vec3 color = shadeMetalRough(
             fs_in.worldPosition, fs_in.worldNormal, fs_in.color);
-        fragColor = shadeLine(vec4(color, 1.0f));
+        fragColor = shadeLine(vec4(color, 1.0f), data);
     }
 }

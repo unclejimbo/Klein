@@ -17,7 +17,7 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
-#pragma include common.inc.vert
+#pragma include Transform.inc.vert
 
 void main()
 {

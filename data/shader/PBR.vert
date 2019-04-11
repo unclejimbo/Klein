@@ -14,7 +14,7 @@ uniform mat4 modelMatrix;
 uniform mat3 modelNormalMatrix;
 uniform mat4 mvp;
 
-#pragma include common.inc.vert
+#pragma include Transform.inc.vert
 
 void main()
 {

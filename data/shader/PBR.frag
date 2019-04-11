@@ -11,8 +11,8 @@ uniform int colorMode = 0;
 uniform vec3 baseColor;
 uniform sampler2D baseColorMap;
 
-#pragma include light.inc.frag
-#pragma include pbr.inc.frag
+#pragma include Light.inc.frag
+#pragma include PBR.inc.frag
 
 void main()
 {
