@@ -24,10 +24,25 @@ public:
 
     virtual ~ColorRenderTarget() = default;
 
+    const Qt3DRender::QTexture2D* colorTexture() const
+    {
+        return m_colorTexture;
+    }
+
+    const Qt3DRender::QTexture2D* depthTexture() const
+    {
+        return m_depthTexture;
+    }
+
     QSize size() const { return m_size; }
 
 public slots:
-    void setSize(const QSize& size);
+    void setSize(const QSize& size)
+    {
+        m_size = size;
+        m_colorTexture->setSize(size.width(), size.height());
+        m_depthTexture->setSize(size.width(), size.height());
+    }
 
 private:
     QSize m_size;

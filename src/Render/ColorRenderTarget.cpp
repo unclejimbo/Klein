@@ -45,11 +45,4 @@ ColorRenderTarget::ColorRenderTarget(
     this->addOutput(m_depthOutput);
 }
 
-void ColorRenderTarget::setSize(const QSize& size)
-{
-    m_size = size;
-    m_colorTexture->setSize(size.width(), size.height());
-    m_depthTexture->setSize(size.width(), size.height());
-}
-
 } // namespace Klein

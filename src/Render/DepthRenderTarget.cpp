@@ -33,10 +33,4 @@ DepthRenderTarget::DepthRenderTarget(
     this->addOutput(m_depthOutput);
 }
 
-void DepthRenderTarget::setSize(const QSize& size)
-{
-    m_size = size;
-    m_depthTexture->setSize(size.width(), size.height());
-}
-
 } // namespace Klein
