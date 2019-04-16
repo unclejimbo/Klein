@@ -20,8 +20,10 @@ PBRSolidWireframeMaterial::PBRSolidWireframeMaterial(ColorMode mode,
         new Qt3DRender::QParameter(QStringLiteral("lineWidth"), 1.0f, this);
     this->addParameter(m_lineColor);
     this->addParameter(m_lineWidth);
-    this->setEffect(gResourceManager().get<Qt3DRender::QEffect>(
-        BUILTIN_EFFECT_PBRSOLIDWIREFRAME));
+    auto effect =
+        createEffect(gResourceManager().get<Qt3DRender::QShaderProgram>(
+            BUILTIN_SHADER_PBRSOLIDWIREFRAME));
+    this->setEffect(effect);
 }
 
 } // namespace Klein

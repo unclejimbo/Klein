@@ -18,8 +18,10 @@ PBRInstancedMaterial::PBRInstancedMaterial(bool useInstanceColor,
     m_useInstanceColor = new Qt3DRender::QParameter(
         QStringLiteral("useInstanceColor"), useInstanceColor, this);
     this->addParameter(m_useInstanceColor);
-    this->setEffect(gResourceManager().get<Qt3DRender::QEffect>(
-        BUILTIN_EFFECT_PBRINSTANCED));
+    auto effect =
+        createEffect(gResourceManager().get<Qt3DRender::QShaderProgram>(
+            BUILTIN_SHADER_PBRINSTANCED));
+    this->setEffect(effect);
 }
 
 } // namespace Klein

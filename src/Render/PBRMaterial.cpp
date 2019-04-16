@@ -12,8 +12,9 @@ PBRMaterial::PBRMaterial(Qt3DCore::QNode* parent)
 PBRMaterial::PBRMaterial(ColorMode mode, Qt3DCore::QNode* parent)
     : BasePBRMaterial(mode, parent)
 {
-    this->setEffect(
-        gResourceManager().get<Qt3DRender::QEffect>(BUILTIN_EFFECT_PBR));
+    auto effect = createEffect(
+        gResourceManager().get<Qt3DRender::QShaderProgram>(BUILTIN_SHADER_PBR));
+    this->setEffect(effect);
 }
 
 } // namespace Klein

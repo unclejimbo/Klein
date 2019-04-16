@@ -9,6 +9,13 @@
 #include <Qt3DRender/QParameter>
 #include <Qt3DRender/QTexture>
 
+namespace Qt3DRender
+{
+class QEfffect;
+class QFrameGraphNode;
+class QShaderProgram;
+} // namespace Qt3DRender
+
 namespace Klein
 {
 
@@ -33,14 +40,24 @@ public:
 
     QColor baseColor() const { return m_baseColor->value().value<int>(); }
 
-    Qt3DRender::QTexture2D* baseColorMap() const
+    const Qt3DRender::QAbstractTexture* baseColorMap() const
     {
-        return m_baseColorMap->value().value<Qt3DRender::QTexture2D*>();
+        return m_baseColorMap->value().value<Qt3DRender::QAbstractTexture*>();
     }
 
     ColorMode colorMode() const
     {
         return m_colorMode->value().value<ColorMode>();
+    }
+
+    const Qt3DRender::QAbstractTexture* envLightBrdf() const
+    {
+        return m_envLightBrdf->value().value<Qt3DRender::QAbstractTexture*>();
+    }
+
+    float envLightIntensity() const
+    {
+        return m_envLightIntensity->value().toFloat();
     }
 
     float metalness() const { return m_metalness->value().value<float>(); }
@@ -62,7 +79,7 @@ public:
 public slots:
     void setBaseColor(const QColor& value) { m_baseColor->setValue(value); }
 
-    void setBaseColorMap(Qt3DRender::QTexture2D* value)
+    void setBaseColorMap(Qt3DRender::QAbstractTexture* value)
     {
         if (!m_baseColorMapInitialized) {
             m_baseColorMap = new Qt3DRender::QParameter(
@@ -77,6 +94,24 @@ public slots:
 
     void setColorMode(ColorMode value) { m_colorMode->setValue(value); }
 
+    void setEnvLightBrdf(Qt3DRender::QAbstractTexture* value)
+    {
+        if (!m_envLightBrdfInitialized) {
+            m_envLightBrdf = new Qt3DRender::QParameter(
+                QStringLiteral("envLight.brdf"), value, this);
+            this->addParameter(m_envLightBrdf);
+            m_envLightBrdfInitialized = true;
+        }
+        else {
+            m_envLightBrdf->setValue(QVariant::fromValue(value));
+        }
+    }
+
+    void setEnvLightIntensity(float value)
+    {
+        m_envLightIntensity->setValue(value);
+    }
+
     void setMetalness(float value) { m_metalness->setValue(value); }
 
     void setRoughness(float value) { m_roughness->setValue(value); }
@@ -87,11 +122,22 @@ public slots:
 
     void setTexCoordScale(float value) { m_texCoordScale->setValue(value); }
 
+public:
+    static Qt3DRender::QFrameGraphNode* attachRenderPassTo(
+        Qt3DRender::QFrameGraphNode* parent);
+
+protected:
+    static Qt3DRender::QEffect* createEffect(
+        Qt3DRender::QShaderProgram* shader);
+
 protected:
     bool m_baseColorMapInitialized = false;
+    bool m_envLightBrdfInitialized = false;
     Qt3DRender::QParameter* m_baseColor;
     Qt3DRender::QParameter* m_baseColorMap;
     Qt3DRender::QParameter* m_colorMode;
+    Qt3DRender::QParameter* m_envLightBrdf;
+    Qt3DRender::QParameter* m_envLightIntensity;
     Qt3DRender::QParameter* m_metalness;
     Qt3DRender::QParameter* m_roughness;
     Qt3DRender::QParameter* m_shift;

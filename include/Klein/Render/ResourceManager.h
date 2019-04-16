@@ -2,13 +2,11 @@
 #define KLEIN_RESOURCEMANAGER_H
 
 #include <Klein/Core/Export.h>
-#include <Klein/Render/ForwardRenderingEffect.h>
 
 #include <QHash>
 #include <QString>
 #include <QUrl>
 #include <Qt3DCore/QEntity>
-#include <Qt3DRender/QEffect>
 #include <Qt3DRender/QShaderProgram>
 
 namespace Klein
@@ -19,9 +17,6 @@ enum BuiltinResource : int
     BUILTIN_SHADER_PBR,
     BUILTIN_SHADER_PBRSOLIDWIREFRAME,
     BUILTIN_SHADER_PBRINSTANCED,
-    BUILTIN_EFFECT_PBR,
-    BUILTIN_EFFECT_PBRSOLIDWIREFRAME,
-    BUILTIN_EFFECT_PBRINSTANCED
 };
 
 class KLEIN_API ResourceManager
@@ -118,49 +113,6 @@ ResourceManager::get<Qt3DRender::QShaderProgram>(BuiltinResource bs)
         shader = dynamic_cast<Qt3DRender::QShaderProgram*>(m_builtins[bs]);
     }
     return shader;
-}
-
-template<>
-inline Qt3DRender::QEffect* ResourceManager::get<Qt3DRender::QEffect>(
-    BuiltinResource bs)
-{
-    Qt3DRender::QEffect* effect = nullptr;
-    if (!m_builtins.contains(bs)) {
-        switch (bs) {
-        case BUILTIN_EFFECT_PBR:
-            effect = createForwardRenderingEffect(
-                gResourceManager().get<Qt3DRender::QShaderProgram>(
-                    BUILTIN_SHADER_PBR),
-                3,
-                3,
-                m_root);
-            m_builtins[bs] = effect;
-            break;
-        case BUILTIN_EFFECT_PBRSOLIDWIREFRAME:
-            effect = createForwardRenderingEffect(
-                gResourceManager().get<Qt3DRender::QShaderProgram>(
-                    BUILTIN_SHADER_PBRSOLIDWIREFRAME),
-                3,
-                3,
-                m_root);
-            m_builtins[bs] = effect;
-            break;
-        case BUILTIN_EFFECT_PBRINSTANCED:
-            effect = createForwardRenderingEffect(
-                gResourceManager().get<Qt3DRender::QShaderProgram>(
-                    BUILTIN_SHADER_PBRINSTANCED),
-                3,
-                3,
-                m_root);
-            m_builtins[bs] = effect;
-            break;
-        default: break;
-        }
-    }
-    else {
-        effect = dynamic_cast<Qt3DRender::QEffect*>(m_builtins[bs]);
-    }
-    return effect;
 }
 
 } // namespace Klein
