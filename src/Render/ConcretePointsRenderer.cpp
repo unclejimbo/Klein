@@ -33,6 +33,7 @@ ConcretePointsRenderer::ConcretePointsRenderer(RequiredBuffers requiredBuffers,
     m_instanceModel->setVertexBaseType(Qt3DRender::QAttribute::Float);
     m_instanceModel->setByteOffset(0);
     m_instanceModel->setByteStride(16 * sizeof(float));
+    m_instanceModel->setCount(0);
     m_sphere->addAttribute(m_instanceModel);
 
     m_colorBuffer = nullptr;
@@ -49,8 +50,11 @@ ConcretePointsRenderer::ConcretePointsRenderer(RequiredBuffers requiredBuffers,
         m_instanceColor->setVertexBaseType(Qt3DRender::QAttribute::Float);
         m_instanceColor->setByteOffset(0);
         m_instanceColor->setByteStride(3 * sizeof(float));
+        m_instanceColor->setCount(0);
         m_sphere->addAttribute(m_instanceColor);
     }
+
+    this->setInstanceCount(0);
 }
 
 void ConcretePointsRenderer::setPositions(const QVector<QVector3D>& positions)
