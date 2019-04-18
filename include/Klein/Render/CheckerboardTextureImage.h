@@ -18,8 +18,8 @@ class CheckerboardTextureImageDataGenerator
 public:
     QT3D_FUNCTOR(CheckerboardTextureImageDataGenerator)
 
-    CheckerboardTextureImageDataGenerator(unsigned size,
-                                          unsigned count,
+    CheckerboardTextureImageDataGenerator(int size,
+                                          int count,
                                           const QColor& color1,
                                           const QColor& color2)
         : m_size(size), m_count(count), m_colors({ color1, color2 })
@@ -33,8 +33,8 @@ public:
         const Qt3DRender::QTextureImageDataGenerator& other) const override;
 
 private:
-    unsigned m_size;
-    unsigned m_count;
+    int m_size;
+    int m_count;
     QVarLengthArray<QColor, 2> m_colors;
 };
 
@@ -51,13 +51,13 @@ public:
     virtual ~CheckerboardTextureImage() {}
 
 public slots:
-    void setSize(unsigned size)
+    void setSize(int size)
     {
         m_size = size;
         this->notifyDataGeneratorChanged();
     }
 
-    void setCount(unsigned count)
+    void setCount(int count)
     {
         m_count = count;
         this->notifyDataGeneratorChanged();
@@ -79,8 +79,8 @@ protected:
     }
 
 private:
-    unsigned m_size = 1000;
-    unsigned m_count = 10;
+    int m_size = 1000;
+    int m_count = 10;
     QVarLengthArray<QColor, 2> m_colors{ Qt::white, Qt::black };
 };
 

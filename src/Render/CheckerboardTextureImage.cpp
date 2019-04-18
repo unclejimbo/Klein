@@ -26,8 +26,8 @@ operator()()
     auto data = reinterpret_cast<uint8_t*>(bytes.data());
     auto gridSize = m_size / m_count;
     int offset = gridSize / 2; // symmetry on border
-    for (size_t i = 0; i < m_size; ++i) {
-        for (size_t j = 0; j < m_size; ++j) {
+    for (int i = 0; i < m_size; ++i) {
+        for (int j = 0; j < m_size; ++j) {
             int s = i - offset;
             int t = j - offset;
             s = s < 0 ? m_size + s : s;

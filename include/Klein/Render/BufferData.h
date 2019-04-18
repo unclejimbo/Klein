@@ -17,7 +17,7 @@ struct _CreateByteArray
     {
         using T = typename std::iterator_traits<RandomIt>::value_type;
         QByteArray bytes;
-        bytes.resize((last - first) * sizeof(T));
+        bytes.resize(static_cast<int>((last - first) * sizeof(T)));
         auto data = reinterpret_cast<T*>(bytes.data());
         std::copy(first, last, data);
         return bytes;
