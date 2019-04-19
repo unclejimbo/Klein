@@ -11,11 +11,13 @@ out vec3 worldPosition;
 out vec3 worldNormal;
 out vec2 texCoord;
 out vec3 vcolor;
+out vec4 lightSpacePosition;
 
 uniform bool useInstanceColor = false;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
+uniform mat4 lightSpaceMatrix;
 
 #pragma include Transform.inc.vert
 
@@ -33,4 +35,5 @@ void main()
     else {
         vcolor = vertexColor;
     }
+    lightSpacePosition = lightSpaceMatrix * vec4(worldPosition, 1.0);
 }

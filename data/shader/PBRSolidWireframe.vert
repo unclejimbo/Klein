@@ -11,12 +11,14 @@ out vec3 eyePosition;
 out vec3 eyeNormal;
 out vec2 texCoord;
 out vec3 vcolor;
+out vec4 lightSpacePosition;
 
 uniform mat4 modelMatrix;
 uniform mat3 modelNormalMatrix;
 uniform mat4 modelView;
 uniform mat3 modelViewNormal;
 uniform mat4 mvp;
+uniform mat4 lightSpaceMatrix;
 
 #pragma include Transform.inc.vert
 
@@ -29,5 +31,6 @@ void main()
     eyeNormal = transformNormal(vertexNormal, modelViewNormal);
     texCoord = transformTexCoord(vertexTexCoord);
     vcolor = vertexColor;
+    lightSpacePosition = lightSpaceMatrix * vec4(worldPosition, 1.0);
     gl_Position = glPosition(pos, mvp);
 }

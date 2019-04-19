@@ -1,11 +1,13 @@
 #include <Klein/Render/BasePBRMaterial.h>
 
+#include <Klein/Render/ResourceManager.h>
 #include <QString>
 #include <Qt3DRender/QDepthTest>
 #include <Qt3DRender/QEffect>
 #include <Qt3DRender/QFilterKey>
 #include <Qt3DRender/QGraphicsApiFilter>
 #include <Qt3DRender/QRenderPass>
+#include <Qt3DRender/QRenderPassFilter>
 #include <Qt3DRender/QRenderStateSet>
 #include <Qt3DRender/QShaderProgram>
 #include <Qt3DRender/QTechnique>
@@ -29,6 +31,8 @@ BasePBRMaterial::BasePBRMaterial(ColorMode mode, Qt3DCore::QNode* parent)
         QStringLiteral("envLight.intensity"), 0.0f, this);
     m_metalness =
         new Qt3DRender::QParameter(QStringLiteral("metalness"), 0.0f, this);
+    m_receiveShadow = new Qt3DRender::QParameter(
+        QStringLiteral("receiveShadow"), false, this);
     m_roughness =
         new Qt3DRender::QParameter(QStringLiteral("roughness"), 0.0f, this);
     m_shift = new Qt3DRender::QParameter(QStringLiteral("shift"), 0.0f, this);
@@ -40,6 +44,7 @@ BasePBRMaterial::BasePBRMaterial(ColorMode mode, Qt3DCore::QNode* parent)
     this->addParameter(m_colorMode);
     this->addParameter(m_envLightIntensity);
     this->addParameter(m_metalness);
+    this->addParameter(m_receiveShadow);
     this->addParameter(m_roughness);
     this->addParameter(m_shift);
     this->addParameter(m_texCoordOffset);
@@ -47,16 +52,58 @@ BasePBRMaterial::BasePBRMaterial(ColorMode mode, Qt3DCore::QNode* parent)
 }
 
 Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachRenderPassTo(
-    Qt3DRender::QFrameGraphNode* parent)
+    Qt3DRender::QFrameGraphNode* parent,
+    Qt3DRender::QAbstractTexture* shadowMap,
+    const QMatrix4x4& lightSpaceMatrix,
+    const QVector3D& lightDir)
 {
-    // render materials tagged "forward" (default)
     auto tfilter = new Qt3DRender::QTechniqueFilter(parent);
     auto tfilterkey = new Qt3DRender::QFilterKey;
     tfilterkey->setName(QLatin1String("renderingStyle"));
     tfilterkey->setValue(QLatin1String("forward"));
     tfilter->addMatch(tfilterkey);
 
-    auto renderStateSet = new Qt3DRender::QRenderStateSet(tfilter);
+    auto pfilter = new Qt3DRender::QRenderPassFilter(tfilter);
+    auto pfilterkey = new Qt3DRender::QFilterKey;
+    pfilterkey->setName(QLatin1String("renderPass"));
+    pfilterkey->setValue(QLatin1String("lighting"));
+    pfilter->addMatch(pfilterkey);
+    auto paramShadowMap = new Qt3DRender::QParameter(pfilter);
+    paramShadowMap->setName(QStringLiteral("shadowMap"));
+    paramShadowMap->setValue(QVariant::fromValue(shadowMap));
+    pfilter->addParameter(paramShadowMap);
+    auto paramLightSpaceMatrix = new Qt3DRender::QParameter(pfilter);
+    paramLightSpaceMatrix->setName(QStringLiteral("lightSpaceMatrix"));
+    paramLightSpaceMatrix->setValue(QVariant::fromValue(lightSpaceMatrix));
+    pfilter->addParameter(paramLightSpaceMatrix);
+    auto paramLightDir = new Qt3DRender::QParameter(pfilter);
+    paramLightDir->setName(QStringLiteral("lightDir"));
+    paramLightDir->setValue(QVariant::fromValue(lightDir));
+    pfilter->addParameter(paramLightDir);
+
+    auto renderStateSet = new Qt3DRender::QRenderStateSet(pfilter);
+    auto depthTest = new Qt3DRender::QDepthTest(renderStateSet);
+    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
+    renderStateSet->addRenderState(depthTest);
+    return renderStateSet;
+}
+
+Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachShadowPassTo(
+    Qt3DRender::QFrameGraphNode* parent)
+{
+    auto tfilter = new Qt3DRender::QTechniqueFilter(parent);
+    auto tfilterkey = new Qt3DRender::QFilterKey;
+    tfilterkey->setName(QLatin1String("renderingStyle"));
+    tfilterkey->setValue(QLatin1String("forward"));
+    tfilter->addMatch(tfilterkey);
+
+    auto pfilter = new Qt3DRender::QRenderPassFilter(tfilter);
+    auto pfilterkey = new Qt3DRender::QFilterKey;
+    pfilterkey->setName(QLatin1String("renderPass"));
+    pfilterkey->setValue(QLatin1String("shadow"));
+    pfilter->addMatch(pfilterkey);
+
+    auto renderStateSet = new Qt3DRender::QRenderStateSet(pfilter);
     auto depthTest = new Qt3DRender::QDepthTest(renderStateSet);
     depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
     renderStateSet->addRenderState(depthTest);
@@ -66,6 +113,17 @@ Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachRenderPassTo(
 Qt3DRender::QEffect* BasePBRMaterial::createEffect(
     Qt3DRender::QShaderProgram* shader)
 {
+    m_shadowPass = new Qt3DRender::QRenderPass;
+    m_shadowPass->setShaderProgram(
+        gResourceManager().get<Qt3DRender::QShaderProgram>(
+            BUILTIN_SHADER_SHADOWMAP));
+
+    auto shadowPassFK = new Qt3DRender::QFilterKey;
+    shadowPassFK->setName(QLatin1String("renderPass"));
+    shadowPassFK->setValue(QLatin1String("shadow"));
+    m_shadowPass->addFilterKey(shadowPassFK);
+    m_shadowPass->setEnabled(false);
+
     auto lightingPass = new Qt3DRender::QRenderPass;
     lightingPass->setShaderProgram(shader);
 
@@ -75,6 +133,7 @@ Qt3DRender::QEffect* BasePBRMaterial::createEffect(
     lightingPass->addFilterKey(lightingPassFK);
 
     auto technique = new Qt3DRender::QTechnique;
+    technique->addRenderPass(m_shadowPass);
     technique->addRenderPass(lightingPass);
     technique->graphicsApiFilter()->setApi(
         Qt3DRender::QGraphicsApiFilter::OpenGL);

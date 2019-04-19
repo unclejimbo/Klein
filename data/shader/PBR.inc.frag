@@ -224,7 +224,10 @@ vec3 gammaCorrect(const in vec3 color)
     return pow(color, vec3(1.0 / gamma));
 }
 
-vec3 shadeMetalRough(vec3 worldPosition, vec3 worldNormal, vec3 baseColor)
+vec3 shadeMetalRough(vec3 worldPosition,
+                     vec3 worldNormal,
+                     vec4 lightSpacePosition,
+                     vec3 baseColor)
 {
     vec3 cLinear = vec3(0.0);
 
@@ -243,7 +246,8 @@ vec3 shadeMetalRough(vec3 worldPosition, vec3 worldNormal, vec3 baseColor)
 
     // Punctual lighting
     for (int i = 0; i < lightCount; ++i) {
-        cLinear += pbrModel(i,
+        cLinear += (1.0 - shadowMapping_PCF(lightSpacePosition, worldNormal)) *
+                   pbrModel(i,
                             worldPosition,
                             worldNormal,
                             worldView,

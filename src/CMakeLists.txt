@@ -18,6 +18,7 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ColorRenderTarget.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ConcreteLinesRenderer.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ConcretePointsRenderer.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/DirectionalShadowCaster.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/InstancedMeshRenderer.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/MeshGeometry.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/PBRMaterial.h
@@ -33,6 +34,7 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ColorRenderTarget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ConcreteLinesRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ConcretePointsRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/DirectionalShadowCaster.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/InstancedMeshRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/MeshGeometry.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRMaterial.cpp

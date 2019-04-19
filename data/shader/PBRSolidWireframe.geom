@@ -9,6 +9,7 @@ in vec3 eyePosition[];
 in vec3 eyeNormal[];
 in vec2 texCoord[];
 in vec3 vcolor[];
+in vec4 lightSpacePosition[];
 
 out WireframeVertex
 {
@@ -18,6 +19,7 @@ out WireframeVertex
     vec3 normal;
     vec2 texCoord;
     vec3 color;
+    vec4 lightSpacePosition;
     noperspective vec4 edgeA;
     noperspective vec4 edgeB;
     flat int configuration;
@@ -39,6 +41,7 @@ void main()
         gs_out.position = eyePosition[i];
         gs_out.texCoord = texCoord[i];
         gs_out.color = vcolor[i];
+        gs_out.lightSpacePosition = lightSpacePosition[i];
         gs_out.worldPosition = worldPosition[i];
         gs_out.worldNormal = worldNormal[i];
         gl_Position = gl_in[i].gl_Position;

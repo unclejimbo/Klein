@@ -4,9 +4,12 @@
 #include <Klein/Core/Export.h>
 
 #include <QColor>
+#include <QMatrix4x4>
 #include <QVariant>
+#include <QVector3D>
 #include <Qt3DRender/QMaterial>
 #include <Qt3DRender/QParameter>
+#include <Qt3DRender/QRenderPass>
 #include <Qt3DRender/QTexture>
 
 namespace Qt3DRender
@@ -58,6 +61,13 @@ public:
     float envLightIntensity() const
     {
         return m_envLightIntensity->value().toFloat();
+    }
+
+    bool isShadowCastingEnabled() const { return m_shadowPass->isEnabled(); }
+
+    bool isShadowReceivingEnabled() const
+    {
+        return m_receiveShadow->value().value<bool>();
     }
 
     float metalness() const { return m_metalness->value().value<float>(); }
@@ -116,6 +126,16 @@ public slots:
 
     void setRoughness(float value) { m_roughness->setValue(value); }
 
+    void setShadowCastingEnabled(bool value)
+    {
+        m_shadowPass->setEnabled(value);
+    }
+
+    void setShadowReceivingEnabled(bool value)
+    {
+        m_receiveShadow->setValue(value);
+    }
+
     void setShift(float value) { m_shift->setValue(value); }
 
     void setTexCoordOffset(float value) { m_texCoordOffset->setValue(value); }
@@ -124,25 +144,33 @@ public slots:
 
 public:
     static Qt3DRender::QFrameGraphNode* attachRenderPassTo(
+        Qt3DRender::QFrameGraphNode* parent,
+        Qt3DRender::QAbstractTexture* shadowMap,
+        const QMatrix4x4& lightSpaceMatrix,
+        const QVector3D& lightDir);
+
+    static Qt3DRender::QFrameGraphNode* attachShadowPassTo(
         Qt3DRender::QFrameGraphNode* parent);
 
 protected:
-    static Qt3DRender::QEffect* createEffect(
-        Qt3DRender::QShaderProgram* shader);
+    Qt3DRender::QEffect* createEffect(Qt3DRender::QShaderProgram* shader);
 
 protected:
     bool m_baseColorMapInitialized = false;
     bool m_envLightBrdfInitialized = false;
+    bool m_shadowMapInitialized = false;
     Qt3DRender::QParameter* m_baseColor;
     Qt3DRender::QParameter* m_baseColorMap;
     Qt3DRender::QParameter* m_colorMode;
     Qt3DRender::QParameter* m_envLightBrdf;
     Qt3DRender::QParameter* m_envLightIntensity;
     Qt3DRender::QParameter* m_metalness;
+    Qt3DRender::QParameter* m_receiveShadow;
     Qt3DRender::QParameter* m_roughness;
     Qt3DRender::QParameter* m_shift;
     Qt3DRender::QParameter* m_texCoordOffset;
     Qt3DRender::QParameter* m_texCoordScale;
+    Qt3DRender::QRenderPass* m_shadowPass;
 };
 
 } // namespace Klein

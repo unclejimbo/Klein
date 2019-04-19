@@ -17,6 +17,7 @@ enum BuiltinResource : int
     BUILTIN_SHADER_PBR,
     BUILTIN_SHADER_PBRSOLIDWIREFRAME,
     BUILTIN_SHADER_PBRINSTANCED,
+    BUILTIN_SHADER_SHADOWMAP,
 };
 
 class KLEIN_API ResourceManager
@@ -103,6 +104,13 @@ ResourceManager::get<Qt3DRender::QShaderProgram>(BuiltinResource bs)
             shader =
                 createShader(shaderPath + QStringLiteral("PBRInstanced.vert"),
                              shaderPath + QStringLiteral("PBR.frag"));
+            shader->setParent(m_root);
+            m_builtins[bs] = shader;
+            break;
+        case BUILTIN_SHADER_SHADOWMAP:
+            shader = createShader(
+                shaderPath + QStringLiteral("ShadowMappingDepth.vert"),
+                shaderPath + QStringLiteral("ShadowMappingDepth.frag"));
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
