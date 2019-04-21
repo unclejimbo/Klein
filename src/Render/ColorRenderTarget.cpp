@@ -37,8 +37,6 @@ ColorRenderTarget::ColorRenderTarget(
         Qt3DRender::QAbstractTexture::Linear);
     m_depthTexture->setComparisonFunction(
         Qt3DRender::QAbstractTexture::CompareLessEqual);
-    m_depthTexture->setComparisonMode(
-        Qt3DRender::QAbstractTexture::CompareRefToTexture);
     m_depthOutput = new Qt3DRender::QRenderTargetOutput(this);
     m_depthOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Depth);
     m_depthOutput->setTexture(m_depthTexture);
