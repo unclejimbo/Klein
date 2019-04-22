@@ -2,7 +2,8 @@ const int MAX_LIGHTS = 8;
 const int TYPE_POINT = 0;
 const int TYPE_DIRECTIONAL = 1;
 const int TYPE_SPOT = 2;
-const int MAX_POISSON_SAMPLES = 64;
+const int NUM_POISSON_SAMPLES = 64;
+const int NUM_BLOCKER_SAMPLES = 16;
 const vec2 poissonDisk[64] = vec2[64](vec2(-0.04117257f, -0.1597612f),
                                       vec2(0.06731031f, -0.4353096f),
                                       vec2(-0.206701f, -0.4089882f),
@@ -94,6 +95,7 @@ uniform EnvironmentLight envLight;
 
 uniform sampler2D shadowMap;
 uniform vec3 lightDir;
+uniform float shadowFilterScale = 10.0;
 uniform bool receiveShadow;
 
 float rand(vec4 seed)
@@ -116,11 +118,10 @@ float slopeScaleBias(vec3 worldNormal)
 }
 
 // percentage closer filtering using poisson sampling
-float pcfPoisson(vec3 texCoord, float bias, vec2 filterSize)
+float pcfPoisson(vec3 texCoord, float bias, float filterSize)
 {
     // fragment depth minus a bias to avoid shadow acne
-    float fragDepth = texCoord.z;
-    fragDepth -= bias;
+    float fragDepth = texCoord.z - bias;
 
     // random rotation to sample poisson disk
     float theta = rand(vec4(texCoord.xy, gl_FragCoord.xy));
@@ -128,13 +129,48 @@ float pcfPoisson(vec3 texCoord, float bias, vec2 filterSize)
         mat2(vec2(cos(theta), sin(theta)), vec2(-sin(theta), cos(theta)));
 
     float shadow = 0.0;
-    for (int i = 0; i < MAX_POISSON_SAMPLES; ++i) {
+    for (int i = 0; i < NUM_POISSON_SAMPLES; ++i) {
         vec2 offset = (rotation * poissonDisk[i]) * filterSize;
         vec2 sample = texCoord.xy + offset;
-        float pcfDepth = texture(shadowMap, sample).r;
-        shadow += fragDepth > pcfDepth ? 1.0 : 0.0;
+        float depth = texture(shadowMap, sample).r;
+        shadow += fragDepth > depth ? 1.0 : 0.0;
     }
-    return shadow / MAX_POISSON_SAMPLES;
+    return shadow / NUM_POISSON_SAMPLES;
+}
+
+// pcss blocker distance estimation
+float blockerDistance(vec3 texCoord, float bias)
+{
+    // fragment depth minus a bias to avoid shadow acne
+    float fragDepth = texCoord.z - bias;
+
+    // random rotation to sample poisson disk
+    float theta = rand(vec4(texCoord.xy, gl_FragCoord.xy));
+    mat2 rotation =
+        mat2(vec2(cos(theta), sin(theta)), vec2(-sin(theta), cos(theta)));
+
+    int nBlockers = 0;
+    float dBlocker = 0.0;
+    float searchWidth = shadowFilterScale / textureSize(shadowMap, 0).x;
+    for (int i = 0; i < NUM_BLOCKER_SAMPLES; ++i) {
+        vec2 offset = (rotation * poissonDisk[i]) * searchWidth;
+        vec2 sample = texCoord.xy + offset;
+        float depth = texture(shadowMap, sample).r;
+        if (depth < fragDepth) {
+            dBlocker += depth;
+            ++nBlockers;
+        }
+    }
+    if (nBlockers > 0) { return dBlocker / nBlockers; }
+    else {
+        return -1.0;
+    }
+}
+
+float pcssEstimateFilterSize(float blockerDistance, float receiverDistance)
+{
+    float ratio = (receiverDistance - blockerDistance) / blockerDistance;
+    return ratio * shadowFilterScale / textureSize(shadowMap, 0).x;
 }
 
 float shadowMapping_PCF(vec4 lightSpacePosition, vec3 worldNormal)
@@ -145,7 +181,27 @@ float shadowMapping_PCF(vec4 lightSpacePosition, vec3 worldNormal)
     if (texCoord.z > 1.0) { return 1.0; }
 
     float bias = slopeScaleBias(worldNormal);
-    vec2 filterSize = 3.0 / textureSize(shadowMap, 0);
+
+    float filterSize = shadowFilterScale / textureSize(shadowMap, 0).x;
+
+    float shadow = pcfPoisson(texCoord, bias, filterSize);
+    return 1.0 - shadow;
+}
+
+float shadowMapping_PCSS(vec4 lightSpacePosition, vec3 worldNormal)
+{
+    if (!receiveShadow) { return 1.0; }
+
+    vec3 texCoord = shadowMapTexCoord(lightSpacePosition);
+    if (texCoord.z > 1.0) { return 1.0; }
+
+    float bias = slopeScaleBias(worldNormal);
+
+    float dBlocker = blockerDistance(texCoord, bias);
+    if (dBlocker == -1.0) { return 1.0; }
+
+    float filterSize = pcssEstimateFilterSize(dBlocker, texCoord.z);
+
     float shadow = pcfPoisson(texCoord, bias, filterSize);
     return 1.0 - shadow;
 }

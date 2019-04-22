@@ -55,7 +55,8 @@ Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachRenderPassTo(
     Qt3DRender::QFrameGraphNode* parent,
     Qt3DRender::QAbstractTexture* shadowMap,
     const QMatrix4x4& lightSpaceMatrix,
-    const QVector3D& lightDir)
+    const QVector3D& lightDir,
+    float shadowFilterScale)
 {
     auto tfilter = new Qt3DRender::QTechniqueFilter(parent);
     auto tfilterkey = new Qt3DRender::QFilterKey;
@@ -80,6 +81,10 @@ Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachRenderPassTo(
     paramLightDir->setName(QStringLiteral("lightDir"));
     paramLightDir->setValue(QVariant::fromValue(lightDir));
     pfilter->addParameter(paramLightDir);
+    auto paramShadowFilterScale = new Qt3DRender::QParameter(pfilter);
+    paramShadowFilterScale->setName(QStringLiteral("shadowFilterScale"));
+    paramShadowFilterScale->setValue(shadowFilterScale);
+    pfilter->addParameter(paramShadowFilterScale);
 
     auto renderStateSet = new Qt3DRender::QRenderStateSet(pfilter);
     auto depthTest = new Qt3DRender::QDepthTest(renderStateSet);

@@ -147,7 +147,8 @@ public:
         Qt3DRender::QFrameGraphNode* parent,
         Qt3DRender::QAbstractTexture* shadowMap,
         const QMatrix4x4& lightSpaceMatrix,
-        const QVector3D& lightDir);
+        const QVector3D& lightDir,
+        float shadowFilterScale);
 
     static Qt3DRender::QFrameGraphNode* attachShadowPassTo(
         Qt3DRender::QFrameGraphNode* parent);
