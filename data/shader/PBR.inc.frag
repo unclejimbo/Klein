@@ -246,7 +246,7 @@ vec3 shadeMetalRough(vec3 worldPosition,
 
     // Punctual lighting
     for (int i = 0; i < lightCount; ++i) {
-        cLinear += (1.0 - shadowMapping_PCF(lightSpacePosition, worldNormal)) *
+        cLinear += shadowMapping_PCF(lightSpacePosition, worldNormal) *
                    pbrModel(i,
                             worldPosition,
                             worldNormal,

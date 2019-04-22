@@ -102,36 +102,50 @@ float rand(vec4 seed)
     return fract(sin(d) * 43758.5453);
 }
 
+// convert light space position to texcoords
+vec3 shadowMapTexCoord(vec4 lightSpacePosition)
+{
+    vec3 texCoord = lightSpacePosition.xyz / lightSpacePosition.w;
+    return texCoord * 0.5 + 0.5;
+}
+
+// depth value depth based on slope angle
+float slopeScaleBias(vec3 worldNormal)
+{
+    return max(0.05 * (1.0 - dot(worldNormal, lightDir)), 0.005);
+}
+
+// percentage closer filtering using poisson sampling
+float pcfPoisson(vec3 texCoord, float bias, vec2 filterSize)
+{
+    // fragment depth minus a bias to avoid shadow acne
+    float fragDepth = texCoord.z;
+    fragDepth -= bias;
+
+    // random rotation to sample poisson disk
+    float theta = rand(vec4(texCoord.xy, gl_FragCoord.xy));
+    mat2 rotation =
+        mat2(vec2(cos(theta), sin(theta)), vec2(-sin(theta), cos(theta)));
+
+    float shadow = 0.0;
+    for (int i = 0; i < MAX_POISSON_SAMPLES; ++i) {
+        vec2 offset = (rotation * poissonDisk[i]) * filterSize;
+        vec2 sample = texCoord.xy + offset;
+        float pcfDepth = texture(shadowMap, sample).r;
+        shadow += fragDepth > pcfDepth ? 1.0 : 0.0;
+    }
+    return shadow / MAX_POISSON_SAMPLES;
+}
+
 float shadowMapping_PCF(vec4 lightSpacePosition, vec3 worldNormal)
 {
-    if (!receiveShadow) { return 0.0; }
-    else {
-        // convert to texcoords
-        vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.w;
-        projCoords = projCoords * 0.5 + 0.5;
+    if (!receiveShadow) { return 1.0; }
 
-        // fragment depth with bias to avoid artifacts
-        float fragDepth = projCoords.z;
-        float bias = max(0.05 * (1.0 - dot(worldNormal, lightDir)), 0.005);
-        fragDepth -= bias;
+    vec3 texCoord = shadowMapTexCoord(lightSpacePosition);
+    if (texCoord.z > 1.0) { return 1.0; }
 
-        // random rotation to sample poisson disk
-        float theta = rand(vec4(projCoords.xy, gl_FragCoord.xy));
-        mat2 rotation =
-            mat2(vec2(cos(theta), sin(theta)), vec2(-sin(theta), cos(theta)));
-
-        float shadow = 0.0;
-        vec2 filterSize = 3.0 / textureSize(shadowMap, 0);
-        for (int i = 0; i < MAX_POISSON_SAMPLES; ++i) {
-            vec2 offset = (rotation * poissonDisk[i]) * filterSize;
-            vec2 texCoords = projCoords.xy + offset;
-            float pcfDepth = texture(shadowMap, texCoords).r;
-            shadow += fragDepth > pcfDepth ? 1.0 : 0.0;
-        }
-        shadow /= MAX_POISSON_SAMPLES;
-
-        if (projCoords.z > 1.0) { shadow = 0.0; }
-
-        return shadow;
-    }
+    float bias = slopeScaleBias(worldNormal);
+    vec2 filterSize = 3.0 / textureSize(shadowMap, 0);
+    float shadow = pcfPoisson(texCoord, bias, filterSize);
+    return 1.0 - shadow;
 }
