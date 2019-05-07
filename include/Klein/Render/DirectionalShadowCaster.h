@@ -54,15 +54,15 @@ public slots:
                     float right,
                     float bottom,
                     float top,
-                    float near,
-                    float far)
+                    float nearplane,
+                    float farplane)
     {
         m_camera->setLeft(left);
         m_camera->setRight(right);
         m_camera->setBottom(bottom);
         m_camera->setTop(top);
-        m_camera->setNearPlane(near);
-        m_camera->setFarPlane(far);
+        m_camera->setNearPlane(nearplane);
+        m_camera->setFarPlane(farplane);
     }
 
     void setSize(const QSize& size)
