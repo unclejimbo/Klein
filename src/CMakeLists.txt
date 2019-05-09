@@ -1,12 +1,7 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt53DCore REQUIRED)
-find_package(Qt53DLogic REQUIRED)
-find_package(Qt53DRender REQUIRED)
-find_package(Qt53DExtras REQUIRED)
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets 3DCore 3DLogic 3DRender 3DExtras)
 
 add_library(Klein
     # add headers for automoc to work
