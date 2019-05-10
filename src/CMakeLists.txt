@@ -21,6 +21,7 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/PBRSolidWireframeMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ResourceManager.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/Transformation.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Util/RandomColorGenerator.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Input/TrackballCameraController.cpp
@@ -35,6 +36,7 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRInstancedMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRSolidWireframeMaterial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Util/RandomColorGenerator.cpp
 )
 add_library(Klein::Klein ALIAS Klein)
 
