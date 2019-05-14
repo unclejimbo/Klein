@@ -6,6 +6,7 @@ find_package(Qt5 REQUIRED COMPONENTS Core Widgets 3DCore 3DLogic 3DRender 3DExtr
 add_library(Klein
     # add headers for automoc to work
     ${PROJECT_SOURCE_DIR}/include/Klein/Gui/AbstractQt3DWindow.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Gui/ImGuiManager.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Input/TrackballCameraController.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/BasePBRMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/BufferData.h
@@ -24,6 +25,7 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Util/RandomColorGenerator.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ImGuiManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Input/TrackballCameraController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/BasePBRMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/CheckerboardTextureImage.cpp
@@ -37,6 +39,11 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRInstancedMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRSolidWireframeMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Util/RandomColorGenerator.cpp
+
+    ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui_demo.cpp
+    ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui_draw.cpp
+    ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui_widgets.cpp
+    ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui.cpp
 )
 add_library(Klein::Klein ALIAS Klein)
 
@@ -52,6 +59,7 @@ target_compile_features(Klein PUBLIC cxx_std_14)
 target_include_directories(Klein
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/external/imgui/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
