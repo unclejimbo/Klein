@@ -1,12 +1,7 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
-find_dependency(Qt5Core REQUIRED)
-find_dependency(Qt5Widgets REQUIRED)
-find_dependency(Qt53DCore REQUIRED)
-find_dependency(Qt53DLogic REQUIRED)
-find_dependency(Qt53DRender REQUIRED)
-find_dependency(Qt53DExtras REQUIRED)
+find_dependency(Qt5 REQUIRED COMPONENTS Core Widgets 3DCore 3DLogic 3DRender 3DExtras)
 
 if(NOT TARGET Klein::Klein)
     include(${CMAKE_CURRENT_LIST_DIR}/KleinTargets.cmake)
