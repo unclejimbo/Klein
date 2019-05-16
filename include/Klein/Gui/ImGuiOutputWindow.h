@@ -5,8 +5,8 @@
 
 #include <imgui.h>
 #include <QColor>
+#include <QList>
 #include <QObject>
-#include <QVector>
 
 namespace Klein
 {
@@ -22,6 +22,8 @@ public:
 
     bool isEnabled() const { return m_open; }
 
+    int maximumHistory() const { return m_maxHistory; }
+
 public slots:
     void setEnabled(bool value) { m_open = value; }
 
@@ -30,6 +32,10 @@ public slots:
         str.append("\n");
         m_strs.push_back(str);
         m_colors.push_back(ImGui::GetStyleColorVec4(ImGuiCol_Text));
+        if (m_strs.size() > m_maxHistory) {
+            m_strs.pop_front();
+            m_colors.pop_front();
+        }
     }
 
     void println(QString str, QColor color)
@@ -38,12 +44,26 @@ public slots:
         m_strs.push_back(str);
         m_colors.push_back(ImVec4(
             color.redF(), color.greenF(), color.blueF(), color.alphaF()));
+        if (m_strs.size() > m_maxHistory) {
+            m_strs.pop_front();
+            m_colors.pop_front();
+        }
     }
+
+    void clear()
+    {
+        m_strs.clear();
+        m_colors.clear();
+    }
+
+    void setMaximumHistory(int num) { m_maxHistory = num; }
 
 private:
     bool m_open = true;
-    QVector<QString> m_strs;
-    QVector<ImVec4> m_colors;
+    bool m_autoScroll = true;
+    int m_maxHistory = 1e5;
+    QList<QString> m_strs;
+    QList<ImVec4> m_colors;
 };
 
 class KLEIN_API ImGuiMessageHandler
