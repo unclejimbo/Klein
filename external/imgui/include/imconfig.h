@@ -28,7 +28,11 @@
 // Windows. #define IMGUI_API __declspec( dllexport ) #define IMGUI_API
 //__declspec( dllimport )
 #ifdef _MSC_VER
-#define IMGUI_API extern "C" __declspec(dllexport)
+#ifdef Klein_EXPORTS
+#define IMGUI_API __declspec(dllexport)
+#else
+#define IMGUI_API __declspec(dllimport)
+#endif
 #endif
 
 //---- Don't define obsolete functions/enums names. Consider enabling from time
