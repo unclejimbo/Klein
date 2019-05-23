@@ -59,15 +59,19 @@ Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachRenderPassTo(
     float shadowFilterScale)
 {
     auto tfilter = new Qt3DRender::QTechniqueFilter(parent);
-    auto tfilterkey = new Qt3DRender::QFilterKey;
-    tfilterkey->setName(QLatin1String("renderingStyle"));
-    tfilterkey->setValue(QLatin1String("forward"));
-    tfilter->addMatch(tfilterkey);
+    auto renderingStyle = new Qt3DRender::QFilterKey;
+    renderingStyle->setName(QStringLiteral("renderingStyle"));
+    renderingStyle->setValue(QStringLiteral("forward"));
+    tfilter->addMatch(renderingStyle);
+    auto transparency = new Qt3DRender::QFilterKey;
+    transparency->setName(QStringLiteral("transparency"));
+    transparency->setValue(QStringLiteral("opaque"));
+    tfilter->addMatch(transparency);
 
     auto pfilter = new Qt3DRender::QRenderPassFilter(tfilter);
     auto pfilterkey = new Qt3DRender::QFilterKey;
-    pfilterkey->setName(QLatin1String("renderPass"));
-    pfilterkey->setValue(QLatin1String("lighting"));
+    pfilterkey->setName(QStringLiteral("renderPass"));
+    pfilterkey->setValue(QStringLiteral("lighting"));
     pfilter->addMatch(pfilterkey);
     auto paramShadowMap = new Qt3DRender::QParameter(pfilter);
     paramShadowMap->setName(QStringLiteral("shadowMap"));
@@ -97,15 +101,19 @@ Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachShadowPassTo(
     Qt3DRender::QFrameGraphNode* parent)
 {
     auto tfilter = new Qt3DRender::QTechniqueFilter(parent);
-    auto tfilterkey = new Qt3DRender::QFilterKey;
-    tfilterkey->setName(QLatin1String("renderingStyle"));
-    tfilterkey->setValue(QLatin1String("forward"));
-    tfilter->addMatch(tfilterkey);
+    auto renderingStyle = new Qt3DRender::QFilterKey;
+    renderingStyle->setName(QStringLiteral("renderingStyle"));
+    renderingStyle->setValue(QStringLiteral("forward"));
+    tfilter->addMatch(renderingStyle);
+    auto transparency = new Qt3DRender::QFilterKey;
+    transparency->setName(QStringLiteral("transparency"));
+    transparency->setValue(QStringLiteral("opaque"));
+    tfilter->addMatch(transparency);
 
     auto pfilter = new Qt3DRender::QRenderPassFilter(tfilter);
     auto pfilterkey = new Qt3DRender::QFilterKey;
-    pfilterkey->setName(QLatin1String("renderPass"));
-    pfilterkey->setValue(QLatin1String("shadow"));
+    pfilterkey->setName(QStringLiteral("renderPass"));
+    pfilterkey->setValue(QStringLiteral("shadow"));
     pfilter->addMatch(pfilterkey);
 
     auto renderStateSet = new Qt3DRender::QRenderStateSet(pfilter);
@@ -124,8 +132,8 @@ Qt3DRender::QEffect* BasePBRMaterial::createEffect(
             BUILTIN_SHADER_SHADOWMAP));
 
     auto shadowPassFK = new Qt3DRender::QFilterKey;
-    shadowPassFK->setName(QLatin1String("renderPass"));
-    shadowPassFK->setValue(QLatin1String("shadow"));
+    shadowPassFK->setName(QStringLiteral("renderPass"));
+    shadowPassFK->setValue(QStringLiteral("shadow"));
     m_shadowPass->addFilterKey(shadowPassFK);
     m_shadowPass->setEnabled(false);
 
@@ -133,8 +141,8 @@ Qt3DRender::QEffect* BasePBRMaterial::createEffect(
     lightingPass->setShaderProgram(shader);
 
     auto lightingPassFK = new Qt3DRender::QFilterKey;
-    lightingPassFK->setName(QLatin1String("renderPass"));
-    lightingPassFK->setValue(QLatin1String("lighting"));
+    lightingPassFK->setName(QStringLiteral("renderPass"));
+    lightingPassFK->setValue(QStringLiteral("lighting"));
     lightingPass->addFilterKey(lightingPassFK);
 
     auto technique = new Qt3DRender::QTechnique;
@@ -147,10 +155,14 @@ Qt3DRender::QEffect* BasePBRMaterial::createEffect(
     technique->graphicsApiFilter()->setProfile(
         Qt3DRender::QGraphicsApiFilter::CoreProfile);
 
-    auto techniqueFK = new Qt3DRender::QFilterKey;
-    techniqueFK->setName(QLatin1String("renderingStyle"));
-    techniqueFK->setValue(QLatin1String("forward"));
-    technique->addFilterKey(techniqueFK);
+    auto renderingStyle = new Qt3DRender::QFilterKey;
+    renderingStyle->setName(QStringLiteral("renderingStyle"));
+    renderingStyle->setValue(QStringLiteral("forward"));
+    technique->addFilterKey(renderingStyle);
+    auto transparency = new Qt3DRender::QFilterKey;
+    transparency->setName(QStringLiteral("transparency"));
+    transparency->setValue(QStringLiteral("opaque"));
+    technique->addFilterKey(transparency);
 
     auto effect = new Qt3DRender::QEffect;
     effect->addTechnique(technique);
