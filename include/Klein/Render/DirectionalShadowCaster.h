@@ -7,9 +7,14 @@
 #include <QVector3D>
 #include <Qt3DCore/QNode>
 #include <Qt3DRender/QCamera>
-#include <Qt3DRender/QRenderTarget>
-#include <Qt3DRender/QRenderTargetOutput>
 #include <Qt3DRender/QTexture>
+
+namespace Qt3DRender
+{
+class QFrameGraphNode;
+class QRenderTarget;
+class QRenderTargetOutput;
+} // namespace Qt3DRender
 
 namespace Klein
 {
@@ -39,6 +44,8 @@ public:
     Qt3DRender::QTexture2D* shadowMap() { return m_depthTexture; }
 
     QSize size() const { return m_size; }
+
+    Qt3DRender::QFrameGraphNode* attachTo(Qt3DRender::QFrameGraphNode* parent);
 
 public slots:
     void lookAt(const QVector3D& position,
