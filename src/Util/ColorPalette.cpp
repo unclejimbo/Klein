@@ -7,10 +7,11 @@ namespace Klein
 
 ColorPalette::ColorPalette()
 {
-    m_palette = { "maroon", "brown",  "olive",    "teal", "navy",  "black",
-                  "red",    "orage",  "yellow",   "lime", "green", "cyan",
-                  "blue",   "purple", "megenta",  "grey", "pink",  "apricot",
-                  "beige",  "mint",   "lavender", "white" };
+    m_palette = {
+        "maroon", "brown", "olive",     "teal",  "navy", "red",      "orange",
+        "yellow", "lime",  "green",     "cyan",  "blue", "purple",   "magenta",
+        "grey",   "pink",  "peachpuff", "beige", "mint", "lavender",
+    };
 }
 
 ColorPalette::ColorPalette(int n,
