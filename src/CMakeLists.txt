@@ -10,6 +10,7 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Gui/ImGuiOutputWindow.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Input/TrackballCameraController.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/BasePBRMaterial.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/BaseUnlitMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/BufferData.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/CheckerboardTextureImage.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ColorRenderTarget.h
@@ -23,6 +24,9 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/PBRSolidWireframeMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/ResourceManager.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/Transformation.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/UnlitMaterial.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/UnlitInstancedMaterial.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/UnlitSolidWireframeMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Util/ColorPalette.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
@@ -30,6 +34,7 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ImGuiOutputWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Input/TrackballCameraController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/BasePBRMaterial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/BaseUnlitMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/CheckerboardTextureImage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ColorRenderTarget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/ConcreteLinesRenderer.cpp
@@ -40,6 +45,9 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRInstancedMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/PBRSolidWireframeMaterial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/UnlitMaterial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/UnlitInstancedMaterial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/UnlitSolidWireframeMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Util/ColorPalette.cpp
 
     ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui_demo.cpp

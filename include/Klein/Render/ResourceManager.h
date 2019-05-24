@@ -14,6 +14,9 @@ namespace Klein
 
 enum BuiltinResource : int
 {
+    BUILTIN_SHADER_UNLIT,
+    BUILTIN_SHADER_UNLIT_SOLIDWIREFRAME,
+    BUILTIN_SHADER_UNLIT_INSTANCED,
     BUILTIN_SHADER_PBR,
     BUILTIN_SHADER_PBR_SOLIDWIREFRAME,
     BUILTIN_SHADER_PBR_INSTANCED,
@@ -86,6 +89,27 @@ ResourceManager::get<Qt3DRender::QShaderProgram>(BuiltinResource bs)
     if (!m_builtins.contains(bs)) {
         QString shaderPath("data/shader/");
         switch (bs) {
+        case BUILTIN_SHADER_UNLIT:
+            shader = createShader(shaderPath + QStringLiteral("Shading.vert"),
+                                  shaderPath + QStringLiteral("Unlit.frag"));
+            shader->setParent(m_root);
+            m_builtins[bs] = shader;
+            break;
+        case BUILTIN_SHADER_UNLIT_SOLIDWIREFRAME:
+            shader = createShader(
+                shaderPath + QStringLiteral("ShadingSolidWireframe.vert"),
+                shaderPath + QStringLiteral("ShadingSolidWireframe.geom"),
+                shaderPath + QStringLiteral("UnlitSolidWireframe.frag"));
+            shader->setParent(m_root);
+            m_builtins[bs] = shader;
+            break;
+        case BUILTIN_SHADER_UNLIT_INSTANCED:
+            shader = createShader(shaderPath +
+                                      QStringLiteral("ShadingInstanced.vert"),
+                                  shaderPath + QStringLiteral("Unlit.frag"));
+            shader->setParent(m_root);
+            m_builtins[bs] = shader;
+            break;
         case BUILTIN_SHADER_PBR:
             shader = createShader(shaderPath + QStringLiteral("Shading.vert"),
                                   shaderPath + QStringLiteral("PBR.frag"));
