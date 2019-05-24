@@ -22,7 +22,7 @@ PBRSolidWireframeMaterial::PBRSolidWireframeMaterial(ColorMode mode,
     this->addParameter(m_lineWidth);
     auto effect =
         createEffect(gResourceManager().get<Qt3DRender::QShaderProgram>(
-            BUILTIN_SHADER_PBRSOLIDWIREFRAME));
+            BUILTIN_SHADER_PBR_SOLIDWIREFRAME));
     this->setEffect(effect);
 }
 

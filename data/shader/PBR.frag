@@ -17,20 +17,15 @@ uniform sampler2D baseColorMap;
 
 void main()
 {
-    if (colorMode == 0) {
-        vec3 color = shadeMetalRough(
-            worldPosition, worldNormal, lightSpacePosition, baseColor);
-        fragColor = vec4(color, 1.0f);
-    }
+    vec3 color;
+    if (colorMode == 0) { color = baseColor; }
     else if (colorMode == 1) {
-        vec3 baseColor = vec3(texture(baseColorMap, texCoord));
-        vec3 color = shadeMetalRough(
-            worldPosition, worldNormal, lightSpacePosition, baseColor);
-        fragColor = vec4(color, 1.0f);
+        color = vec3(texture(baseColorMap, texCoord));
     }
     else {
-        vec3 color = shadeMetalRough(
-            worldPosition, worldNormal, lightSpacePosition, vcolor);
-        fragColor = vec4(color, 1.0f);
+        color = vcolor;
     }
+    vec3 c =
+        shadeMetalRough(worldPosition, worldNormal, lightSpacePosition, color);
+    fragColor = vec4(c, 1.0f);
 }

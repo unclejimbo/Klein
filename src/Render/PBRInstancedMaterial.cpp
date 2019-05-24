@@ -20,7 +20,7 @@ PBRInstancedMaterial::PBRInstancedMaterial(bool useInstanceColor,
     this->addParameter(m_useInstanceColor);
     auto effect =
         createEffect(gResourceManager().get<Qt3DRender::QShaderProgram>(
-            BUILTIN_SHADER_PBRINSTANCED));
+            BUILTIN_SHADER_PBR_INSTANCED));
     this->setEffect(effect);
 }
 

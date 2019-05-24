@@ -31,26 +31,17 @@ void main()
     data.edgeA = fs_in.edgeA;
     data.edgeB = fs_in.edgeB;
     data.configuration = fs_in.configuration;
-    if (colorMode == 0) {
-        vec3 color = shadeMetalRough(fs_in.worldPosition,
-                                     fs_in.worldNormal,
-                                     fs_in.lightSpacePosition,
-                                     baseColor);
-        fragColor = shadeLine(vec4(color, 1.0f), data);
-    }
+    vec3 color;
+    if (colorMode == 0) { color = baseColor; }
     else if (colorMode == 1) {
-        vec3 baseColor = vec3(texture(baseColorMap, fs_in.texCoord));
-        vec3 color = shadeMetalRough(fs_in.worldPosition,
-                                     fs_in.worldNormal,
-                                     fs_in.lightSpacePosition,
-                                     baseColor);
-        fragColor = shadeLine(vec4(color, 1.0f), data);
+        color = vec3(texture(baseColorMap, fs_in.texCoord));
     }
     else {
-        vec3 color = shadeMetalRough(fs_in.worldPosition,
-                                     fs_in.worldNormal,
-                                     fs_in.lightSpacePosition,
-                                     fs_in.color);
-        fragColor = shadeLine(vec4(color, 1.0f), data);
+        color = fs_in.color;
     }
+    vec3 c = shadeMetalRough(fs_in.worldPosition,
+                             fs_in.worldNormal,
+                             fs_in.lightSpacePosition,
+                             color);
+    fragColor = shadeLine(vec4(c, 1.0f), data);
 }

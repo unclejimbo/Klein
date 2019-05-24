@@ -6,7 +6,6 @@
 #include <Qt3DRender/QEffect>
 #include <Qt3DRender/QFilterKey>
 #include <Qt3DRender/QGraphicsApiFilter>
-#include <Qt3DRender/QRenderPass>
 #include <Qt3DRender/QRenderPassFilter>
 #include <Qt3DRender/QRenderStateSet>
 #include <Qt3DRender/QShaderProgram>
@@ -129,7 +128,7 @@ Qt3DRender::QEffect* BasePBRMaterial::createEffect(
     m_shadowPass = new Qt3DRender::QRenderPass;
     m_shadowPass->setShaderProgram(
         gResourceManager().get<Qt3DRender::QShaderProgram>(
-            BUILTIN_SHADER_SHADOWMAP));
+            BUILTIN_SHADER_DEPTH));
 
     auto shadowPassFK = new Qt3DRender::QFilterKey;
     shadowPassFK->setName(QStringLiteral("renderPass"));

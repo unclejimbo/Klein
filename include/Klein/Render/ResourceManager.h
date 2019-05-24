@@ -15,9 +15,9 @@ namespace Klein
 enum BuiltinResource : int
 {
     BUILTIN_SHADER_PBR,
-    BUILTIN_SHADER_PBRSOLIDWIREFRAME,
-    BUILTIN_SHADER_PBRINSTANCED,
-    BUILTIN_SHADER_SHADOWMAP,
+    BUILTIN_SHADER_PBR_SOLIDWIREFRAME,
+    BUILTIN_SHADER_PBR_INSTANCED,
+    BUILTIN_SHADER_DEPTH,
 };
 
 class KLEIN_API ResourceManager
@@ -87,30 +87,29 @@ ResourceManager::get<Qt3DRender::QShaderProgram>(BuiltinResource bs)
         QString shaderPath("data/shader/");
         switch (bs) {
         case BUILTIN_SHADER_PBR:
-            shader = createShader(shaderPath + QStringLiteral("PBR.vert"),
+            shader = createShader(shaderPath + QStringLiteral("Shading.vert"),
                                   shaderPath + QStringLiteral("PBR.frag"));
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
-        case BUILTIN_SHADER_PBRSOLIDWIREFRAME:
+        case BUILTIN_SHADER_PBR_SOLIDWIREFRAME:
             shader = createShader(
-                shaderPath + QStringLiteral("PBRSolidWireframe.vert"),
-                shaderPath + QStringLiteral("PBRSolidWireframe.geom"),
+                shaderPath + QStringLiteral("ShadingSolidWireframe.vert"),
+                shaderPath + QStringLiteral("ShadingSolidWireframe.geom"),
                 shaderPath + QStringLiteral("PBRSolidWireframe.frag"));
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
-        case BUILTIN_SHADER_PBRINSTANCED:
-            shader =
-                createShader(shaderPath + QStringLiteral("PBRInstanced.vert"),
-                             shaderPath + QStringLiteral("PBR.frag"));
+        case BUILTIN_SHADER_PBR_INSTANCED:
+            shader = createShader(shaderPath +
+                                      QStringLiteral("ShadingInstanced.vert"),
+                                  shaderPath + QStringLiteral("PBR.frag"));
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
-        case BUILTIN_SHADER_SHADOWMAP:
-            shader = createShader(
-                shaderPath + QStringLiteral("ShadowMappingDepth.vert"),
-                shaderPath + QStringLiteral("ShadowMappingDepth.frag"));
+        case BUILTIN_SHADER_DEPTH:
+            shader = createShader(shaderPath + QStringLiteral("Depth.vert"),
+                                  shaderPath + QStringLiteral("Depth.frag"));
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
