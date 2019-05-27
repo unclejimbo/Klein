@@ -93,7 +93,7 @@ class KLEIN_API ImGuiManager : public QObject
     Q_OBJECT
 
 public:
-    typedef std::function<void()> FrameFunc;
+    typedef std::function<void(bool)> FrameFunc;
 
 public:
     explicit ImGuiManager(QObject* parent = nullptr);
@@ -187,6 +187,7 @@ private:
     ImGuiInputEventFilter* m_inputEventFilter = nullptr;
     bool m_inputInitialized = false;
     bool m_enabled = true;
+    bool m_captureInput = false;
     float m_scale = 1.0f;
     Qt3DCore::QEntity* m_rootEntity = nullptr;
     Qt3DRender::QCamera* m_camera = nullptr;

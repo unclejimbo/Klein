@@ -217,7 +217,7 @@ void ImGuiManager::initialize(Qt3DCore::QEntity* rootEntity)
             // stage, the Qt events have already been dispatched and processed.
 
             ImGui::NewFrame();
-            m_frame();
+            m_frame(m_captureInput);
             ImGui::Render();
 
             update3D();
@@ -667,6 +667,8 @@ void ImGuiManager::updateInput()
     if (!m_inputEventFilter) return;
 
     ImGuiIO& io = ImGui::GetIO();
+
+    m_captureInput = io.WantCaptureKeyboard || io.WantCaptureMouse;
 
     if (!m_inputInitialized) {
         m_inputInitialized = true;
