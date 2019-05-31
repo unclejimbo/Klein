@@ -1,6 +1,5 @@
 #version 330
 
-in vec3 worldPosition;
 in vec2 texCoord;
 in vec3 vcolor;
 
