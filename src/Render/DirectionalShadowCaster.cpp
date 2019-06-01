@@ -37,8 +37,6 @@ DirectionalShadowCaster::DirectionalShadowCaster(Qt3DCore::QNode* parent)
         Qt3DRender::QAbstractTexture::Nearest);
     m_depthTexture->setMagnificationFilter(
         Qt3DRender::QAbstractTexture::Nearest);
-    m_depthTexture->setComparisonFunction(
-        Qt3DRender::QAbstractTexture::CompareLess);
 
     m_depthOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Depth);
     m_depthOutput->setTexture(m_depthTexture);

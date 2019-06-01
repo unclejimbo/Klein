@@ -32,11 +32,10 @@ ColorRenderTarget::ColorRenderTarget(
     m_depthTexture->setSize(size.width(), size.height());
     m_depthTexture->setFormat(Qt3DRender::QAbstractTexture::DepthFormat);
     m_depthTexture->setGenerateMipMaps(false);
-    m_depthTexture->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    m_depthTexture->setMinificationFilter(
+        Qt3DRender::QAbstractTexture::Nearest);
     m_depthTexture->setMagnificationFilter(
-        Qt3DRender::QAbstractTexture::Linear);
-    m_depthTexture->setComparisonFunction(
-        Qt3DRender::QAbstractTexture::CompareLessEqual);
+        Qt3DRender::QAbstractTexture::Nearest);
     m_depthOutput = new Qt3DRender::QRenderTargetOutput(this);
     m_depthOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Depth);
     m_depthOutput->setTexture(m_depthTexture);

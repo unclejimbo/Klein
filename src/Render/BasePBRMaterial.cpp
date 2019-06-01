@@ -91,7 +91,7 @@ Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachRenderPassTo(
 
     auto renderStateSet = new Qt3DRender::QRenderStateSet(pfilter);
     auto depthTest = new Qt3DRender::QDepthTest(renderStateSet);
-    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
+    depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
     renderStateSet->addRenderState(depthTest);
     return renderStateSet;
 }
@@ -117,7 +117,7 @@ Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachShadowPassTo(
 
     auto renderStateSet = new Qt3DRender::QRenderStateSet(pfilter);
     auto depthTest = new Qt3DRender::QDepthTest(renderStateSet);
-    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
+    depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
     renderStateSet->addRenderState(depthTest);
     return renderStateSet;
 }
