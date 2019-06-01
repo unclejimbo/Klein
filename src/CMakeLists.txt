@@ -27,6 +27,7 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/UnlitMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/UnlitInstancedMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/UnlitSolidWireframeMaterial.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Render/WBOITMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Util/ColorPalette.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
@@ -48,6 +49,7 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/UnlitMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/UnlitInstancedMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/UnlitSolidWireframeMaterial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Render/WBOITMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Util/ColorPalette.cpp
 
     ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui_demo.cpp

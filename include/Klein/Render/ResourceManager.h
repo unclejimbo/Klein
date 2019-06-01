@@ -21,6 +21,8 @@ enum BuiltinResource : int
     BUILTIN_SHADER_PBR_SOLIDWIREFRAME,
     BUILTIN_SHADER_PBR_INSTANCED,
     BUILTIN_SHADER_DEPTH,
+    BUILTIN_SHADER_WBOIT_TRANSPARENT,
+    BUILTIN_SHADER_WBOIT_COMPOSITION,
 };
 
 class KLEIN_API ResourceManager
@@ -134,6 +136,20 @@ ResourceManager::get<Qt3DRender::QShaderProgram>(BuiltinResource bs)
         case BUILTIN_SHADER_DEPTH:
             shader = createShader(shaderPath + QStringLiteral("Depth.vert"),
                                   shaderPath + QStringLiteral("Depth.frag"));
+            shader->setParent(m_root);
+            m_builtins[bs] = shader;
+            break;
+        case BUILTIN_SHADER_WBOIT_TRANSPARENT:
+            shader = createShader(shaderPath + QStringLiteral("Shading.vert"),
+                                  shaderPath +
+                                      QStringLiteral("OITTransparent.frag"));
+            shader->setParent(m_root);
+            m_builtins[bs] = shader;
+            break;
+        case BUILTIN_SHADER_WBOIT_COMPOSITION:
+            shader = createShader(shaderPath + QStringLiteral("NoProj.vert"),
+                                  shaderPath +
+                                      QStringLiteral("OITComposition.frag"));
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
