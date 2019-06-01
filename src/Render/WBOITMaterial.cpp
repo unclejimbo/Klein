@@ -6,7 +6,6 @@
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QBlendEquation>
 #include <Qt3DRender/QBlendEquationArguments>
-#include <Qt3DRender/QBlitFramebuffer>
 #include <Qt3DRender/QClearBuffers>
 #include <Qt3DRender/QDepthTest>
 #include <Qt3DRender/QEffect>
