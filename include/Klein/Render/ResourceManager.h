@@ -142,14 +142,14 @@ ResourceManager::get<Qt3DRender::QShaderProgram>(BuiltinResource bs)
         case BUILTIN_SHADER_WBOIT_TRANSPARENT:
             shader = createShader(shaderPath + QStringLiteral("Shading.vert"),
                                   shaderPath +
-                                      QStringLiteral("OITTransparent.frag"));
+                                      QStringLiteral("WBOITTransparent.frag"));
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
         case BUILTIN_SHADER_WBOIT_COMPOSITION:
             shader = createShader(shaderPath + QStringLiteral("NoProj.vert"),
                                   shaderPath +
-                                      QStringLiteral("OITComposition.frag"));
+                                      QStringLiteral("WBOITComposition.frag"));
             shader->setParent(m_root);
             m_builtins[bs] = shader;
             break;
