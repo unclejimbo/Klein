@@ -8,9 +8,10 @@ namespace Klein
 ColorPalette::ColorPalette()
 {
     m_palette = {
-        "maroon", "brown", "olive",     "teal",  "navy", "red",      "orange",
-        "yellow", "lime",  "green",     "cyan",  "blue", "purple",   "magenta",
-        "grey",   "pink",  "peachpuff", "beige", "mint", "lavender",
+        "maroon", "chocolate", "olive",  "teal",    "navy",
+        "red",    "orange",    "yellow", "lime",    "green",
+        "cyan",   "blue",      "purple", "magenta", "grey",
+        "pink",   "peachpuff", "beige",  "mint",    "lavender",
     };
 }
 
