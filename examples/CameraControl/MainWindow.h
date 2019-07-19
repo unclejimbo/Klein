@@ -10,17 +10,16 @@ class QCamera;
 
 namespace Klein
 {
+class ImGuiManager;
 class TrackballCameraController;
-}
+} // namespace Klein
 
 class MainWindow : public Klein::AbstractQt3DWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWindow* parent = nullptr)
-        : Klein::AbstractQt3DWindow(parent)
-    {}
+    MainWindow(QWindow* parent = nullptr);
 
     virtual ~MainWindow() = default;
 
@@ -33,8 +32,12 @@ protected:
         Qt3DCore::QEntity* root) override;
 
 private:
+    void _renderGui();
+
+private:
     Qt3DRender::QCamera* m_camera = nullptr;
     Klein::TrackballCameraController* m_cameraController = nullptr;
+    Klein::ImGuiManager* m_imguiManager = nullptr;
 };
 
 #endif

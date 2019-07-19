@@ -1,5 +1,7 @@
 #include "MainWindow.h"
+#include <Klein/Gui/ImGuiManager.h>
 #include <Klein/Input/TrackballCameraController.h>
+#include <imgui.h>
 #include <QColor>
 #include <QVector3D>
 #include <Qt3DCore/QEntity>
@@ -15,12 +17,27 @@
 #include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DRender/QViewport>
 
+MainWindow::MainWindow(QWindow* parent) : Klein::AbstractQt3DWindow(parent)
+{
+    m_imguiManager = new Klein::ImGuiManager(this);
+    m_imguiManager->setInputEventSource(this);
+    auto draw = [this](bool wantInput) {
+        // If imgui want input, then disable the camera controller
+        m_cameraController->setEnabled(!wantInput);
+        _renderGui();
+    };
+    m_imguiManager->setFrameFunc(draw);
+}
+
 void MainWindow::resizeEvent(QResizeEvent*)
 {
     if (m_camera) {
         m_camera->setAspectRatio(this->width() / (float)this->height());
     }
     if (m_cameraController) { m_cameraController->setWindowSize(this->size()); }
+    if (m_imguiManager) {
+        m_imguiManager->resize(this->size(), this->devicePixelRatio());
+    }
 }
 
 Qt3DCore::QEntity* MainWindow::createSceneGraph()
@@ -53,6 +70,8 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
     m_cameraController->setCamera(m_camera);
     m_cameraController->setWindowSize(this->size());
 
+    m_imguiManager->initialize(rootEntity);
+
     return rootEntity;
 }
 
@@ -77,8 +96,29 @@ Qt3DRender::QRenderSettings* MainWindow::createRenderSettings(
     auto cameraSelctor = new Qt3DRender::QCameraSelector(viewport);
     cameraSelctor->setCamera(m_camera);
 
+    m_imguiManager->attachGuiPassTo(viewport);
+
     // Use this framegraph
     auto settings = new Qt3DRender::QRenderSettings(root);
     settings->setActiveFrameGraph(rootNode);
     return settings;
+}
+
+void MainWindow::_renderGui()
+{
+    ImVec2 pos(10.0f, 10.0f);
+    ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+    ImGui::SetNextWindowBgAlpha(0.3f);
+    if (ImGui::Begin(
+            "Tip",
+            nullptr,
+            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar |
+                ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize |
+                ImGuiWindowFlags_NoSavedSettings |
+                ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
+        ImGui::Text("Hold left mouse and drag to rotate");
+        ImGui::Text("Hold shift and drag to pan");
+        ImGui::Text("Scroll wheel to zoom");
+    }
+    ImGui::End();
 }
