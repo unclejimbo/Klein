@@ -1,2 +1,3 @@
 add_subdirectory(BasicWindow)
+add_subdirectory(CameraControl)
 add_subdirectory(ImGuiWindow)
