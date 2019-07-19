@@ -20,13 +20,15 @@ public:
     virtual ~MainWindow() = default;
 
 protected:
+    void resizeEvent(QResizeEvent*) override;
+
     Qt3DCore::QEntity* createSceneGraph() override;
 
     Qt3DRender::QRenderSettings* createRenderSettings(
         Qt3DCore::QEntity* root) override;
 
 private:
-    Qt3DRender::QCamera* m_camera;
+    Qt3DRender::QCamera* m_camera = nullptr;
 };
 
 #endif

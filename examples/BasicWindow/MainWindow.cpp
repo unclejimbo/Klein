@@ -14,6 +14,13 @@
 #include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DRender/QViewport>
 
+void MainWindow::resizeEvent(QResizeEvent*)
+{
+    if (m_camera) {
+        m_camera->setAspectRatio(this->width() / (float)this->height());
+    }
+}
+
 Qt3DCore::QEntity* MainWindow::createSceneGraph()
 {
     auto rootEntity = new Qt3DCore::QEntity;
