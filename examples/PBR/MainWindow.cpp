@@ -2,18 +2,16 @@
 #include <Klein/Gui/ImGuiManager.h>
 #include <Klein/Input/TrackballCameraController.h>
 #include <Klein/Render/PBRMaterial.h>
-#include <Klein/Render/PBRSolidWireframeMaterial.h>
 #include <imgui.h>
 #include <QColor>
 #include <QVector3D>
 #include <Qt3DCore/QEntity>
-#include <Qt3DExtras/QMetalRoughMaterial>
+#include <Qt3DCore/QTransform>
 #include <Qt3DExtras/QSkyboxEntity>
 #include <Qt3DExtras/QSphereMesh>
 #include <Qt3DRender/QCamera>
 #include <Qt3DRender/QCameraSelector>
 #include <Qt3DRender/QClearBuffers>
-#include <Qt3DRender/QDirectionalLight>
 #include <Qt3DRender/QEnvironmentLight>
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QMesh>
@@ -122,9 +120,33 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
     material->setEnvLightBrdf(brdfMap); // some ibl properties are set here
     material->setEnvLightIntensity(1.0f);
 
-    auto visual = new Qt3DCore::QEntity(rootEntity);
-    visual->addComponent(material);
-    visual->addComponent(mesh);
+    // The mesh entity
+    m_cerberus = new Qt3DCore::QEntity(rootEntity);
+    m_cerberus->addComponent(material);
+    m_cerberus->addComponent(mesh);
+
+    // This node acts as a parent with no visuals
+    m_spheres = new Qt3DCore::QEntity(rootEntity);
+    m_spheres->setEnabled(false);
+    for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < 10; ++j) {
+            auto sphere = new Qt3DCore::QEntity(m_spheres);
+            auto renderer = new Qt3DExtras::QSphereMesh(sphere);
+            auto material = new Klein::PBRMaterial(sphere);
+            material->setBaseColor(Qt::red);
+            material->setRoughness(i / 10.0f);
+            material->setMetalness(j / 10.0f);
+            material->setEnvLightBrdf(brdfMap);
+            material->setEnvLightIntensity(1.0f);
+            auto transform = new Qt3DCore::QTransform(sphere);
+            transform->setScale(0.04f);
+            transform->setTranslation(
+                QVector3D(0.0f, 0.5f - i / 10.0f, 0.5f - j / 10.0f));
+            sphere->addComponent(renderer);
+            sphere->addComponent(material);
+            sphere->addComponent(transform);
+        }
+    }
 
     // Add image-based lighting
     auto ibl = new Qt3DCore::QEntity(rootEntity);
@@ -140,7 +162,7 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
 
     // Set up a camera
     m_camera = new Qt3DRender::QCamera(rootEntity);
-    m_camera->setPosition(QVector3D(4.0f, 0.0f, 4.0f));
+    m_camera->setPosition(QVector3D(2.0f, 0.0f, 0.0f));
     m_camera->setViewCenter(QVector3D(0, 0, 0));
     auto aspect = (this->width() + 0.0f) / this->height();
     m_camera->lens()->setPerspectiveProjection(60.0f, aspect, 0.1f, 100.0f);
@@ -196,9 +218,17 @@ void MainWindow::_renderGui()
                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize |
                 ImGuiWindowFlags_NoSavedSettings |
                 ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
-        ImGui::Text("Hold left mouse and drag to rotate");
-        ImGui::Text("Hold shift and drag to pan");
-        ImGui::Text("Scroll wheel to zoom");
+        ImGui::Text("Scene: ");
+        ImGui::SameLine();
+        if (ImGui::RadioButton("cerberus", &m_activeScene, 0)) {
+            m_cerberus->setEnabled(true);
+            m_spheres->setEnabled(false);
+        }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("spheres", &m_activeScene, 1)) {
+            m_cerberus->setEnabled(false);
+            m_spheres->setEnabled(true);
+        }
     }
     ImGui::End();
 }

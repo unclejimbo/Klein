@@ -3,6 +3,11 @@
 
 #include <Klein/Gui/AbstractQt3DWindow.h>
 
+namespace Qt3DCore
+{
+class QEntity;
+}
+
 namespace Qt3DRender
 {
 class QCamera;
@@ -35,9 +40,12 @@ private:
     void _renderGui();
 
 private:
+    Qt3DCore::QEntity* m_cerberus = nullptr;
+    Qt3DCore::QEntity* m_spheres = nullptr;
     Qt3DRender::QCamera* m_camera = nullptr;
     Klein::TrackballCameraController* m_cameraController = nullptr;
     Klein::ImGuiManager* m_imguiManager = nullptr;
+    int m_activeScene = 0;
 };
 
 #endif
