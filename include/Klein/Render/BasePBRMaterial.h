@@ -68,12 +68,27 @@ public:
 
     float metalness() const { return m_metalness->value().value<float>(); }
 
+    const Qt3DRender::QAbstractTexture* metalnessMap() const
+    {
+        return m_metalnessMap->value().value<Qt3DRender::QAbstractTexture*>();
+    }
+
+    const Qt3DRender::QAbstractTexture* normalMap() const
+    {
+        return m_normalMap->value().value<Qt3DRender::QAbstractTexture*>();
+    }
+
     RenderMode renderMode() const
     {
         return m_renderMode->value().value<RenderMode>();
     }
 
     float roughness() const { return m_roughness->value().value<float>(); }
+
+    const Qt3DRender::QAbstractTexture* roughnessMap() const
+    {
+        return m_roughnessMap->value().value<Qt3DRender::QAbstractTexture*>();
+    }
 
     float shift() const { return m_shift->value().value<float>(); }
 
@@ -121,9 +136,45 @@ public slots:
 
     void setMetalness(float value) { m_metalness->setValue(value); }
 
+    void setMetalnessMap(Qt3DRender::QAbstractTexture* value)
+    {
+        if (!m_metalnessMap) {
+            m_metalnessMap = new Qt3DRender::QParameter(
+                QStringLiteral("metalnessMap"), value, this);
+            this->addParameter(m_metalnessMap);
+        }
+        else {
+            m_metalnessMap->setValue(QVariant::fromValue(value));
+        }
+    }
+
+    void setNormalMap(Qt3DRender::QAbstractTexture* value)
+    {
+        if (!m_normalMap) {
+            m_normalMap = new Qt3DRender::QParameter(
+                QStringLiteral("normalMap"), value, this);
+            this->addParameter(m_normalMap);
+        }
+        else {
+            m_normalMap->setValue(QVariant::fromValue(value));
+        }
+    }
+
     void setRenderMode(RenderMode value) { m_renderMode->setValue(value); }
 
     void setRoughness(float value) { m_roughness->setValue(value); }
+
+    void setRoughnessMap(Qt3DRender::QAbstractTexture* value)
+    {
+        if (!m_roughnessMap) {
+            m_roughnessMap = new Qt3DRender::QParameter(
+                QStringLiteral("roughnessMap"), value, this);
+            this->addParameter(m_roughnessMap);
+        }
+        else {
+            m_roughnessMap->setValue(QVariant::fromValue(value));
+        }
+    }
 
     void setShadowCastingEnabled(bool value)
     {
@@ -161,9 +212,12 @@ protected:
     Qt3DRender::QParameter* m_envLightBrdf = nullptr;
     Qt3DRender::QParameter* m_envLightIntensity = nullptr;
     Qt3DRender::QParameter* m_metalness = nullptr;
+    Qt3DRender::QParameter* m_metalnessMap = nullptr;
+    Qt3DRender::QParameter* m_normalMap = nullptr;
     Qt3DRender::QParameter* m_receiveShadow = nullptr;
     Qt3DRender::QParameter* m_renderMode = nullptr;
     Qt3DRender::QParameter* m_roughness = nullptr;
+    Qt3DRender::QParameter* m_roughnessMap = nullptr;
     Qt3DRender::QParameter* m_shift = nullptr;
     Qt3DRender::QParameter* m_texCoordOffset = nullptr;
     Qt3DRender::QParameter* m_texCoordScale = nullptr;

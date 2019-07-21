@@ -1,10 +1,6 @@
 // Qt 3D built in uniforms
 uniform vec3 eyePosition; // World space eye position
 
-// PBR Material
-uniform float roughness;
-uniform float metalness;
-
 // Exposure correction
 uniform float exposure = 0.0;
 
@@ -227,7 +223,9 @@ vec3 gammaCorrect(const in vec3 color)
 vec3 shadeMetalRough(vec3 worldPosition,
                      vec3 worldNormal,
                      vec4 lightSpacePosition,
-                     vec3 baseColor)
+                     vec3 baseColor,
+                     float roughness,
+                     float metalness)
 {
     vec3 cLinear = vec3(0.0);
 
