@@ -8,13 +8,7 @@ namespace Klein
 
 UnlitSolidWireframeMaterial::UnlitSolidWireframeMaterial(
     Qt3DCore::QNode* parent)
-    : UnlitSolidWireframeMaterial(BASECOLOR_MODE, parent)
-{}
-
-UnlitSolidWireframeMaterial::UnlitSolidWireframeMaterial(
-    ColorMode mode,
-    Qt3DCore::QNode* parent)
-    : BaseUnlitMaterial(mode, parent)
+    : BaseUnlitMaterial(parent)
 {
     m_lineColor = new Qt3DRender::QParameter(
         QStringLiteral("lineColor"), QColor("black"), this);

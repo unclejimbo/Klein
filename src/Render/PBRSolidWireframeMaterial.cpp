@@ -7,12 +7,7 @@ namespace Klein
 {
 
 PBRSolidWireframeMaterial::PBRSolidWireframeMaterial(Qt3DCore::QNode* parent)
-    : PBRSolidWireframeMaterial(BASECOLOR_MODE, parent)
-{}
-
-PBRSolidWireframeMaterial::PBRSolidWireframeMaterial(ColorMode mode,
-                                                     Qt3DCore::QNode* parent)
-    : BasePBRMaterial(mode, parent)
+    : BasePBRMaterial(parent)
 {
     m_lineColor = new Qt3DRender::QParameter(
         QStringLiteral("lineColor"), QColor("black"), this);

@@ -6,7 +6,7 @@ in vec3 vcolor;
 layout(location = 0) out vec4 accum;
 layout(location = 1) out float revealage;
 
-uniform int colorMode = 0;
+uniform int renderMode = 0;
 uniform vec3 baseColor;
 uniform sampler2D baseColorMap;
 uniform float depthScale = 200.0;
@@ -14,12 +14,14 @@ uniform float depthScale = 200.0;
 void main()
 {
     vec3 albedo;
-    if (colorMode == 0) { albedo = baseColor; }
-    else if (colorMode == 1) {
-        albedo = vec3(texture(baseColorMap, texCoord));
-    }
+    if ((renderMode & 0x1) == 0) { albedo = baseColor; }
     else {
-        albedo = vcolor;
+        if ((renderMode & 0x2) == 0) {
+            albedo = vec3(texture(baseColorMap, texCoord));
+        }
+        else {
+            albedo = vcolor;
+        }
     }
     vec4 color = vec4(albedo, 0.5);
 

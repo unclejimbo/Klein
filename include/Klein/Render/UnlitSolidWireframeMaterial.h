@@ -14,9 +14,6 @@ class KLEIN_API UnlitSolidWireframeMaterial : public BaseUnlitMaterial
 public:
     explicit UnlitSolidWireframeMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    UnlitSolidWireframeMaterial(ColorMode mode,
-                                Qt3DCore::QNode* parent = nullptr);
-
     virtual ~UnlitSolidWireframeMaterial() = default;
 
     QColor lineColor() const { return m_lineColor->value().value<QColor>(); }

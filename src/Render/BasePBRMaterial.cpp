@@ -16,20 +16,16 @@ namespace Klein
 {
 
 BasePBRMaterial::BasePBRMaterial(Qt3DCore::QNode* parent)
-    : BasePBRMaterial(BASECOLOR_MODE, parent)
-{}
-
-BasePBRMaterial::BasePBRMaterial(ColorMode mode, Qt3DCore::QNode* parent)
     : Qt3DRender::QMaterial(parent)
 {
     m_baseColor = new Qt3DRender::QParameter(
         QStringLiteral("baseColor"), QColor("white"), this);
-    m_colorMode =
-        new Qt3DRender::QParameter(QStringLiteral("colorMode"), mode, this);
     m_envLightIntensity = new Qt3DRender::QParameter(
         QStringLiteral("envLight.intensity"), 0.0f, this);
     m_metalness =
         new Qt3DRender::QParameter(QStringLiteral("metalness"), 0.0f, this);
+    m_renderMode = new Qt3DRender::QParameter(
+        QStringLiteral("renderMode"), RENDER_MODE_BASE_COLOR, this);
     m_receiveShadow = new Qt3DRender::QParameter(
         QStringLiteral("receiveShadow"), false, this);
     m_roughness =
@@ -40,10 +36,10 @@ BasePBRMaterial::BasePBRMaterial(ColorMode mode, Qt3DCore::QNode* parent)
     m_texCoordScale =
         new Qt3DRender::QParameter(QStringLiteral("texCoordScale"), 1.0f, this);
     this->addParameter(m_baseColor);
-    this->addParameter(m_colorMode);
     this->addParameter(m_envLightIntensity);
     this->addParameter(m_metalness);
     this->addParameter(m_receiveShadow);
+    this->addParameter(m_renderMode);
     this->addParameter(m_roughness);
     this->addParameter(m_shift);
     this->addParameter(m_texCoordOffset);

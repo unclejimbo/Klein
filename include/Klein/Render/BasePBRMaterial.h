@@ -27,17 +27,18 @@ class KLEIN_API BasePBRMaterial : public Qt3DRender::QMaterial
     Q_OBJECT
 
 public:
-    enum ColorMode : int
+    enum RenderModeBits : int
     {
-        BASECOLOR_MODE = 0,
-        TEXTURE_MODE,
-        VCOLOR_MODE
+        RENDER_MODE_BASE_COLOR = 0x0,
+        RENDER_MODE_TEXTURE = 0x1,
+        RENDER_MODE_VCOLOR = 0x3,
+        RENDER_MODE_NORMAL_MAP = 0x4,
+        RENDER_MODE_MATERIAL_MAP = 0x8
     };
+    using RenderMode = int;
 
 public:
     explicit BasePBRMaterial(Qt3DCore::QNode* parent = nullptr);
-
-    BasePBRMaterial(ColorMode mode, Qt3DCore::QNode* parent = nullptr);
 
     virtual ~BasePBRMaterial() = default;
 
@@ -46,11 +47,6 @@ public:
     const Qt3DRender::QAbstractTexture* baseColorMap() const
     {
         return m_baseColorMap->value().value<Qt3DRender::QAbstractTexture*>();
-    }
-
-    ColorMode colorMode() const
-    {
-        return m_colorMode->value().value<ColorMode>();
     }
 
     const Qt3DRender::QAbstractTexture* envLightBrdf() const
@@ -72,6 +68,11 @@ public:
 
     float metalness() const { return m_metalness->value().value<float>(); }
 
+    RenderMode renderMode() const
+    {
+        return m_renderMode->value().value<RenderMode>();
+    }
+
     float roughness() const { return m_roughness->value().value<float>(); }
 
     float shift() const { return m_shift->value().value<float>(); }
@@ -91,26 +92,22 @@ public slots:
 
     void setBaseColorMap(Qt3DRender::QAbstractTexture* value)
     {
-        if (!m_baseColorMapInitialized) {
+        if (!m_baseColorMap) {
             m_baseColorMap = new Qt3DRender::QParameter(
                 QStringLiteral("baseColorMap"), value, this);
             this->addParameter(m_baseColorMap);
-            m_baseColorMapInitialized = true;
         }
         else {
             m_baseColorMap->setValue(QVariant::fromValue(value));
         }
     }
 
-    void setColorMode(ColorMode value) { m_colorMode->setValue(value); }
-
     void setEnvLightBrdf(Qt3DRender::QAbstractTexture* value)
     {
-        if (!m_envLightBrdfInitialized) {
+        if (!m_envLightBrdf) {
             m_envLightBrdf = new Qt3DRender::QParameter(
                 QStringLiteral("envLight.brdf"), value, this);
             this->addParameter(m_envLightBrdf);
-            m_envLightBrdfInitialized = true;
         }
         else {
             m_envLightBrdf->setValue(QVariant::fromValue(value));
@@ -123,6 +120,8 @@ public slots:
     }
 
     void setMetalness(float value) { m_metalness->setValue(value); }
+
+    void setRenderMode(RenderMode value) { m_renderMode->setValue(value); }
 
     void setRoughness(float value) { m_roughness->setValue(value); }
 
@@ -157,25 +156,22 @@ protected:
     Qt3DRender::QEffect* createEffect(Qt3DRender::QShaderProgram* shader);
 
 protected:
-    bool m_baseColorMapInitialized = false;
-    bool m_envLightBrdfInitialized = false;
-    bool m_shadowMapInitialized = false;
-    Qt3DRender::QParameter* m_baseColor;
-    Qt3DRender::QParameter* m_baseColorMap;
-    Qt3DRender::QParameter* m_colorMode;
-    Qt3DRender::QParameter* m_envLightBrdf;
-    Qt3DRender::QParameter* m_envLightIntensity;
-    Qt3DRender::QParameter* m_metalness;
-    Qt3DRender::QParameter* m_receiveShadow;
-    Qt3DRender::QParameter* m_roughness;
-    Qt3DRender::QParameter* m_shift;
-    Qt3DRender::QParameter* m_texCoordOffset;
-    Qt3DRender::QParameter* m_texCoordScale;
-    Qt3DRender::QRenderPass* m_shadowPass;
+    Qt3DRender::QParameter* m_baseColor = nullptr;
+    Qt3DRender::QParameter* m_baseColorMap = nullptr;
+    Qt3DRender::QParameter* m_envLightBrdf = nullptr;
+    Qt3DRender::QParameter* m_envLightIntensity = nullptr;
+    Qt3DRender::QParameter* m_metalness = nullptr;
+    Qt3DRender::QParameter* m_receiveShadow = nullptr;
+    Qt3DRender::QParameter* m_renderMode = nullptr;
+    Qt3DRender::QParameter* m_roughness = nullptr;
+    Qt3DRender::QParameter* m_shift = nullptr;
+    Qt3DRender::QParameter* m_texCoordOffset = nullptr;
+    Qt3DRender::QParameter* m_texCoordScale = nullptr;
+    Qt3DRender::QRenderPass* m_shadowPass = nullptr;
 };
 
 } // namespace Klein
 
-Q_DECLARE_METATYPE(Klein::BasePBRMaterial::ColorMode)
+Q_DECLARE_METATYPE(Klein::BasePBRMaterial::RenderModeBits)
 
 #endif

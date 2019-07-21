@@ -14,8 +14,6 @@ class KLEIN_API PBRMaterial : public BasePBRMaterial
 public:
     explicit PBRMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    PBRMaterial(ColorMode mode, Qt3DCore::QNode* parent = nullptr);
-
     virtual ~PBRMaterial() = default;
 };
 

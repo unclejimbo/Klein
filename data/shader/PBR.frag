@@ -8,7 +8,7 @@ in vec4 lightSpacePosition;
 
 out vec4 fragColor;
 
-uniform int colorMode = 0;
+uniform int renderMode = 0;
 uniform vec3 baseColor;
 uniform sampler2D baseColorMap;
 
@@ -18,12 +18,14 @@ uniform sampler2D baseColorMap;
 void main()
 {
     vec3 color;
-    if (colorMode == 0) { color = baseColor; }
-    else if (colorMode == 1) {
-        color = vec3(texture(baseColorMap, texCoord));
-    }
+    if ((renderMode & 0x1) == 0) { color = baseColor; }
     else {
-        color = vcolor;
+        if ((renderMode & 0x2) == 0) {
+            color = vec3(texture(baseColorMap, texCoord));
+        }
+        else {
+            color = vcolor;
+        }
     }
     vec3 c =
         shadeMetalRough(worldPosition, worldNormal, lightSpacePosition, color);

@@ -14,9 +14,6 @@ class KLEIN_API PBRSolidWireframeMaterial : public BasePBRMaterial
 public:
     explicit PBRSolidWireframeMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    PBRSolidWireframeMaterial(ColorMode mode,
-                              Qt3DCore::QNode* parent = nullptr);
-
     virtual ~PBRSolidWireframeMaterial() = default;
 
     QColor lineColor() const { return m_lineColor->value().value<QColor>(); }

@@ -14,8 +14,6 @@ class KLEIN_API UnlitMaterial : public BaseUnlitMaterial
 public:
     explicit UnlitMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    UnlitMaterial(ColorMode mode, Qt3DCore::QNode* parent = nullptr);
-
     virtual ~UnlitMaterial() = default;
 };
 

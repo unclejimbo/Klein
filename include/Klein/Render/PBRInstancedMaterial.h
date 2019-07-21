@@ -15,7 +15,6 @@ public:
     explicit PBRInstancedMaterial(Qt3DCore::QNode* parent = nullptr);
 
     PBRInstancedMaterial(bool useInstanceColor,
-                         ColorMode mode,
                          Qt3DCore::QNode* parent = nullptr);
 
     virtual ~PBRInstancedMaterial() = default;
@@ -29,7 +28,13 @@ public slots:
     void setUseInstanceColor(bool value)
     {
         m_useInstanceColor->setValue(value);
-        if (value) { m_colorMode->setValue(VCOLOR_MODE); }
+        if (value) {
+            auto mask = m_renderMode->value().value<RenderMode>();
+            mask =
+                (mask & (RENDER_MODE_MATERIAL_MAP | RENDER_MODE_NORMAL_MAP)) |
+                RENDER_MODE_VCOLOR;
+            m_renderMode->setValue(mask);
+        }
     }
 
 private:

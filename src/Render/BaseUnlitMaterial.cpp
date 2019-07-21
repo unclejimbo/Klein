@@ -17,23 +17,19 @@ namespace Klein
 {
 
 BaseUnlitMaterial::BaseUnlitMaterial(Qt3DCore::QNode* parent)
-    : BaseUnlitMaterial(BASECOLOR_MODE, parent)
-{}
-
-BaseUnlitMaterial::BaseUnlitMaterial(ColorMode mode, Qt3DCore::QNode* parent)
     : Qt3DRender::QMaterial(parent)
 {
     m_baseColor = new Qt3DRender::QParameter(
         QStringLiteral("baseColor"), QColor("white"), this);
-    m_colorMode =
-        new Qt3DRender::QParameter(QStringLiteral("colorMode"), mode, this);
+    m_renderMode = new Qt3DRender::QParameter(
+        QStringLiteral("renderMode"), RENDER_MODE_BASE_COLOR, this);
     m_shift = new Qt3DRender::QParameter(QStringLiteral("shift"), 0.0f, this);
     m_texCoordOffset = new Qt3DRender::QParameter(
         QStringLiteral("texCoordOffset"), 0.0f, this);
     m_texCoordScale =
         new Qt3DRender::QParameter(QStringLiteral("texCoordScale"), 1.0f, this);
     this->addParameter(m_baseColor);
-    this->addParameter(m_colorMode);
+    this->addParameter(m_renderMode);
     this->addParameter(m_shift);
     this->addParameter(m_texCoordOffset);
     this->addParameter(m_texCoordScale);

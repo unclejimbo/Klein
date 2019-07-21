@@ -17,7 +17,7 @@ fs_in;
 
 out vec4 fragColor;
 
-uniform int colorMode = 0;
+uniform int renderMode = 0;
 uniform vec3 baseColor;
 uniform sampler2D baseColorMap;
 
@@ -32,12 +32,14 @@ void main()
     data.edgeB = fs_in.edgeB;
     data.configuration = fs_in.configuration;
     vec3 color;
-    if (colorMode == 0) { color = baseColor; }
-    else if (colorMode == 1) {
-        color = vec3(texture(baseColorMap, fs_in.texCoord));
-    }
+    if ((renderMode & 0x1) == 0) { color = baseColor; }
     else {
-        color = fs_in.color;
+        if ((renderMode & 0x2) == 0) {
+            color = vec3(texture(baseColorMap, fs_in.texCoord));
+        }
+        else {
+            color = fs_in.color;
+        }
     }
     vec3 c = shadeMetalRough(fs_in.worldPosition,
                              fs_in.worldNormal,

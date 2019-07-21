@@ -14,10 +14,6 @@ class KLEIN_API UnlitInstancedMaterial : public BaseUnlitMaterial
 public:
     explicit UnlitInstancedMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    UnlitInstancedMaterial(bool useInstanceColor,
-                           ColorMode mode,
-                           Qt3DCore::QNode* parent = nullptr);
-
     virtual ~UnlitInstancedMaterial() = default;
 
     bool useInstanceColor() const
@@ -29,7 +25,11 @@ public slots:
     void setUseInstanceColor(bool value)
     {
         m_useInstanceColor->setValue(value);
-        if (value) { m_colorMode->setValue(VCOLOR_MODE); }
+        if (value) {
+            auto mask = m_renderMode->value().value<RenderMode>();
+            mask = RENDER_MODE_VCOLOR;
+            m_renderMode->setValue(mask);
+        }
     }
 
 private:

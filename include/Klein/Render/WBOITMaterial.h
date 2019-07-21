@@ -69,18 +69,16 @@ class KLEIN_API WBOITMaterial : public Qt3DRender::QMaterial
     Q_OBJECT
 
 public:
-    enum ColorMode : int
+    enum RenderModeBits : int
     {
-        BASECOLOR_MODE = 0,
-        TEXTURE_MODE,
-        VCOLOR_MODE
+        RENDER_MODE_BASE_COLOR = 0x0,
+        RENDER_MODE_TEXTURE = 0x1,
+        RENDER_MODE_VCOLOR = 0x3
     };
+    using RenderMode = int;
 
 public:
     explicit WBOITMaterial(Qt3DCore::QNode* parent = nullptr);
-
-    WBOITMaterial(ColorMode mode, Qt3DCore::QNode* parent = nullptr);
-
     virtual ~WBOITMaterial() = default;
 
     QColor baseColor() const { return m_baseColor->value().value<int>(); }
@@ -90,12 +88,12 @@ public:
         return m_baseColorMap->value().value<Qt3DRender::QAbstractTexture*>();
     }
 
-    ColorMode colorMode() const
-    {
-        return m_colorMode->value().value<ColorMode>();
-    }
-
     float depthScale() const { return m_depthScale->value().value<float>(); }
+
+    RenderMode renderMode() const
+    {
+        return m_renderMode->value().value<RenderMode>();
+    }
 
     float texCoordOffset() const
     {
@@ -123,9 +121,9 @@ public slots:
         }
     }
 
-    void setColorMode(ColorMode value) { m_colorMode->setValue(value); }
-
     void setDepthScale(float value) { m_depthScale->setValue(value); }
+
+    void setRenderMode(RenderMode value) { m_renderMode->setValue(value); }
 
     void setTexCoordOffset(float value) { m_texCoordOffset->setValue(value); }
 
@@ -141,14 +139,14 @@ protected:
     bool m_shadowMapInitialized = false;
     Qt3DRender::QParameter* m_baseColor;
     Qt3DRender::QParameter* m_baseColorMap;
-    Qt3DRender::QParameter* m_colorMode;
     Qt3DRender::QParameter* m_depthScale;
+    Qt3DRender::QParameter* m_renderMode;
     Qt3DRender::QParameter* m_texCoordOffset;
     Qt3DRender::QParameter* m_texCoordScale;
 };
 
 } // namespace Klein
 
-Q_DECLARE_METATYPE(Klein::WBOITMaterial::ColorMode)
+Q_DECLARE_METATYPE(Klein::WBOITMaterial::RenderModeBits)
 
 #endif

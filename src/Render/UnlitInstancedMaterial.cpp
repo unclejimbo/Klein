@@ -7,16 +7,10 @@ namespace Klein
 {
 
 UnlitInstancedMaterial::UnlitInstancedMaterial(Qt3DCore::QNode* parent)
-    : UnlitInstancedMaterial(false, BASECOLOR_MODE, parent)
-{}
-
-UnlitInstancedMaterial::UnlitInstancedMaterial(bool useInstanceColor,
-                                               ColorMode mode,
-                                               Qt3DCore::QNode* parent)
-    : BaseUnlitMaterial(mode, parent)
+    : BaseUnlitMaterial(parent)
 {
     m_useInstanceColor = new Qt3DRender::QParameter(
-        QStringLiteral("useInstanceColor"), useInstanceColor, this);
+        QStringLiteral("useInstanceColor"), false, this);
     this->addParameter(m_useInstanceColor);
     auto effect =
         createEffect(gResourceManager().get<Qt3DRender::QShaderProgram>(
