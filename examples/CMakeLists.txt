@@ -2,6 +2,7 @@ add_subdirectory(BasicWindow)
 add_subdirectory(CameraControl)
 add_subdirectory(ImGuiWindow)
 add_subdirectory(PBR)
+add_subdirectory(ShadowMapping)
 
 ## copy data to build bin
 add_custom_target(Klein-examples-data ALL
