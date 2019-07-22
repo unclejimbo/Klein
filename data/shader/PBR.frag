@@ -40,13 +40,13 @@ void main()
     }
 
     float r;
-    if ((renderMode & 0xf) == 0) { r = roughness; }
+    if ((renderMode & 0x8) == 0) { r = roughness; }
     else {
         r = texture(roughnessMap, texCoord).x;
     }
 
     float m;
-    if ((renderMode & 0x8) == 0) { m = metalness; }
+    if ((renderMode & 0x10) == 0) { m = metalness; }
     else {
         m = texture(metalnessMap, texCoord).x;
     }

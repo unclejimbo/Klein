@@ -18,8 +18,13 @@ fs_in;
 out vec4 fragColor;
 
 uniform int renderMode = 0;
+uniform float roughness;
+uniform float metalness;
 uniform vec3 baseColor;
 uniform sampler2D baseColorMap;
+uniform sampler2D normalMap;
+uniform sampler2D roughnessMap;
+uniform sampler2D metalnessMap;
 
 #pragma include Light.inc.frag
 #pragma include PBR.inc.frag
@@ -46,19 +51,19 @@ void main()
     vec3 normal;
     if ((renderMode & 0x4) == 0) { normal = fs_in.worldNormal; }
     else {
-        normal = vec3(texture(normalMap, texCoord));
+        normal = vec3(texture(normalMap, fs_in.texCoord));
     }
 
     float r;
-    if ((renderMode & 0xf) == 0) { r = roughness; }
+    if ((renderMode & 0x8) == 0) { r = roughness; }
     else {
-        r = texture(roughnessMap, texCoord).x;
+        r = texture(roughnessMap, fs_in.texCoord).x;
     }
 
     float m;
-    if ((renderMode & 0x8) == 0) { m = metalness; }
+    if ((renderMode & 0x10) == 0) { m = metalness; }
     else {
-        m = texture(metalnessMap, texCoord).x;
+        m = texture(metalnessMap, fs_in.texCoord).x;
     }
 
     vec3 c = shadeMetalRough(fs_in.worldPosition,
