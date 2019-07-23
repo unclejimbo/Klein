@@ -21,25 +21,18 @@ class KLEIN_API MeshGeometry : public Qt3DRender::QGeometry
 public:
     enum RequiredBuffers
     {
-        BASIC,
-        WITH_TEXCOORD,
-        WITH_COLOR
+        BUFFERS_PN,  /**< Position, Normal. */
+        BUFFERS_PNT, /**< Position, Normal, TexCoord. */
+        BUFFERS_PNC  /**< Position, Normal, Color */
     };
 
 public:
-    MeshGeometry(RequiredBuffers requiredBuffers = BASIC,
+    MeshGeometry(RequiredBuffers requiredBuffers = BUFFERS_PN,
                  Qt3DCore::QNode* parent = nullptr);
 
     virtual ~MeshGeometry() = default;
 
 public slots:
-    void setBuffer(Qt3DRender::QBuffer* buffer,
-                   bool interleaved = true,
-                   uint count = 0,
-                   Qt3DRender::QAttribute::VertexBaseType dataType =
-                       Qt3DRender::QAttribute::Float,
-                   uint dataTypeSize = sizeof(float));
-
     void setCount(uint count);
 
     void setPositionBuffer(Qt3DRender::QBuffer* buffer,
@@ -71,10 +64,10 @@ public slots:
                             Qt3DRender::QAttribute::Float);
 
 protected:
-    Qt3DRender::QAttribute* m_positions;
-    Qt3DRender::QAttribute* m_normals;
-    Qt3DRender::QAttribute* m_texCoords;
-    Qt3DRender::QAttribute* m_colors;
+    Qt3DRender::QAttribute* m_positions = nullptr;
+    Qt3DRender::QAttribute* m_normals = nullptr;
+    Qt3DRender::QAttribute* m_texCoords = nullptr;
+    Qt3DRender::QAttribute* m_colors = nullptr;
 };
 
 } // namespace Klein
