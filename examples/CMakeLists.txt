@@ -3,6 +3,7 @@ add_subdirectory(CameraControl)
 add_subdirectory(ImGuiWindow)
 add_subdirectory(PBR)
 add_subdirectory(ShadowMapping)
+add_subdirectory(VertexColor)
 add_subdirectory(Wireframe)
 
 ## copy data to build bin
