@@ -25,6 +25,13 @@ ConcreteLinesRenderer::ConcreteLinesRenderer(RequiredBuffers requiredBuffers,
     this->setGeometry(m_cylinder);
 
     m_modelBuffer = new Qt3DRender::QBuffer(this);
+    m_modelBuffer->setUsage(Qt3DRender::QBuffer::StaticDraw);
+    m_modelBuffer->setAccessType(Qt3DRender::QBuffer::Write);
+    // FIXME: Empty data causes failure on Intel's Graphics cards
+    QByteArray dummy;
+    dummy.resize(1);
+    m_modelBuffer->setData(dummy);
+
     m_instanceModel = new Qt3DRender::QAttribute(this);
     m_instanceModel->setName(QStringLiteral("instanceModel"));
     m_instanceModel->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
@@ -37,10 +44,15 @@ ConcreteLinesRenderer::ConcreteLinesRenderer(RequiredBuffers requiredBuffers,
     m_instanceModel->setCount(0);
     m_cylinder->addAttribute(m_instanceModel);
 
-    m_colorBuffer = nullptr;
-    m_instanceColor = nullptr;
-    if (requiredBuffers == WITH_COLOR) {
+    if (requiredBuffers == BUFFERS_M) {
         m_colorBuffer = new Qt3DRender::QBuffer(this);
+        m_colorBuffer->setUsage(Qt3DRender::QBuffer::StaticDraw);
+        m_colorBuffer->setAccessType(Qt3DRender::QBuffer::Write);
+        // FIXME: Empty data causes failure on Intel's Graphics cards
+        QByteArray dummy;
+        dummy.resize(1);
+        m_colorBuffer->setData(dummy);
+
         m_instanceColor = new Qt3DRender::QAttribute(this);
         m_instanceColor->setName(QStringLiteral("instanceColor"));
         m_instanceColor->setAttributeType(
@@ -105,6 +117,11 @@ void ConcreteLinesRenderer::setColors(const QVector<QColor>& colors)
         auto bytes = createByteArray(colors.begin(), colors.end());
         m_colorBuffer->setData(bytes);
         m_instanceColor->setCount(colors.size());
+    }
+    else {
+        qWarning()
+            << "[Warning] ConcreteLinesRenderer::setColors called on an object "
+               "without color attribute.";
     }
 }
 

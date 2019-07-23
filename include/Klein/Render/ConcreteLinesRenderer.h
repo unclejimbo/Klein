@@ -25,8 +25,8 @@ class KLEIN_API ConcreteLinesRenderer : public Qt3DRender::QGeometryRenderer
 public:
     enum RequiredBuffers
     {
-        BASIC,
-        WITH_COLOR
+        BUFFERS_M,
+        BUFFERS_MC
     };
 
     enum LineType
@@ -37,7 +37,7 @@ public:
     };
 
 public:
-    ConcreteLinesRenderer(RequiredBuffers requiredBuffers = BASIC,
+    ConcreteLinesRenderer(RequiredBuffers requiredBuffers = BUFFERS_M,
                           Qt3DCore::QNode* parent = nullptr);
 
     virtual ~ConcreteLinesRenderer() = default;
@@ -51,11 +51,11 @@ public slots:
     void setColors(const QVector<QColor>& colors);
 
 private:
-    Qt3DExtras::QCylinderGeometry* m_cylinder;
-    Qt3DRender::QBuffer* m_modelBuffer;
-    Qt3DRender::QBuffer* m_colorBuffer;
-    Qt3DRender::QAttribute* m_instanceModel;
-    Qt3DRender::QAttribute* m_instanceColor;
+    Qt3DExtras::QCylinderGeometry* m_cylinder = nullptr;
+    Qt3DRender::QBuffer* m_modelBuffer = nullptr;
+    Qt3DRender::QBuffer* m_colorBuffer = nullptr;
+    Qt3DRender::QAttribute* m_instanceModel = nullptr;
+    Qt3DRender::QAttribute* m_instanceColor = nullptr;
 };
 
 } // namespace Klein

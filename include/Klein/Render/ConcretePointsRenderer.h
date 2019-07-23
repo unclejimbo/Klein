@@ -25,12 +25,12 @@ class KLEIN_API ConcretePointsRenderer : public Qt3DRender::QGeometryRenderer
 public:
     enum RequiredBuffers
     {
-        BASIC,
-        WITH_COLOR
+        BUFFERS_M, /**< Model. */
+        BUFFERS_MC /**< Model, Color. */
     };
 
 public:
-    ConcretePointsRenderer(RequiredBuffers requiredBuffers = BASIC,
+    ConcretePointsRenderer(RequiredBuffers requiredBuffers = BUFFERS_M,
                            Qt3DCore::QNode* parent = nullptr);
 
     virtual ~ConcretePointsRenderer() = default;
@@ -43,11 +43,11 @@ public slots:
     void setColors(const QVector<QColor>& colors);
 
 private:
-    Qt3DExtras::QSphereGeometry* m_sphere;
-    Qt3DRender::QBuffer* m_modelBuffer;
-    Qt3DRender::QBuffer* m_colorBuffer;
-    Qt3DRender::QAttribute* m_instanceModel;
-    Qt3DRender::QAttribute* m_instanceColor;
+    Qt3DExtras::QSphereGeometry* m_sphere = nullptr;
+    Qt3DRender::QBuffer* m_modelBuffer = nullptr;
+    Qt3DRender::QBuffer* m_colorBuffer = nullptr;
+    Qt3DRender::QAttribute* m_instanceModel = nullptr;
+    Qt3DRender::QAttribute* m_instanceColor = nullptr;
 };
 
 } // namespace Klein

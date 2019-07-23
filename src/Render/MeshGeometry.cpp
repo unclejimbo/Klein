@@ -92,8 +92,9 @@ void MeshGeometry::setTexCoordBuffer(
         m_texCoords->setByteStride(byteStride);
     }
     else {
-        qWarning() << "[Warning] Mesh::setTexCoordBuffer called on an object "
-                      "without texCoord attribute.";
+        qWarning()
+            << "[Warning] MeshGeometry::setTexCoordBuffer called on an object "
+               "without texCoord attribute.";
     }
 }
 
@@ -112,8 +113,9 @@ void MeshGeometry::setColorBuffer(
         m_colors->setByteStride(byteStride);
     }
     else {
-        qWarning() << "[Warning] Mesh::setColorBuffer called on an object "
-                      "without color attribute.";
+        qWarning()
+            << "[Warning] MeshGeometry::setColorBuffer called on an object "
+               "without color attribute.";
     }
 }
 
