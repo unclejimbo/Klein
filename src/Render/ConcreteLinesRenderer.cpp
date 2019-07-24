@@ -44,7 +44,7 @@ ConcreteLinesRenderer::ConcreteLinesRenderer(RequiredBuffers requiredBuffers,
     m_instanceModel->setCount(0);
     m_cylinder->addAttribute(m_instanceModel);
 
-    if (requiredBuffers == BUFFERS_M) {
+    if (requiredBuffers == BUFFERS_MC) {
         m_colorBuffer = new Qt3DRender::QBuffer(this);
         m_colorBuffer->setUsage(Qt3DRender::QBuffer::StaticDraw);
         m_colorBuffer->setAccessType(Qt3DRender::QBuffer::Write);
@@ -68,7 +68,7 @@ ConcreteLinesRenderer::ConcreteLinesRenderer(RequiredBuffers requiredBuffers,
     }
 
     this->setInstanceCount(0);
-}
+} // namespace Klein
 
 void ConcreteLinesRenderer::setPositions(const QVector<QVector3D>& positions,
                                          LineType type)
