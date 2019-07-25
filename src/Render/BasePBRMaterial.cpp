@@ -47,6 +47,32 @@ BasePBRMaterial::BasePBRMaterial(Qt3DCore::QNode* parent)
 }
 
 Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachRenderPassTo(
+    Qt3DRender::QFrameGraphNode* parent)
+{
+    auto tfilter = new Qt3DRender::QTechniqueFilter(parent);
+    auto renderingStyle = new Qt3DRender::QFilterKey;
+    renderingStyle->setName(QStringLiteral("renderingStyle"));
+    renderingStyle->setValue(QStringLiteral("forward"));
+    tfilter->addMatch(renderingStyle);
+    auto renderingTechnique = new Qt3DRender::QFilterKey;
+    renderingTechnique->setName(QStringLiteral("renderingTechnique"));
+    renderingTechnique->setValue(QStringLiteral("pbr"));
+    tfilter->addMatch(renderingTechnique);
+
+    auto pfilter = new Qt3DRender::QRenderPassFilter(tfilter);
+    auto pfilterkey = new Qt3DRender::QFilterKey;
+    pfilterkey->setName(QStringLiteral("renderPass"));
+    pfilterkey->setValue(QStringLiteral("lighting"));
+    pfilter->addMatch(pfilterkey);
+
+    auto renderStateSet = new Qt3DRender::QRenderStateSet(pfilter);
+    auto depthTest = new Qt3DRender::QDepthTest(renderStateSet);
+    depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
+    renderStateSet->addRenderState(depthTest);
+    return renderStateSet;
+}
+
+Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachRenderPassTo(
     Qt3DRender::QFrameGraphNode* parent,
     Qt3DRender::QAbstractTexture* shadowMap,
     const QMatrix4x4& lightSpaceMatrix,

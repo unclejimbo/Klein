@@ -194,6 +194,9 @@ public slots:
 
 public:
     static Qt3DRender::QFrameGraphNode* attachRenderPassTo(
+        Qt3DRender::QFrameGraphNode* parent);
+
+    static Qt3DRender::QFrameGraphNode* attachRenderPassTo(
         Qt3DRender::QFrameGraphNode* parent,
         Qt3DRender::QAbstractTexture* shadowMap,
         const QMatrix4x4& lightSpaceMatrix,
