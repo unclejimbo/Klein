@@ -128,7 +128,6 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
 Qt3DRender::QRenderSettings* MainWindow::createRenderSettings(
     Qt3DCore::QEntity* root)
 {
-    // Add a basic framegraph
     auto rootNode = new Qt3DRender::QFrameGraphNode(root);
 
     auto surfaceSelector = new Qt3DRender::QRenderSurfaceSelector(rootNode);
@@ -137,18 +136,27 @@ Qt3DRender::QRenderSettings* MainWindow::createRenderSettings(
     auto viewport = new Qt3DRender::QViewport(surfaceSelector);
     viewport->setNormalizedRect(QRect(0, 0, 1, 1));
 
-    auto clearBuffers = new Qt3DRender::QClearBuffers(viewport);
-    clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
-    clearBuffers->setClearColor(QColor(255, 255, 255));
+    // Clear buffers
+    {
+        auto clearBuffers = new Qt3DRender::QClearBuffers(viewport);
+        clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
+        clearBuffers->setClearColor(QColor(255, 255, 255));
+        new Qt3DRender::QNoDraw(clearBuffers);
+    }
 
-    new Qt3DRender::QNoDraw(clearBuffers);
+    // Forward pass
+    {
+        auto cameraSelctor = new Qt3DRender::QCameraSelector(viewport);
+        cameraSelctor->setCamera(m_camera);
 
-    auto cameraSelctor = new Qt3DRender::QCameraSelector(viewport);
-    cameraSelctor->setCamera(m_camera);
+        Klein::BasePBRMaterial::attachRenderPassTo(cameraSelctor);
+    }
 
-    m_imguiManager->attachGuiPassTo(viewport);
+    // Gui pass
+    {
+        m_imguiManager->attachGuiPassTo(viewport);
+    }
 
-    // Use this framegraph
     auto settings = new Qt3DRender::QRenderSettings(root);
     settings->setActiveFrameGraph(rootNode);
     return settings;

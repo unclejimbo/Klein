@@ -14,6 +14,8 @@
 #include <Qt3DRender/QClearBuffers>
 #include <Qt3DRender/QEnvironmentLight>
 #include <Qt3DRender/QFrameGraphNode>
+#include <Qt3DRender/QLayer>
+#include <Qt3DRender/QLayerFilter>
 #include <Qt3DRender/QMesh>
 #include <Qt3DRender/QNoDraw>
 #include <Qt3DRender/QRenderSettings>
@@ -159,6 +161,8 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
     auto skybox = new Qt3DExtras::QSkyboxEntity(rootEntity);
     skybox->setBaseName(QStringLiteral("file:./data/envmap/outdoorEnvHDR"));
     skybox->setExtension(QStringLiteral(".dds"));
+    m_skyboxLayer = new Qt3DRender::QLayer(skybox);
+    skybox->addComponent(m_skyboxLayer);
 
     // Set up a camera
     m_camera = new Qt3DRender::QCamera(rootEntity);
@@ -180,7 +184,6 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
 Qt3DRender::QRenderSettings* MainWindow::createRenderSettings(
     Qt3DCore::QEntity* root)
 {
-    // Add a basic framegraph
     auto rootNode = new Qt3DRender::QFrameGraphNode(root);
 
     auto surfaceSelector = new Qt3DRender::QRenderSurfaceSelector(rootNode);
@@ -189,18 +192,36 @@ Qt3DRender::QRenderSettings* MainWindow::createRenderSettings(
     auto viewport = new Qt3DRender::QViewport(surfaceSelector);
     viewport->setNormalizedRect(QRect(0, 0, 1, 1));
 
-    auto clearBuffers = new Qt3DRender::QClearBuffers(viewport);
-    clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
-    clearBuffers->setClearColor(QColor(255, 255, 255));
+    // Clear buffers
+    {
+        auto clearBuffers = new Qt3DRender::QClearBuffers(viewport);
+        clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
+        clearBuffers->setClearColor(QColor(255, 255, 255));
+        new Qt3DRender::QNoDraw(clearBuffers);
+    }
 
-    new Qt3DRender::QNoDraw(clearBuffers);
+    // Forward pass
+    {
+        auto cameraSelctor = new Qt3DRender::QCameraSelector(viewport);
+        cameraSelctor->setCamera(m_camera);
 
-    auto cameraSelctor = new Qt3DRender::QCameraSelector(viewport);
-    cameraSelctor->setCamera(m_camera);
+        // PBR materials
+        {
+            Klein::BasePBRMaterial::attachRenderPassTo(cameraSelctor);
+        }
 
-    m_imguiManager->attachGuiPassTo(viewport);
+        // Skybox
+        {
+            auto layerFilter = new Qt3DRender::QLayerFilter(cameraSelctor);
+            layerFilter->addLayer(m_skyboxLayer);
+        }
+    }
 
-    // Use this framegraph
+    // Gui pass
+    {
+        m_imguiManager->attachGuiPassTo(viewport);
+    }
+
     auto settings = new Qt3DRender::QRenderSettings(root);
     settings->setActiveFrameGraph(rootNode);
     return settings;

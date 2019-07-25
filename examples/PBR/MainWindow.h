@@ -11,7 +11,8 @@ class QEntity;
 namespace Qt3DRender
 {
 class QCamera;
-}
+class QLayer;
+} // namespace Qt3DRender
 
 namespace Klein
 {
@@ -42,6 +43,7 @@ private:
 private:
     Qt3DCore::QEntity* m_cerberus = nullptr;
     Qt3DCore::QEntity* m_spheres = nullptr;
+    Qt3DRender::QLayer* m_skyboxLayer = nullptr;
     Qt3DRender::QCamera* m_camera = nullptr;
     Klein::TrackballCameraController* m_cameraController = nullptr;
     Klein::ImGuiManager* m_imguiManager = nullptr;
