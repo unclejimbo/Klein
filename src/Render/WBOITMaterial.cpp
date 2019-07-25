@@ -65,10 +65,10 @@ Qt3DRender::QFrameGraphNode* WBOITCompositor::attachCompositionPassTo(
     renderingStyleFK->setName(QStringLiteral("renderingStyle"));
     renderingStyleFK->setValue(QStringLiteral("forward"));
     tfilter->addMatch(renderingStyleFK);
-    auto transparencyFK = new Qt3DRender::QFilterKey;
-    transparencyFK->setName(QStringLiteral("transparency"));
-    transparencyFK->setValue(QStringLiteral("wboit"));
-    tfilter->addMatch(transparencyFK);
+    auto renderingTechnique = new Qt3DRender::QFilterKey;
+    renderingTechnique->setName(QStringLiteral("renderingTechnique"));
+    renderingTechnique->setValue(QStringLiteral("wboit"));
+    tfilter->addMatch(renderingTechnique);
 
     auto pfilter = new Qt3DRender::QRenderPassFilter(tfilter);
     auto passFK = new Qt3DRender::QFilterKey;
@@ -177,10 +177,10 @@ void WBOITCompositor::createEntity(Qt3DCore::QNode* parent)
     renderingStyle->setName(QStringLiteral("renderingStyle"));
     renderingStyle->setValue(QStringLiteral("forward"));
     technique->addFilterKey(renderingStyle);
-    auto transparency = new Qt3DRender::QFilterKey;
-    transparency->setName(QStringLiteral("transparency"));
-    transparency->setValue(QStringLiteral("wboit"));
-    technique->addFilterKey(transparency);
+    auto renderingTechnique = new Qt3DRender::QFilterKey;
+    renderingTechnique->setName(QStringLiteral("renderingTechnique"));
+    renderingTechnique->setValue(QStringLiteral("wboit"));
+    technique->addFilterKey(renderingTechnique);
 
     auto effect = new Qt3DRender::QEffect;
     effect->addTechnique(technique);
@@ -241,10 +241,10 @@ WBOITMaterial::WBOITMaterial(Qt3DCore::QNode* parent)
     renderingStyle->setName(QStringLiteral("renderingStyle"));
     renderingStyle->setValue(QStringLiteral("forward"));
     technique->addFilterKey(renderingStyle);
-    auto transparency = new Qt3DRender::QFilterKey;
-    transparency->setName(QStringLiteral("transparency"));
-    transparency->setValue(QStringLiteral("wboit"));
-    technique->addFilterKey(transparency);
+    auto renderingTechnique = new Qt3DRender::QFilterKey;
+    renderingTechnique->setName(QStringLiteral("renderingTechnique"));
+    renderingTechnique->setValue(QStringLiteral("wboit"));
+    technique->addFilterKey(renderingTechnique);
 
     auto effect = new Qt3DRender::QEffect;
     effect->addTechnique(technique);
@@ -259,10 +259,10 @@ Qt3DRender::QFrameGraphNode* WBOITMaterial::attachTranparentPassTo(
     renderingStyleFK->setName(QStringLiteral("renderingStyle"));
     renderingStyleFK->setValue(QStringLiteral("forward"));
     tfilter->addMatch(renderingStyleFK);
-    auto transparencyFK = new Qt3DRender::QFilterKey;
-    transparencyFK->setName(QStringLiteral("transparency"));
-    transparencyFK->setValue(QStringLiteral("wboit"));
-    tfilter->addMatch(transparencyFK);
+    auto renderingTechnique = new Qt3DRender::QFilterKey;
+    renderingTechnique->setName(QStringLiteral("renderingTechnique"));
+    renderingTechnique->setValue(QStringLiteral("wboit"));
+    tfilter->addMatch(renderingTechnique);
 
     auto pfilter = new Qt3DRender::QRenderPassFilter(tfilter);
     auto passFK = new Qt3DRender::QFilterKey;

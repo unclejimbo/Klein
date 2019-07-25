@@ -135,8 +135,6 @@ public:
 
 protected:
     bool m_baseColorMapInitialized = false;
-    bool m_envLightBrdfInitialized = false;
-    bool m_shadowMapInitialized = false;
     Qt3DRender::QParameter* m_baseColor;
     Qt3DRender::QParameter* m_baseColorMap;
     Qt3DRender::QParameter* m_depthScale;

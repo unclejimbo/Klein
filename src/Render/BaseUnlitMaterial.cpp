@@ -36,6 +36,32 @@ BaseUnlitMaterial::BaseUnlitMaterial(Qt3DCore::QNode* parent)
 }
 
 Qt3DRender::QFrameGraphNode* BaseUnlitMaterial::attachRenderPassTo(
+    Qt3DRender::QFrameGraphNode* parent)
+{
+    auto tfilter = new Qt3DRender::QTechniqueFilter(parent);
+    auto renderingStyle = new Qt3DRender::QFilterKey;
+    renderingStyle->setName(QStringLiteral("renderingStyle"));
+    renderingStyle->setValue(QStringLiteral("forward"));
+    tfilter->addMatch(renderingStyle);
+    auto renderingTechnique = new Qt3DRender::QFilterKey;
+    renderingTechnique->setName(QStringLiteral("renderingTechnique"));
+    renderingTechnique->setValue(QStringLiteral("unlit"));
+    tfilter->addMatch(renderingTechnique);
+
+    auto pfilter = new Qt3DRender::QRenderPassFilter(tfilter);
+    auto pfilterkey = new Qt3DRender::QFilterKey;
+    pfilterkey->setName(QStringLiteral("renderPass"));
+    pfilterkey->setValue(QStringLiteral("lighting"));
+    pfilter->addMatch(pfilterkey);
+
+    auto renderStateSet = new Qt3DRender::QRenderStateSet(pfilter);
+    auto depthTest = new Qt3DRender::QDepthTest(renderStateSet);
+    depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
+    renderStateSet->addRenderState(depthTest);
+    return renderStateSet;
+}
+
+Qt3DRender::QFrameGraphNode* BaseUnlitMaterial::attachRenderPassTo(
     Qt3DRender::QFrameGraphNode* parent,
     Qt3DRender::QAbstractTexture* shadowMap,
     const QMatrix4x4& lightSpaceMatrix,
@@ -47,10 +73,10 @@ Qt3DRender::QFrameGraphNode* BaseUnlitMaterial::attachRenderPassTo(
     renderingStyle->setName(QStringLiteral("renderingStyle"));
     renderingStyle->setValue(QStringLiteral("forward"));
     tfilter->addMatch(renderingStyle);
-    auto transparency = new Qt3DRender::QFilterKey;
-    transparency->setName(QStringLiteral("transparency"));
-    transparency->setValue(QStringLiteral("opaque"));
-    tfilter->addMatch(transparency);
+    auto renderingTechnique = new Qt3DRender::QFilterKey;
+    renderingTechnique->setName(QStringLiteral("renderingTechnique"));
+    renderingTechnique->setValue(QStringLiteral("unlit"));
+    tfilter->addMatch(renderingTechnique);
 
     auto pfilter = new Qt3DRender::QRenderPassFilter(tfilter);
     auto pfilterkey = new Qt3DRender::QFilterKey;
@@ -89,10 +115,10 @@ Qt3DRender::QFrameGraphNode* BaseUnlitMaterial::attachShadowPassTo(
     renderingStyle->setName(QStringLiteral("renderingStyle"));
     renderingStyle->setValue(QStringLiteral("forward"));
     tfilter->addMatch(renderingStyle);
-    auto transparency = new Qt3DRender::QFilterKey;
-    transparency->setName(QStringLiteral("transparency"));
-    transparency->setValue(QStringLiteral("opaque"));
-    tfilter->addMatch(transparency);
+    auto renderingTechnique = new Qt3DRender::QFilterKey;
+    renderingTechnique->setName(QStringLiteral("renderingTechnique"));
+    renderingTechnique->setValue(QStringLiteral("unlit"));
+    tfilter->addMatch(renderingTechnique);
 
     auto pfilter = new Qt3DRender::QRenderPassFilter(tfilter);
     auto pfilterkey = new Qt3DRender::QFilterKey;
@@ -131,10 +157,10 @@ Qt3DRender::QEffect* BaseUnlitMaterial::createEffect(
     renderingStyle->setName(QStringLiteral("renderingStyle"));
     renderingStyle->setValue(QStringLiteral("forward"));
     technique->addFilterKey(renderingStyle);
-    auto transparency = new Qt3DRender::QFilterKey;
-    transparency->setName(QStringLiteral("transparency"));
-    transparency->setValue(QStringLiteral("opaque"));
-    technique->addFilterKey(transparency);
+    auto renderingTechnique = new Qt3DRender::QFilterKey;
+    renderingTechnique->setName(QStringLiteral("renderingTechnique"));
+    renderingTechnique->setValue(QStringLiteral("unlit"));
+    technique->addFilterKey(renderingTechnique);
 
     auto effect = new Qt3DRender::QEffect;
     effect->addTechnique(technique);
