@@ -112,7 +112,7 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
 
     // Add PBR material
     auto material = new Klein::PBRMaterial(rootEntity);
-    material->setRenderMode(Klein::BasePBRMaterial::RENDER_MODE_TEXTURE |
+    material->setRenderMode(Klein::BasePBRMaterial::RENDER_MODE_BASE_COLOR_MAP |
                             Klein::BasePBRMaterial::RENDER_MODE_NORMAL_MAP |
                             Klein::BasePBRMaterial::RENDER_MODE_MATERIAL_MAP);
     material->setBaseColorMap(baseColorMap);

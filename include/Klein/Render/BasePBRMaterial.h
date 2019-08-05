@@ -27,15 +27,15 @@ class KLEIN_API BasePBRMaterial : public Qt3DRender::QMaterial
     Q_OBJECT
 
 public:
-    enum RenderModeBits : int
+    enum RenderModeBits : char
     {
         RENDER_MODE_BASE_COLOR = 0x0,
-        RENDER_MODE_TEXTURE = 0x1,
+        RENDER_MODE_BASE_COLOR_MAP = 0x1,
         RENDER_MODE_VCOLOR = 0x3,
         RENDER_MODE_NORMAL_MAP = 0x4,
         RENDER_MODE_MATERIAL_MAP = 0x8
     };
-    using RenderMode = int;
+    using RenderMode = char;
 
 public:
     explicit BasePBRMaterial(Qt3DCore::QNode* parent = nullptr);

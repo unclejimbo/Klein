@@ -71,7 +71,7 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
         pPositions.push_back(QVector3D(x, y, z));
     }
     auto pointsRenderer = new Klein::ConcretePointsRenderer(
-        Klein::ConcretePointsRenderer::BUFFERS_MC, rootEntity);
+        Klein::ConcretePointsRenderer::ADDITIONAL_ATTRIBUTE_COLOR, rootEntity);
     pointsRenderer->setRadius(0.01f);
     pointsRenderer->setPositions(pPositions);
     // Set random colors for each instance
@@ -102,7 +102,7 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
         offset += fv;
     }
     auto linesRenderer = new Klein::ConcreteLinesRenderer(
-        Klein::ConcreteLinesRenderer::BUFFERS_M, rootEntity);
+        Klein::ConcreteLinesRenderer::ADDITIONAL_ATTRIBUTE_NONE, rootEntity);
     linesRenderer->setRadius(0.003f);
     linesRenderer->setPositions(lPositions);
 

@@ -6,7 +6,7 @@
 namespace Klein
 {
 
-MeshGeometry::MeshGeometry(RequiredBuffers requiredBuffers,
+MeshGeometry::MeshGeometry(AdditionalAttributes attributes,
                            Qt3DCore::QNode* parent)
     : Qt3DRender::QGeometry(parent)
 {
@@ -17,13 +17,16 @@ MeshGeometry::MeshGeometry(RequiredBuffers requiredBuffers,
     m_positions->setVertexSize(3);
     this->addAttribute(m_positions);
 
-    m_normals = new Qt3DRender::QAttribute(this);
-    m_normals->setName(Qt3DRender::QAttribute::defaultNormalAttributeName());
-    m_normals->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
-    m_normals->setVertexSize(3);
-    this->addAttribute(m_normals);
+    if (attributes & ADDITIONAL_ATTRIBUTE_NORMAL) {
+        m_normals = new Qt3DRender::QAttribute(this);
+        m_normals->setName(
+            Qt3DRender::QAttribute::defaultNormalAttributeName());
+        m_normals->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
+        m_normals->setVertexSize(3);
+        this->addAttribute(m_normals);
+    }
 
-    if (requiredBuffers == BUFFERS_PNT) {
+    if (attributes & ADDITIONAL_ATTRIBUTE_TEXCOORD) {
         m_texCoords = new Qt3DRender::QAttribute(this);
         m_texCoords->setName(
             Qt3DRender::QAttribute::defaultTextureCoordinateAttributeName());
@@ -32,7 +35,7 @@ MeshGeometry::MeshGeometry(RequiredBuffers requiredBuffers,
         this->addAttribute(m_texCoords);
     }
 
-    else if (requiredBuffers == BUFFERS_PNC) {
+    if (attributes & ADDITIONAL_ATTRIBUTE_COLOR) {
         m_colors = new Qt3DRender::QAttribute(this);
         m_colors->setName(Qt3DRender::QAttribute::defaultColorAttributeName());
         m_colors->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
@@ -43,7 +46,7 @@ MeshGeometry::MeshGeometry(RequiredBuffers requiredBuffers,
 
 void MeshGeometry::setCount(uint count)
 {
-    if (m_positions != nullptr) { m_positions->setCount(count); }
+    m_positions->setCount(count);
     if (m_normals != nullptr) { m_normals->setCount(count); }
     if (m_texCoords != nullptr) { m_texCoords->setCount(count); }
     if (m_colors != nullptr) { m_colors->setCount(count); }
@@ -70,11 +73,18 @@ void MeshGeometry::setNormalBuffer(
     uint byteStride,
     Qt3DRender::QAttribute::VertexBaseType dataType)
 {
-    m_normals->setBuffer(buffer);
-    m_normals->setVertexBaseType(dataType);
-    m_normals->setCount(count);
-    m_normals->setByteOffset(byteOffset);
-    m_normals->setByteStride(byteStride);
+    if (m_normals != nullptr) {
+        m_normals->setBuffer(buffer);
+        m_normals->setVertexBaseType(dataType);
+        m_normals->setCount(count);
+        m_normals->setByteOffset(byteOffset);
+        m_normals->setByteStride(byteStride);
+    }
+    else {
+        qWarning()
+            << "[Warning] MeshGeometry::setNormalBuffer called on an object "
+               "without normal attribute.";
+    }
 }
 
 void MeshGeometry::setTexCoordBuffer(

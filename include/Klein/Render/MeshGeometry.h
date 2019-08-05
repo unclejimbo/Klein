@@ -19,15 +19,17 @@ class KLEIN_API MeshGeometry : public Qt3DRender::QGeometry
     Q_OBJECT
 
 public:
-    enum RequiredBuffers
+    enum AdditionalAttributeBits : char
     {
-        BUFFERS_PN,  /**< Position, Normal. */
-        BUFFERS_PNT, /**< Position, Normal, TexCoord. */
-        BUFFERS_PNC  /**< Position, Normal, Color */
+        ADDITIONAL_ATTRIBUTE_NONE = 0x0,
+        ADDITIONAL_ATTRIBUTE_NORMAL = 0x1,
+        ADDITIONAL_ATTRIBUTE_TEXCOORD = 0x2,
+        ADDITIONAL_ATTRIBUTE_COLOR = 0x4
     };
+    using AdditionalAttributes = char;
 
 public:
-    MeshGeometry(RequiredBuffers requiredBuffers = BUFFERS_PN,
+    MeshGeometry(AdditionalAttributes attributes = ADDITIONAL_ATTRIBUTE_NONE,
                  Qt3DCore::QNode* parent = nullptr);
 
     virtual ~MeshGeometry() = default;

@@ -23,11 +23,12 @@ class KLEIN_API ConcreteLinesRenderer : public Qt3DRender::QGeometryRenderer
     Q_OBJECT
 
 public:
-    enum RequiredBuffers
+    enum AdditionalAttributeBits : char
     {
-        BUFFERS_M,
-        BUFFERS_MC
+        ADDITIONAL_ATTRIBUTE_NONE = 0x0,
+        ADDITIONAL_ATTRIBUTE_COLOR = 0x1
     };
+    using AdditionalAttributes = char;
 
     enum LineType
     {
@@ -37,7 +38,7 @@ public:
     };
 
 public:
-    ConcreteLinesRenderer(RequiredBuffers requiredBuffers = BUFFERS_M,
+    ConcreteLinesRenderer(AdditionalAttributes attributes,
                           Qt3DCore::QNode* parent = nullptr);
 
     virtual ~ConcreteLinesRenderer() = default;

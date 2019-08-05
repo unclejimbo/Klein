@@ -26,13 +26,13 @@ class KLEIN_API BaseUnlitMaterial : public Qt3DRender::QMaterial
     Q_OBJECT
 
 public:
-    enum RenderModeBits : int
+    enum RenderModeBits : char
     {
         RENDER_MODE_BASE_COLOR = 0x0,
-        RENDER_MODE_TEXTURE = 0x1,
+        RENDER_MODE_BASE_COLOR_MAP = 0x1,
         RENDER_MODE_VCOLOR = 0x3
     };
-    using RenderMode = int;
+    using RenderMode = char;
 
 public:
     explicit BaseUnlitMaterial(Qt3DCore::QNode* parent = nullptr);

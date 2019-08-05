@@ -10,7 +10,7 @@
 namespace Klein
 {
 
-ConcreteLinesRenderer::ConcreteLinesRenderer(RequiredBuffers requiredBuffers,
+ConcreteLinesRenderer::ConcreteLinesRenderer(AdditionalAttributes attributes,
                                              Qt3DCore::QNode* parent)
     : Qt3DRender::QGeometryRenderer(parent)
 {
@@ -44,7 +44,7 @@ ConcreteLinesRenderer::ConcreteLinesRenderer(RequiredBuffers requiredBuffers,
     m_instanceModel->setCount(0);
     m_cylinder->addAttribute(m_instanceModel);
 
-    if (requiredBuffers == BUFFERS_MC) {
+    if (attributes & ADDITIONAL_ATTRIBUTE_COLOR) {
         m_colorBuffer = new Qt3DRender::QBuffer(this);
         m_colorBuffer->setUsage(Qt3DRender::QBuffer::StaticDraw);
         m_colorBuffer->setAccessType(Qt3DRender::QBuffer::Write);

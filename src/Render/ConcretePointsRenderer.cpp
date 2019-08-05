@@ -11,7 +11,7 @@
 namespace Klein
 {
 
-ConcretePointsRenderer::ConcretePointsRenderer(RequiredBuffers requiredBuffers,
+ConcretePointsRenderer::ConcretePointsRenderer(AdditionalAttributes attributes,
                                                Qt3DCore::QNode* parent)
     : Qt3DRender::QGeometryRenderer(parent)
 {
@@ -44,7 +44,7 @@ ConcretePointsRenderer::ConcretePointsRenderer(RequiredBuffers requiredBuffers,
     m_instanceModel->setCount(0);
     m_sphere->addAttribute(m_instanceModel);
 
-    if (requiredBuffers == BUFFERS_MC) {
+    if (attributes & ADDITIONAL_ATTRIBUTE_COLOR) {
         m_colorBuffer = new Qt3DRender::QBuffer(this);
         m_colorBuffer->setUsage(Qt3DRender::QBuffer::StaticDraw);
         m_colorBuffer->setAccessType(Qt3DRender::QBuffer::Write);

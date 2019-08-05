@@ -23,14 +23,15 @@ class KLEIN_API ConcretePointsRenderer : public Qt3DRender::QGeometryRenderer
     Q_OBJECT
 
 public:
-    enum RequiredBuffers
+    enum AdditionalAttributeBits : char
     {
-        BUFFERS_M, /**< Model. */
-        BUFFERS_MC /**< Model, Color. */
+        ADDITIONAL_ATTRIBUTE_NONE = 0x0,
+        ADDITIONAL_ATTRIBUTE_COLOR = 0x1
     };
+    using AdditionalAttributes = char;
 
 public:
-    ConcretePointsRenderer(RequiredBuffers requiredBuffers = BUFFERS_M,
+    ConcretePointsRenderer(AdditionalAttributes attributes,
                            Qt3DCore::QNode* parent = nullptr);
 
     virtual ~ConcretePointsRenderer() = default;

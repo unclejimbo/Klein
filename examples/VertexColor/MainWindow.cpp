@@ -1,7 +1,7 @@
 #include "MainWindow.h"
 #include <Klein/Render/BufferData.h>
 #include <Klein/Render/MeshGeometry.h>
-#include <Klein/Render/PBRMaterial.h>
+#include <Klein/Render/UnlitMaterial.h>
 #include <QByteArray>
 #include <QVector>
 #include <Qt3DCore/QEntity>
@@ -9,33 +9,12 @@
 #include <Qt3DRender/QCamera>
 #include <Qt3DRender/QCameraSelector>
 #include <Qt3DRender/QClearBuffers>
-#include <Qt3DRender/QEnvironmentLight>
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QGeometryRenderer>
 #include <Qt3DRender/QNoDraw>
 #include <Qt3DRender/QRenderSettings>
 #include <Qt3DRender/QRenderSurfaceSelector>
-#include <Qt3DRender/QTexture>
-#include <Qt3DRender/QTextureWrapMode>
 #include <Qt3DRender/QViewport>
-
-Qt3DRender::QAbstractTexture* loadTexture(
-    Qt3DCore::QNode* parent,
-    const QString& file,
-    bool genMipMaps,
-    Qt3DRender::QAbstractTexture::Filter filter)
-{
-    Qt3DRender::QTextureWrapMode wrapMode;
-    wrapMode.setX(Qt3DRender::QTextureWrapMode::ClampToEdge);
-    wrapMode.setY(Qt3DRender::QTextureWrapMode::ClampToEdge);
-    auto texture = new Qt3DRender::QTextureLoader(parent);
-    texture->setSource(QUrl::fromLocalFile(file));
-    texture->setWrapMode(wrapMode);
-    texture->setGenerateMipMaps(genMipMaps);
-    texture->setMagnificationFilter(filter);
-    texture->setMinificationFilter(filter);
-    return texture;
-}
 
 MainWindow::MainWindow(QWindow* parent) : Klein::AbstractQt3DWindow(parent) {}
 
@@ -52,66 +31,32 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
 
     // Create a triangle with vertex color attribute
     auto mesh = new Qt3DRender::QGeometryRenderer(rootEntity);
-    auto geometry =
-        new Klein::MeshGeometry(Klein::MeshGeometry::BUFFERS_PNC, mesh);
+    auto geometry = new Klein::MeshGeometry(
+        Klein::MeshGeometry::ADDITIONAL_ATTRIBUTE_COLOR, mesh);
     auto pbuffer = new Qt3DRender::QBuffer(geometry);
-    auto nbuffer = new Qt3DRender::QBuffer(geometry);
     auto cbuffer = new Qt3DRender::QBuffer(geometry);
     QVector<float> positions{ -1.0f, 0.0f, -1.0, 1.0f, 0.0f,
                               -1.0f, 0.0f, 0.0f, 1.0f };
-    QVector<float> normals{
-        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
-    };
     QVector<float> colors{
         1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f
     };
     auto pbytes = Klein::createByteArray(positions.begin(), positions.end());
-    auto nbytes = Klein::createByteArray(normals.begin(), normals.end());
     auto cbytes = Klein::createByteArray(colors.begin(), colors.end());
     pbuffer->setData(pbytes);
-    nbuffer->setData(nbytes);
     cbuffer->setData(cbytes);
     geometry->setPositionBuffer(pbuffer, 3);
-    geometry->setNormalBuffer(nbuffer, 3);
     geometry->setColorBuffer(cbuffer, 3);
     mesh->setGeometry(geometry);
     mesh->setVertexCount(3);
 
-    // Load textures from file
-    auto brdfMap = loadTexture(rootEntity,
-                               QStringLiteral("./data/envmap/brdfSmith.dds"),
-                               false,
-                               Qt3DRender::QAbstractTexture::Linear);
-    auto irradianceMap =
-        loadTexture(rootEntity,
-                    QStringLiteral("./data/envmap/outdoorDiffuseHDR.dds"),
-                    false,
-                    Qt3DRender::QAbstractTexture::Linear);
-    auto specularMap =
-        loadTexture(rootEntity,
-                    QStringLiteral("./data/envmap/outdoorSpecularHDR.dds"),
-                    false,
-                    Qt3DRender::QAbstractTexture::Linear);
-
-    // Add PBR material
-    auto material = new Klein::PBRMaterial(rootEntity);
-    material->setRenderMode(Klein::BasePBRMaterial::RENDER_MODE_VCOLOR);
-    material->setRoughness(1.0f);
-    material->setMetalness(0.0f);
-    material->setEnvLightBrdf(brdfMap);
-    material->setEnvLightIntensity(1.0f);
+    // Add unlit material
+    auto material = new Klein::UnlitMaterial(rootEntity);
+    material->setRenderMode(Klein::BaseUnlitMaterial::RENDER_MODE_VCOLOR);
 
     // The mesh entity
     auto visual = new Qt3DCore::QEntity(rootEntity);
     visual->addComponent(material);
     visual->addComponent(mesh);
-
-    // Add image-based lighting
-    auto ibl = new Qt3DCore::QEntity(rootEntity);
-    auto envMap = new Qt3DRender::QEnvironmentLight(ibl);
-    envMap->setIrradiance(irradianceMap);
-    envMap->setSpecular(specularMap);
-    ibl->addComponent(envMap);
 
     // Set up a camera
     m_camera = new Qt3DRender::QCamera(rootEntity);
