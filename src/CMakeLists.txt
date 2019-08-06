@@ -8,6 +8,7 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Gui/AbstractQt3DWindow.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Gui/ImGuiManager.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Gui/ImGuiOutputWindow.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Gui/ImGuiSceneGraphWindow.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Input/TrackballCameraController.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/BasePBRMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/BaseUnlitMaterial.h
@@ -32,6 +33,7 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ImGuiManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ImGuiOutputWindow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ImGuiSceneGraphWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Input/TrackballCameraController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/BasePBRMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/BaseUnlitMaterial.cpp
