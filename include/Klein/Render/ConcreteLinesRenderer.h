@@ -38,8 +38,9 @@ public:
     };
 
 public:
-    ConcreteLinesRenderer(AdditionalAttributes attributes,
-                          Qt3DCore::QNode* parent = nullptr);
+    ConcreteLinesRenderer(
+        AdditionalAttributes attributes = ADDITIONAL_ATTRIBUTE_NONE,
+        Qt3DCore::QNode* parent = nullptr);
 
     virtual ~ConcreteLinesRenderer() = default;
 

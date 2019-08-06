@@ -31,8 +31,9 @@ public:
     using AdditionalAttributes = char;
 
 public:
-    ConcretePointsRenderer(AdditionalAttributes attributes,
-                           Qt3DCore::QNode* parent = nullptr);
+    ConcretePointsRenderer(
+        AdditionalAttributes attributes = ADDITIONAL_ATTRIBUTE_NONE,
+        Qt3DCore::QNode* parent = nullptr);
 
     virtual ~ConcretePointsRenderer() = default;
 
