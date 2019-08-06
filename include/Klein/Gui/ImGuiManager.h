@@ -189,7 +189,7 @@ private:
     bool m_enabled = true;
     bool m_captureInput = false;
     float m_scale = 1.0f;
-    Qt3DCore::QEntity* m_rootEntity = nullptr;
+    Qt3DCore::QEntity* m_guiRoot = nullptr;
     Qt3DRender::QCamera* m_camera = nullptr;
     Qt3DRender::QTexture2D* m_atlasTex = nullptr;
     QVector<CmdListEntry> m_cmdList;
