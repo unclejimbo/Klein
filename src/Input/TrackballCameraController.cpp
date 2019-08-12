@@ -116,9 +116,19 @@ void TrackballCameraController::moveCamera(
     }
 
     if (state.tzAxisValue != 0.0f) { // zoom
-        theCamera->translate(
-            QVector3D(0.0f, 0.0f, state.tzAxisValue * m_zoomSpeed * dt),
-            Qt3DRender::QCamera::DontTranslateViewCenter);
+        auto pos = this->camera()->position();
+        auto center = this->camera()->viewCenter();
+        auto len = (pos - center).length();
+        auto step = state.tzAxisValue * m_zoomSpeed * dt;
+        // avoid flipping
+        if (step < len) {
+            theCamera->translate(QVector3D(0.0f, 0.0f, step),
+                                 Qt3DRender::QCamera::DontTranslateViewCenter);
+        }
+        else {
+            theCamera->translate(QVector3D(0.0f, 0.0f, len / 2),
+                                 Qt3DRender::QCamera::DontTranslateViewCenter);
+        }
     }
 }
 
