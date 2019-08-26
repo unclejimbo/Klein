@@ -104,7 +104,9 @@ public:
 
     void setInputEventSource(QObject* src);
 
-    void initialize(Qt3DCore::QEntity* rootEntity);
+    void initialize(Qt3DCore::QEntity* rootEntity,
+                    float fontSize = 15.0f,
+                    const char* fontFile = nullptr);
 
     void releaseResources();
 

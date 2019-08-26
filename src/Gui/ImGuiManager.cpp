@@ -191,7 +191,9 @@ public:
     bool enabled = true;
 };
 
-void ImGuiManager::initialize(Qt3DCore::QEntity* rootEntity)
+void ImGuiManager::initialize(Qt3DCore::QEntity* rootEntity,
+                              float fontSize,
+                              const char* fontFile)
 {
     m_guiRoot->setParent(rootEntity);
     m_guiLayer = new Qt3DRender::QLayer;
@@ -230,6 +232,8 @@ void ImGuiManager::initialize(Qt3DCore::QEntity* rootEntity)
     ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;
     int w, h;
+    auto file = fontFile ? fontFile : "data/font/FiraMono-Bold.ttf";
+    io.Fonts->AddFontFromFileTTF(file, fontSize);
     io.Fonts->GetTexDataAsRGBA32(&pixels, &w, &h);
 
     m_atlasTex = new Qt3DRender::QTexture2D;
