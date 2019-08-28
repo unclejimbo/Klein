@@ -65,7 +65,8 @@ public slots:
 
     void setColors(const QColor& color1, const QColor& color2)
     {
-        m_colors = { color1, color2 };
+        m_colors[0] = color1;
+        m_colors[1] = color2;
         this->notifyDataGeneratorChanged();
     }
 
