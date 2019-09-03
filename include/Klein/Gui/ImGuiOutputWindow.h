@@ -27,7 +27,7 @@ public:
     int maximumHistory() const { return m_maxHistory; }
 
 public slots:
-    void setEnabled(bool value) { m_open = value; }
+    void setEnabled(bool value) { m_open = m_openLast = value; }
 
     void println(QString str)
     {
@@ -38,6 +38,7 @@ public slots:
             m_strs.pop_front();
             m_colors.pop_front();
         }
+        m_dirty = true;
     }
 
     void println(QString str, QColor color)
@@ -50,6 +51,7 @@ public slots:
             m_strs.pop_front();
             m_colors.pop_front();
         }
+        m_dirty = true;
     }
 
     void clear()
@@ -60,9 +62,14 @@ public slots:
 
     void setMaximumHistory(int num) { m_maxHistory = num; }
 
+signals:
+    void enabledChanged(bool value);
+
 private:
     bool m_open = true;
+    bool m_openLast = true;
     bool m_autoScroll = true;
+    bool m_dirty = false;
     int m_maxHistory = 1e5;
     QList<QString> m_strs;
     QList<ImVec4> m_colors;
