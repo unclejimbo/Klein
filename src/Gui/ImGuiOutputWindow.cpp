@@ -16,7 +16,8 @@ void ImGuiOutputWindow::update()
         ImGui::Checkbox("Auto scroll", &m_autoScroll);
         ImGui::BeginChild("Dump");
         for (int i = 0; i < m_strs.size(); ++i) {
-            ImGui::TextColored(m_colors[i], m_strs[i].toStdString().c_str());
+            ImGui::TextColored(
+                m_colors[i], "%s", m_strs[i].toStdString().c_str());
         }
         if (m_autoScroll && m_dirty) {
             ImGui::SetScrollHereY(1.0f);

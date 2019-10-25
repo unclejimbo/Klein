@@ -1,5 +1,5 @@
 #ifndef KLEIN_COLORPALETTE_H
-#define KLEIN_COLORALETTE_H
+#define KLEIN_COLORPALETTE_H
 
 #include <Klein/Core/Export.h>
 
