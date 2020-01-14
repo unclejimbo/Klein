@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include <imgui.h>
+#include <Klein/Gui/ImGuiDockSpace.h>
 #include <Klein/Gui/ImGuiManager.h>
 #include <QColor>
 #include <Qt3DCore/QEntity>
@@ -12,10 +13,14 @@
 
 MainWindow::MainWindow(QWindow* parent) : Klein::AbstractQt3DWindow(parent)
 {
+    m_imguiDockSpace = new Klein::ImGuiDockSpace(this);
     m_imguiManager = new Klein::ImGuiManager(this);
     m_imguiManager->setInputEventSource(this);
     // FrameFunc is where the imgui code goes
-    auto drawGui = [](bool) { ImGui::ShowDemoWindow(); };
+    auto drawGui = [this](bool) {
+        m_imguiDockSpace->update();
+        ImGui::ShowDemoWindow();
+    };
     m_imguiManager->setFrameFunc(drawGui);
 }
 

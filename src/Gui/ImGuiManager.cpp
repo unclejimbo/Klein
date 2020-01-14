@@ -210,6 +210,7 @@ void ImGuiManager::initialize(Qt3DCore::QEntity* rootEntity,
             ImGuiIO& io = ImGui::GetIO();
             io.DisplaySize.x = m_displayInfo.size.width() * m_displayInfo.dpr;
             io.DisplaySize.y = m_displayInfo.size.height() * m_displayInfo.dpr;
+            io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
             updateInput();
 

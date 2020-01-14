@@ -5,8 +5,9 @@
 
 namespace Klein
 {
+class ImGuiDockSpace;
 class ImGuiManager;
-}
+} // namespace Klein
 
 class MainWindow : public Klein::AbstractQt3DWindow
 {
@@ -26,6 +27,7 @@ protected:
         Qt3DCore::QEntity* root) override;
 
 private:
+    Klein::ImGuiDockSpace* m_imguiDockSpace;
     Klein::ImGuiManager* m_imguiManager;
 };
 

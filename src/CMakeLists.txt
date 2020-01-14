@@ -6,6 +6,7 @@ find_package(Qt5 REQUIRED COMPONENTS Core Widgets 3DCore 3DLogic 3DRender 3DExtr
 add_library(Klein
     # add headers for automoc to work
     ${PROJECT_SOURCE_DIR}/include/Klein/Gui/AbstractQt3DWindow.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Gui/ImGuiDockSpace.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Gui/ImGuiManager.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Gui/ImGuiOutputWindow.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Gui/ImGuiSceneGraphWindow.h
@@ -31,6 +32,7 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Util/ColorPalette.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ImGuiDockSpace.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ImGuiManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ImGuiOutputWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ImGuiSceneGraphWindow.cpp
