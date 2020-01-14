@@ -11,18 +11,22 @@ void ImGuiOutputWindow::update()
 {
     if (m_open) {
         ImGui::Begin("Output", &m_open);
-        ImGui::BeginChild("Menu", ImVec2(0.0f, 20.0f));
         if (ImGui::Button("Clear")) { clear(); }
         ImGui::SameLine();
         ImGui::Checkbox("Auto scroll", &m_autoScroll);
-        ImGui::EndChild();
         ImGui::BeginChild("Dump");
         for (int i = 0; i < m_strs.size(); ++i) {
-            ImGui::TextColored(m_colors[i], m_strs[i].toStdString().c_str());
+            ImGui::TextColored(
+                m_colors[i], "%s", m_strs[i].toStdString().c_str());
         }
-        if (m_autoScroll) { ImGui::SetScrollHereY(1.0f); }
+        if (m_autoScroll && m_dirty) {
+            ImGui::SetScrollHereY(1.0f);
+            m_dirty = false;
+        }
         ImGui::EndChild();
         ImGui::End();
+        if (m_openLast != m_open) { emit enabledChanged(m_open); }
+        m_openLast = m_open;
     }
 }
 

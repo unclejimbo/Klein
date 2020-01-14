@@ -191,9 +191,11 @@ public:
     bool enabled = true;
 };
 
-void ImGuiManager::initialize(Qt3DCore::QEntity* rootEntity)
+void ImGuiManager::initialize(Qt3DCore::QEntity* rootEntity,
+                              float fontSize,
+                              const char* fontFile)
 {
-    m_rootEntity = rootEntity;
+    m_guiRoot->setParent(rootEntity);
     m_guiLayer = new Qt3DRender::QLayer;
     m_activeLayer = new Qt3DRender::QLayer;
     m_guiTechniqueFilterKey = new Qt3DRender::QFilterKey;
@@ -223,13 +225,15 @@ void ImGuiManager::initialize(Qt3DCore::QEntity* rootEntity)
             update3D();
         });
 
-    m_rootEntity->addComponent(frameUpdater);
+    rootEntity->addComponent(frameUpdater);
 
     ImGui::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;
     int w, h;
+    auto file = fontFile ? fontFile : "data/font/FiraMono-Bold.ttf";
+    io.Fonts->AddFontFromFileTTF(file, fontSize);
     io.Fonts->GetTexDataAsRGBA32(&pixels, &w, &h);
 
     m_atlasTex = new Qt3DRender::QTexture2D;
@@ -264,7 +268,7 @@ void ImGuiManager::resizePool(CmdListEntry* e, int newSize)
         e->cmds.resize(newSize);
         for (int i = oldSize; i < newSize; ++i) {
             CmdEntry* ecmd = &e->cmds[i];
-            Qt3DCore::QEntity* entity = new Qt3DCore::QEntity(m_rootEntity);
+            Qt3DCore::QEntity* entity = new Qt3DCore::QEntity(m_guiRoot);
             entity->addComponent(m_guiLayer);
             Qt3DRender::QMaterial* material = buildMaterial(&ecmd->scissor);
             entity->addComponent(material);
@@ -641,7 +645,9 @@ Qt3DRender::QMaterial* ImGuiManager::buildMaterial(
 ImGuiManager::ImGuiManager(QObject* parent)
 {
     m_inputEventFilter = new ImGuiInputEventFilter(parent);
-    m_camera = new Qt3DRender::QCamera;
+    m_guiRoot = new Qt3DCore::QEntity;
+    m_guiRoot->setObjectName(QStringLiteral("ImGui Root"));
+    m_camera = new Qt3DRender::QCamera(m_guiRoot);
     m_camera->setProjectionType(
         Qt3DRender::QCameraLens::OrthographicProjection);
     m_camera->setLeft(0);
