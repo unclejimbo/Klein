@@ -79,4 +79,6 @@ inline KLEIN_API ResourceManager& gResourceManager()
     return ResourceManager::instance();
 }
 
+} // namespace Klein
+
 #endif
