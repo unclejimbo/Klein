@@ -79,6 +79,7 @@ public:
 
 public:
     explicit WBOITMaterial(Qt3DCore::QNode* parent = nullptr);
+
     virtual ~WBOITMaterial() = default;
 
     QColor baseColor() const { return m_baseColor->value().value<int>(); }
@@ -130,6 +131,10 @@ public slots:
     void setTexCoordScale(float value) { m_texCoordScale->setValue(value); }
 
 public:
+    static const QString effectName;
+
+    static Qt3DRender::QEffect* createEffect();
+
     static Qt3DRender::QFrameGraphNode* attachTranparentPassTo(
         Qt3DRender::QFrameGraphNode* parent);
 

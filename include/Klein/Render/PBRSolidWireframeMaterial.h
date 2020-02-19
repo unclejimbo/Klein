@@ -25,6 +25,16 @@ public slots:
 
     void setLineWidth(float value) { m_lineWidth->setValue(value); }
 
+public:
+    static Qt3DRender::QEffect* createEffect(bool castShadow = false);
+
+protected:
+    static const QString effectName_CastShadow;
+
+    static const QString effectName_NoShadow;
+
+    Qt3DRender::QEffect* getEffectVariant(bool castSahdow) override;
+
 private:
     Qt3DRender::QParameter* m_lineColor;
     Qt3DRender::QParameter* m_lineWidth;

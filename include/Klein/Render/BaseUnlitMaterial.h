@@ -102,7 +102,8 @@ public:
         Qt3DRender::QFrameGraphNode* parent);
 
 protected:
-    Qt3DRender::QEffect* createEffect(Qt3DRender::QShaderProgram* shader);
+    static Qt3DRender::QEffect* createEffectImpl(
+        Qt3DRender::QShaderProgram* shader);
 
 protected:
     bool m_baseColorMapInitialized = false;

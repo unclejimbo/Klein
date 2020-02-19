@@ -59,7 +59,7 @@ public:
         return m_envLightIntensity->value().toFloat();
     }
 
-    bool isShadowCastingEnabled() const { return m_shadowPass->isEnabled(); }
+    bool isShadowCastingEnabled() const { return m_shadowCastingEnabled; }
 
     bool isShadowReceivingEnabled() const
     {
@@ -178,7 +178,8 @@ public slots:
 
     void setShadowCastingEnabled(bool value)
     {
-        m_shadowPass->setEnabled(value);
+        m_shadowCastingEnabled = value;
+        this->setEffect(getEffectVariant(value));
     }
 
     void setShadowReceivingEnabled(bool value)
@@ -207,7 +208,12 @@ public:
         Qt3DRender::QFrameGraphNode* parent);
 
 protected:
-    Qt3DRender::QEffect* createEffect(Qt3DRender::QShaderProgram* shader);
+    virtual Qt3DRender::QEffect* getEffectVariant(bool castShadow) = 0;
+
+protected:
+    static Qt3DRender::QEffect* createEffectImpl(
+        Qt3DRender::QShaderProgram* shader,
+        bool castShadow);
 
 protected:
     Qt3DRender::QParameter* m_baseColor = nullptr;
@@ -224,7 +230,7 @@ protected:
     Qt3DRender::QParameter* m_shift = nullptr;
     Qt3DRender::QParameter* m_texCoordOffset = nullptr;
     Qt3DRender::QParameter* m_texCoordScale = nullptr;
-    Qt3DRender::QRenderPass* m_shadowPass = nullptr;
+    bool m_shadowCastingEnabled = false;
 };
 
 } // namespace Klein

@@ -15,6 +15,16 @@ public:
     explicit PBRMaterial(Qt3DCore::QNode* parent = nullptr);
 
     virtual ~PBRMaterial() = default;
+
+public:
+    static Qt3DRender::QEffect* createEffect(bool castShadow = false);
+
+protected:
+    static const QString effectName_CastShadow;
+
+    static const QString effectName_NoShadow;
+
+    Qt3DRender::QEffect* getEffectVariant(bool castSahdow) override;
 };
 
 } // namespace Klein

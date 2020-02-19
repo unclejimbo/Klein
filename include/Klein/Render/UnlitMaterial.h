@@ -15,6 +15,11 @@ public:
     explicit UnlitMaterial(Qt3DCore::QNode* parent = nullptr);
 
     virtual ~UnlitMaterial() = default;
+
+public:
+    static const QString effectName;
+
+    static Qt3DRender::QEffect* createEffect();
 };
 
 } // namespace Klein

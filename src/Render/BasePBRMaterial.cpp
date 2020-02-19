@@ -1,5 +1,6 @@
 #include <Klein/Render/BasePBRMaterial.h>
 
+#include <Klein/Render/ShaderProgram.h>
 #include <Klein/Render/ResourceManager.h>
 #include <QString>
 #include <Qt3DRender/QDepthTest>
@@ -144,19 +145,28 @@ Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachShadowPassTo(
     return renderStateSet;
 }
 
-Qt3DRender::QEffect* BasePBRMaterial::createEffect(
-    Qt3DRender::QShaderProgram* shader)
+Qt3DRender::QEffect* BasePBRMaterial::createEffectImpl(
+    Qt3DRender::QShaderProgram* shader,
+    bool castShadow)
 {
-    m_shadowPass = new Qt3DRender::QRenderPass;
-    m_shadowPass->setShaderProgram(
-        gResourceManager().get<Qt3DRender::QShaderProgram>(
-            BUILTIN_SHADER_DEPTH));
+    auto technique = new Qt3DRender::QTechnique;
 
-    auto shadowPassFK = new Qt3DRender::QFilterKey;
-    shadowPassFK->setName(QStringLiteral("renderPass"));
-    shadowPassFK->setValue(QStringLiteral("shadow"));
-    m_shadowPass->addFilterKey(shadowPassFK);
-    m_shadowPass->setEnabled(false);
+    if (castShadow) {
+        QString shaderPath("data/shader/");
+        auto depthShader =
+            createShader(shaderPath + QStringLiteral("Depth.vert"),
+                         shaderPath + QStringLiteral("Depth.frag"));
+
+        auto shadowPass = new Qt3DRender::QRenderPass;
+        shadowPass->setShaderProgram(depthShader);
+
+        auto shadowPassFK = new Qt3DRender::QFilterKey;
+        shadowPassFK->setName(QStringLiteral("renderPass"));
+        shadowPassFK->setValue(QStringLiteral("shadow"));
+        shadowPass->addFilterKey(shadowPassFK);
+
+        technique->addRenderPass(shadowPass);
+    }
 
     auto lightingPass = new Qt3DRender::QRenderPass;
     lightingPass->setShaderProgram(shader);
@@ -166,9 +176,8 @@ Qt3DRender::QEffect* BasePBRMaterial::createEffect(
     lightingPassFK->setValue(QStringLiteral("lighting"));
     lightingPass->addFilterKey(lightingPassFK);
 
-    auto technique = new Qt3DRender::QTechnique;
-    technique->addRenderPass(m_shadowPass);
     technique->addRenderPass(lightingPass);
+
     technique->graphicsApiFilter()->setApi(
         Qt3DRender::QGraphicsApiFilter::OpenGL);
     technique->graphicsApiFilter()->setMajorVersion(3);

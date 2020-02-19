@@ -25,6 +25,11 @@ public slots:
 
     void setLineWidth(float value) { m_lineWidth->setValue(value); }
 
+public:
+    static const QString effectName;
+
+    static Qt3DRender::QEffect* createEffect();
+
 private:
     Qt3DRender::QParameter* m_lineColor;
     Qt3DRender::QParameter* m_lineWidth;

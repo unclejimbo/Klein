@@ -1,6 +1,7 @@
 #include <Klein/Render/WBOITMaterial.h>
 
 #include <Klein/Render/ResourceManager.h>
+#include <Klein/Render/ShaderProgram.h>
 #include <QString>
 #include <Qt3DCore/QEntity>
 #include <Qt3DCore/QTransform>
@@ -156,10 +157,15 @@ void WBOITCompositor::createTarget(Qt3DCore::QNode* parent)
 
 void WBOITCompositor::createEntity(Qt3DCore::QNode* parent)
 {
+    // usually, only one compositor is used in a scene so we choose not to share
+    // the effect for it
+    QString shaderPath("data/shader/");
+    auto shader =
+        createShader(shaderPath + QStringLiteral("NoProj.vert"),
+                     shaderPath + QStringLiteral("WBOITComposition.frag"));
+
     auto compositionPass = new Qt3DRender::QRenderPass;
-    compositionPass->setShaderProgram(
-        gResourceManager().get<Qt3DRender::QShaderProgram>(
-            BUILTIN_SHADER_WBOIT_COMPOSITION));
+    compositionPass->setShaderProgram(shader);
     auto compositionPassFK = new Qt3DRender::QFilterKey;
     compositionPassFK->setName(QStringLiteral("renderPass"));
     compositionPassFK->setValue(QStringLiteral("composition"));
@@ -219,11 +225,25 @@ WBOITMaterial::WBOITMaterial(Qt3DCore::QNode* parent)
     this->addParameter(m_renderMode);
     this->addParameter(m_texCoordOffset);
     this->addParameter(m_texCoordScale);
+    auto effect = gResourceManager().get<Qt3DRender::QEffect>(effectName);
+    if (effect == nullptr) {
+        effect = createEffect();
+        gResourceManager().put(effectName, effect);
+    }
+    this->setEffect(effect);
+}
+
+const QString WBOITMaterial::effectName{ "KLEIN_EFFECT_WBOIT" };
+
+Qt3DRender::QEffect* WBOITMaterial::createEffect()
+{
+    QString shaderPath("data/shader/");
+    auto shader =
+        createShader(shaderPath + QStringLiteral("Shading.vert"),
+                     shaderPath + QStringLiteral("WBOITTransparent.frag"));
 
     auto transparentPass = new Qt3DRender::QRenderPass;
-    transparentPass->setShaderProgram(
-        gResourceManager().get<Qt3DRender::QShaderProgram>(
-            BUILTIN_SHADER_WBOIT_TRANSPARENT));
+    transparentPass->setShaderProgram(shader);
     auto transparentPassFK = new Qt3DRender::QFilterKey;
     transparentPassFK->setName(QStringLiteral("renderPass"));
     transparentPassFK->setValue(QStringLiteral("transparent"));
@@ -248,7 +268,7 @@ WBOITMaterial::WBOITMaterial(Qt3DCore::QNode* parent)
 
     auto effect = new Qt3DRender::QEffect;
     effect->addTechnique(technique);
-    this->setEffect(effect);
+    return effect;
 }
 
 Qt3DRender::QFrameGraphNode* WBOITMaterial::attachTranparentPassTo(

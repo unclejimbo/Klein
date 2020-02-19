@@ -32,6 +32,11 @@ public slots:
         }
     }
 
+public:
+    static const QString effectName;
+
+    static Qt3DRender::QEffect* createEffect();
+
 private:
     bool m_baseColorMapInitialized = false;
     Qt3DRender::QParameter* m_useInstanceColor;

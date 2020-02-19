@@ -133,7 +133,7 @@ Qt3DRender::QFrameGraphNode* BaseUnlitMaterial::attachShadowPassTo(
     return renderStateSet;
 }
 
-Qt3DRender::QEffect* BaseUnlitMaterial::createEffect(
+Qt3DRender::QEffect* BaseUnlitMaterial::createEffectImpl(
     Qt3DRender::QShaderProgram* shader)
 {
     auto lightingPass = new Qt3DRender::QRenderPass;
