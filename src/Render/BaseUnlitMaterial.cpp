@@ -1,5 +1,6 @@
 #include <Klein/Render/BaseUnlitMaterial.h>
 
+#include <Klein/Render/DumbTextureImage.h>
 #include <Klein/Render/ResourceManager.h>
 #include <QString>
 #include <Qt3DRender/QDepthTest>
@@ -19,8 +20,20 @@ namespace Klein
 BaseUnlitMaterial::BaseUnlitMaterial(Qt3DCore::QNode* parent)
     : Qt3DRender::QMaterial(parent)
 {
+    // need to fill texture maps with dumb data even if they are not used
+    auto dumbTexture = gResourceManager().get<Qt3DRender::QAbstractTexture>(
+        "KLEIN_DUMB_TEXTURE");
+    if (dumbTexture == nullptr) {
+        dumbTexture = new Qt3DRender::QTexture2D;
+        auto image = new Klein::DumbTextureImage(dumbTexture);
+        dumbTexture->addTextureImage(image);
+        gResourceManager().put(dumbTexture);
+    }
+
     m_baseColor = new Qt3DRender::QParameter(
         QStringLiteral("baseColor"), QColor("white"), this);
+    m_baseColorMap = new Qt3DRender::QParameter(
+        QStringLiteral("baseColorMap"), dumbTexture, this);
     m_renderMode = new Qt3DRender::QParameter(
         QStringLiteral("renderMode"), RENDER_MODE_BASE_COLOR, this);
     m_shift = new Qt3DRender::QParameter(QStringLiteral("shift"), 0.0f, this);
@@ -29,6 +42,7 @@ BaseUnlitMaterial::BaseUnlitMaterial(Qt3DCore::QNode* parent)
     m_texCoordScale =
         new Qt3DRender::QParameter(QStringLiteral("texCoordScale"), 1.0f, this);
     this->addParameter(m_baseColor);
+    this->addParameter(m_baseColorMap);
     this->addParameter(m_renderMode);
     this->addParameter(m_shift);
     this->addParameter(m_texCoordOffset);

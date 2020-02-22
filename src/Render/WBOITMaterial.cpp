@@ -1,5 +1,6 @@
 #include <Klein/Render/WBOITMaterial.h>
 
+#include <Klein/Render/DumbTextureImage.h>
 #include <Klein/Render/ResourceManager.h>
 #include <Klein/Render/ShaderProgram.h>
 #include <QString>
@@ -210,8 +211,20 @@ void WBOITCompositor::createEntity(Qt3DCore::QNode* parent)
 
 WBOITMaterial::WBOITMaterial(Qt3DCore::QNode* parent)
 {
+    // need to fill texture maps with dumb data even if they are not used
+    auto dumbTexture = gResourceManager().get<Qt3DRender::QAbstractTexture>(
+        "KLEIN_DUMB_TEXTURE");
+    if (dumbTexture == nullptr) {
+        dumbTexture = new Qt3DRender::QTexture2D;
+        auto image = new Klein::DumbTextureImage(dumbTexture);
+        dumbTexture->addTextureImage(image);
+        gResourceManager().put(dumbTexture);
+    }
+
     m_baseColor = new Qt3DRender::QParameter(
         QStringLiteral("baseColor"), QColor("white"), this);
+    m_baseColorMap = new Qt3DRender::QParameter(
+        QStringLiteral("baseColorMap"), dumbTexture, this);
     m_depthScale =
         new Qt3DRender::QParameter(QStringLiteral("depthScale"), 200.0f, this);
     m_renderMode = new Qt3DRender::QParameter(
@@ -221,6 +234,7 @@ WBOITMaterial::WBOITMaterial(Qt3DCore::QNode* parent)
     m_texCoordScale =
         new Qt3DRender::QParameter(QStringLiteral("texCoordScale"), 1.0f, this);
     this->addParameter(m_baseColor);
+    this->addParameter(m_baseColorMap);
     this->addParameter(m_depthScale);
     this->addParameter(m_renderMode);
     this->addParameter(m_texCoordOffset);

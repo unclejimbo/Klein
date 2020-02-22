@@ -107,26 +107,12 @@ public slots:
 
     void setBaseColorMap(Qt3DRender::QAbstractTexture* value)
     {
-        if (!m_baseColorMap) {
-            m_baseColorMap = new Qt3DRender::QParameter(
-                QStringLiteral("baseColorMap"), value, this);
-            this->addParameter(m_baseColorMap);
-        }
-        else {
-            m_baseColorMap->setValue(QVariant::fromValue(value));
-        }
+        m_baseColorMap->setValue(QVariant::fromValue(value));
     }
 
     void setEnvLightBrdf(Qt3DRender::QAbstractTexture* value)
     {
-        if (!m_envLightBrdf) {
-            m_envLightBrdf = new Qt3DRender::QParameter(
-                QStringLiteral("envLight.brdf"), value, this);
-            this->addParameter(m_envLightBrdf);
-        }
-        else {
-            m_envLightBrdf->setValue(QVariant::fromValue(value));
-        }
+        m_envLightBrdf->setValue(QVariant::fromValue(value));
     }
 
     void setEnvLightIntensity(float value)
@@ -138,26 +124,12 @@ public slots:
 
     void setMetalnessMap(Qt3DRender::QAbstractTexture* value)
     {
-        if (!m_metalnessMap) {
-            m_metalnessMap = new Qt3DRender::QParameter(
-                QStringLiteral("metalnessMap"), value, this);
-            this->addParameter(m_metalnessMap);
-        }
-        else {
-            m_metalnessMap->setValue(QVariant::fromValue(value));
-        }
+        m_metalnessMap->setValue(QVariant::fromValue(value));
     }
 
     void setNormalMap(Qt3DRender::QAbstractTexture* value)
     {
-        if (!m_normalMap) {
-            m_normalMap = new Qt3DRender::QParameter(
-                QStringLiteral("normalMap"), value, this);
-            this->addParameter(m_normalMap);
-        }
-        else {
-            m_normalMap->setValue(QVariant::fromValue(value));
-        }
+        m_normalMap->setValue(QVariant::fromValue(value));
     }
 
     void setRenderMode(RenderMode value) { m_renderMode->setValue(value); }
@@ -166,14 +138,7 @@ public slots:
 
     void setRoughnessMap(Qt3DRender::QAbstractTexture* value)
     {
-        if (!m_roughnessMap) {
-            m_roughnessMap = new Qt3DRender::QParameter(
-                QStringLiteral("roughnessMap"), value, this);
-            this->addParameter(m_roughnessMap);
-        }
-        else {
-            m_roughnessMap->setValue(QVariant::fromValue(value));
-        }
+        m_roughnessMap->setValue(QVariant::fromValue(value));
     }
 
     void setShadowCastingEnabled(bool value)

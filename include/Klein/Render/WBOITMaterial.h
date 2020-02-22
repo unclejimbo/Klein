@@ -111,15 +111,7 @@ public slots:
 
     void setBaseColorMap(Qt3DRender::QAbstractTexture* value)
     {
-        if (!m_baseColorMapInitialized) {
-            m_baseColorMap = new Qt3DRender::QParameter(
-                QStringLiteral("baseColorMap"), value, this);
-            this->addParameter(m_baseColorMap);
-            m_baseColorMapInitialized = true;
-        }
-        else {
-            m_baseColorMap->setValue(QVariant::fromValue(value));
-        }
+        m_baseColorMap->setValue(QVariant::fromValue(value));
     }
 
     void setDepthScale(float value) { m_depthScale->setValue(value); }
@@ -139,7 +131,6 @@ public:
         Qt3DRender::QFrameGraphNode* parent);
 
 protected:
-    bool m_baseColorMapInitialized = false;
     Qt3DRender::QParameter* m_baseColor;
     Qt3DRender::QParameter* m_baseColorMap;
     Qt3DRender::QParameter* m_depthScale;
