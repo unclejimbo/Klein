@@ -25,14 +25,51 @@ public:
 
     bool isEmbedded() const { return m_embedded; }
 
+    bool isEntityOnly() const { return m_entityOnly; }
+
     Qt3DCore::QNode* rootNode() { return m_rootNode; }
 
 public slots:
-    void setEnabled(bool value) { m_enabled = value; }
+    void setEnabled(bool value)
+    {
+        if (m_enabled != value) {
+            m_enabled = value;
+            emit enabledChanged(value);
+        }
+    }
 
-    void setEmbedded(bool value) { m_embedded = value; }
+    void setEmbedded(bool value)
+    {
+        if (m_embedded != value) {
+            m_embedded = value;
+            emit embeddedChanged(value);
+        }
+    }
 
-    void setRootNode(Qt3DCore::QNode* rootNode) { m_rootNode = rootNode; }
+    void setEntityOnly(bool value)
+    {
+        if (m_entityOnly != value) {
+            m_entityOnly = value;
+            emit entityOnlyChanged(value);
+        }
+    }
+
+    void setRootNode(Qt3DCore::QNode* rootNode)
+    {
+        if (m_rootNode != rootNode) {
+            m_rootNode = rootNode;
+            emit rootNodeChanged(rootNode);
+        }
+    }
+
+signals:
+    void enabledChanged(bool value);
+
+    void embeddedChanged(bool value);
+
+    void entityOnlyChanged(bool value);
+
+    void rootNodeChanged(Qt3DCore::QNode* node);
 
 private:
     void printNode(Qt3DCore::QNode* node, float pos);

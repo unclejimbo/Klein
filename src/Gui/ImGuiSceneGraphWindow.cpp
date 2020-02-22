@@ -24,6 +24,8 @@ void ImGuiSceneGraphWindow::update()
         }
 
         if (!m_embedded) { ImGui::End(); }
+
+        if (!m_enabled) { emit enabledChanged(m_enabled); }
     }
 }
 
