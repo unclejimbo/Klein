@@ -132,7 +132,10 @@ public slots:
         m_normalMap->setValue(QVariant::fromValue(value));
     }
 
-    void setRenderMode(RenderMode value) { m_renderMode->setValue(value); }
+    void setRenderMode(BasePBRMaterial::RenderMode value)
+    {
+        m_renderMode->setValue(value);
+    }
 
     void setRoughness(float value) { m_roughness->setValue(value); }
 

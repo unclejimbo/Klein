@@ -17,7 +17,8 @@ void ImGuiSceneGraphWindow::update()
 
         if (ImGui::TreeNodeEx("Scene Root", ImGuiTreeNodeFlags_DefaultOpen)) {
             auto pos = ImGui::GetWindowContentRegionWidth() - 10.0f;
-            for (auto child : m_rootNode->childNodes()) {
+            const auto& nodes = m_rootNode->childNodes();
+            for (const auto& child : nodes) {
                 printNode(child, pos);
             }
             ImGui::TreePop();
@@ -35,9 +36,8 @@ void ImGuiSceneGraphWindow::printNode(Qt3DCore::QNode* node, float pos)
     auto meta = node->metaObject();
     if (m_entityOnly && !meta->inherits(entity.metaObject())) { return; }
 
-    auto label = QString("%1#%2")
-                     .arg(meta->className())
-                     .arg(QString::number(node->id().id()));
+    auto label = QString("%1#%2").arg(meta->className(),
+                                      QString::number(node->id().id()));
     auto name = node->objectName();
     if (!name.isEmpty()) { label.append(QString(" (%1)").arg(name)); }
 
@@ -51,7 +51,8 @@ void ImGuiSceneGraphWindow::printNode(Qt3DCore::QNode* node, float pos)
     }
 
     if (isOpen) {
-        for (auto child : node->childNodes()) {
+        const auto& nodes = node->childNodes();
+        for (const auto& child : nodes) {
             printNode(child, pos);
         }
         ImGui::TreePop();

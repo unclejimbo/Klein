@@ -24,6 +24,7 @@ TrackballCameraController::TrackballCameraController(Qt3DCore::QNode* parent)
 
     QObject::connect(mouseHandler,
                      &Qt3DInput::QMouseHandler::pressed,
+                     this,
                      [this](Qt3DInput::QMouseEvent* pressedEvent) {
                          pressedEvent->setAccepted(true);
                          m_mouseLastPosition =
@@ -33,6 +34,7 @@ TrackballCameraController::TrackballCameraController(Qt3DCore::QNode* parent)
 
     QObject::connect(mouseHandler,
                      &Qt3DInput::QMouseHandler::positionChanged,
+                     this,
                      [this](Qt3DInput::QMouseEvent* positionChangedEvent) {
                          positionChangedEvent->setAccepted(true);
                          m_mouseCurrentPosition =

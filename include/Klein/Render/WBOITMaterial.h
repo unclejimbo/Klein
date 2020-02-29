@@ -116,7 +116,10 @@ public slots:
 
     void setDepthScale(float value) { m_depthScale->setValue(value); }
 
-    void setRenderMode(RenderMode value) { m_renderMode->setValue(value); }
+    void setRenderMode(WBOITMaterial::RenderMode value)
+    {
+        m_renderMode->setValue(value);
+    }
 
     void setTexCoordOffset(float value) { m_texCoordOffset->setValue(value); }
 

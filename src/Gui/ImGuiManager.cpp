@@ -204,7 +204,7 @@ void ImGuiManager::initialize(Qt3DCore::QEntity* rootEntity,
 
     Qt3DLogic::QFrameAction* frameUpdater = new Qt3DLogic::QFrameAction;
     QObject::connect(
-        frameUpdater, &Qt3DLogic::QFrameAction::triggered, [this]() {
+        frameUpdater, &Qt3DLogic::QFrameAction::triggered, this, [this]() {
             if (!m_enabled || !m_frame) return;
 
             ImGuiIO& io = ImGui::GetIO();
@@ -722,7 +722,8 @@ void ImGuiManager::updateInput()
     memcpy(io.KeysDown, w->keyDown, sizeof(w->keyDown));
 
     if (!w->keyText.isEmpty()) {
-        for (const QChar& c : w->keyText) {
+        const auto& key = w->keyText;
+        for (const auto& c : key) {
             ImWchar u = c.unicode();
             if (u) io.AddInputCharacter(u);
         }
@@ -736,7 +737,8 @@ void ImGuiManager::setEnabled(bool enabled)
 
     m_enabled = enabled;
 
-    for (Qt3DCore::QNode* n : rpd.enabledToggle)
+    auto& nodes = rpd.enabledToggle;
+    for (auto& n : nodes)
         n->setEnabled(m_enabled);
 
     if (m_inputEventFilter) m_inputEventFilter->enabled = m_enabled;

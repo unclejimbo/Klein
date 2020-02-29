@@ -71,7 +71,10 @@ public slots:
         m_baseColorMap->setValue(QVariant::fromValue(value));
     }
 
-    void setRenderMode(RenderMode value) { m_renderMode->setValue(value); }
+    void setRenderMode(BaseUnlitMaterial::RenderMode value)
+    {
+        m_renderMode->setValue(value);
+    }
 
     void setShift(float value) { m_shift->setValue(value); }
 

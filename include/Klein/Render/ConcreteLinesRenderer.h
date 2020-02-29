@@ -48,7 +48,7 @@ public slots:
     void setRadius(float radius) { m_cylinder->setRadius(radius); }
 
     void setPositions(const QVector<QVector3D>& positions,
-                      LineType type = LINES);
+                      ConcreteLinesRenderer::LineType type = LINES);
 
     void setColors(const QVector<QColor>& colors);
 
