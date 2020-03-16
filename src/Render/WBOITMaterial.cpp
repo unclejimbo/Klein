@@ -110,7 +110,7 @@ void WBOITCompositor::createTarget(Qt3DCore::QNode* parent)
     wrapMode.setY(Qt3DRender::QTextureWrapMode::ClampToEdge);
 
     m_accumTexture = new Qt3DRender::QTexture2D;
-    m_accumTexture->setFormat(Qt3DRender::QAbstractTexture::RGBA16F);
+    m_accumTexture->setFormat(Qt3DRender::QAbstractTexture::RGBA32F);
     m_accumTexture->setWrapMode(wrapMode);
     m_accumTexture->setGenerateMipMaps(false);
     m_accumTexture->setMinificationFilter(
