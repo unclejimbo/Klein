@@ -36,6 +36,8 @@ public:
     Qt3DRender::QFrameGraphNode* attachCompositionPassTo(
         Qt3DRender::QFrameGraphNode* parent);
 
+    Qt3DCore::QEntity* entity() { return m_entity; }
+
     QSize size() const { return m_size; }
 
 public slots:
