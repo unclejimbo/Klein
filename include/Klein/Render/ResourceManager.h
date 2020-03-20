@@ -43,7 +43,7 @@ public:
     {
         if (m_nameIdMap.contains(key)) {
             int id = m_nameIdMap.value(key);
-            return qobject_cast<T*>(m_idNodeMap.value(id));
+            return get<T>(id);
         }
         else {
             return nullptr;
@@ -52,15 +52,14 @@ public:
 
     void put(Qt3DCore::QNode* node)
     {
-        m_idNodeMap.insert(node->id(), node);
+        m_idNodeMap.insert(node->id().id(), node);
         node->setParent(m_root);
     }
 
     void put(const QString& key, Qt3DCore::QNode* node)
     {
-        m_nameIdMap.insert(key, node->id());
-        m_idNodeMap.insert(node->id(), node);
-        node->setParent(m_root);
+        m_nameIdMap.insert(key, node->id().id());
+        put(node);
     }
 
 private:
