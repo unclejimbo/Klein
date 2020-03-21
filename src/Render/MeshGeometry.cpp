@@ -6,6 +6,10 @@
 namespace Klein
 {
 
+MeshGeometry::MeshGeometry(Qt3DCore::QNode* parent)
+    : MeshGeometry(MeshGeometry::ADDITIONAL_ATTRIBUTE_NONE, parent)
+{}
+
 MeshGeometry::MeshGeometry(AdditionalAttributes attributes,
                            Qt3DCore::QNode* parent)
     : Qt3DRender::QGeometry(parent)

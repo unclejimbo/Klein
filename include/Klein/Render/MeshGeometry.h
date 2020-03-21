@@ -29,7 +29,9 @@ public:
     using AdditionalAttributes = char;
 
 public:
-    MeshGeometry(AdditionalAttributes attributes = ADDITIONAL_ATTRIBUTE_NONE,
+    explicit MeshGeometry(Qt3DCore::QNode* parent = nullptr);
+
+    MeshGeometry(AdditionalAttributes attributes,
                  Qt3DCore::QNode* parent = nullptr);
 
     virtual ~MeshGeometry() = default;
