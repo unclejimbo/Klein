@@ -31,6 +31,7 @@ add_library(Klein
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/UnlitSolidWireframeMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Render/WBOITMaterial.h
     ${PROJECT_SOURCE_DIR}/include/Klein/Util/ColorPalette.h
+    ${PROJECT_SOURCE_DIR}/include/Klein/Util/Gizmo.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/AbstractQt3DWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ImGuiDockSpace.cpp
@@ -55,11 +56,13 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/UnlitSolidWireframeMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Render/WBOITMaterial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Util/ColorPalette.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Util/Gizmo.cpp
 
     ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui_demo.cpp
     ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui_draw.cpp
     ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui_widgets.cpp
     ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui.cpp
+    ${PROJECT_SOURCE_DIR}/external/ImGuizmo/ImGuizmo.cpp
 )
 add_library(Klein::Klein ALIAS Klein)
 
@@ -76,6 +79,7 @@ target_include_directories(Klein
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/external/imgui/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/external/ImGuizmo>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
