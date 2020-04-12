@@ -92,7 +92,7 @@ void TrackballCameraController::moveCamera(
 
     if (theCamera == nullptr) return;
 
-    if (state.leftMouseButtonActive) {
+    if (state.middleMouseButtonActive) {
         if (state.shiftKeyActive) { // pan
             auto dist =
                 (theCamera->position() - theCamera->viewCenter()).length();
