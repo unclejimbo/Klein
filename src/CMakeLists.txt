@@ -58,10 +58,10 @@ add_library(Klein
     ${CMAKE_CURRENT_SOURCE_DIR}/Util/ColorPalette.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Util/Gizmo.cpp
 
-    ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui_demo.cpp
-    ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui_draw.cpp
-    ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui_widgets.cpp
-    ${PROJECT_SOURCE_DIR}/external/imgui/src/imgui.cpp
+    ${PROJECT_SOURCE_DIR}/external/imgui/imgui_demo.cpp
+    ${PROJECT_SOURCE_DIR}/external/imgui/imgui_draw.cpp
+    ${PROJECT_SOURCE_DIR}/external/imgui/imgui_widgets.cpp
+    ${PROJECT_SOURCE_DIR}/external/imgui/imgui.cpp
     ${PROJECT_SOURCE_DIR}/external/ImGuizmo/ImGuizmo.cpp
 )
 add_library(Klein::Klein ALIAS Klein)
@@ -78,7 +78,7 @@ target_compile_features(Klein PUBLIC cxx_std_14)
 target_include_directories(Klein
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/external/imgui/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/external/imgui>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/external/ImGuizmo>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         $<INSTALL_INTERFACE:include>
