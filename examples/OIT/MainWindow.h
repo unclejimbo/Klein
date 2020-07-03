@@ -34,7 +34,7 @@ protected:
 private:
     Qt3DRender::QCamera* m_camera = nullptr;
     Klein::TrackballCameraController* m_cameraController = nullptr;
-    Klein::WBOITCompositor* m_compositor;
+    Klein::WBOITCompositor* m_compositor = nullptr;
 };
 
 #endif
