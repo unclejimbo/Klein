@@ -44,16 +44,16 @@ Qt3DRender::QFrameGraphNode* WBOITCompositor::attachRenderTargetTo(
     clearBuffer0->setBuffers(Qt3DRender::QClearBuffers::ColorBuffer);
     clearBuffer0->setColorBuffer(m_accumOutput);
     clearBuffer0->setClearColor(QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f));
-    new Qt3DRender::QNoDraw(clearBuffer0);
 
-    auto clearBuffer1 = new Qt3DRender::QClearBuffers(targetSel);
+    auto clearBuffer1 = new Qt3DRender::QClearBuffers(clearBuffer0);
     clearBuffer1->setBuffers(Qt3DRender::QClearBuffers::ColorBuffer);
     clearBuffer1->setColorBuffer(m_revealageOutput);
     clearBuffer1->setClearColor(QColor::fromRgbF(1.0f, 0.0f, 0.0f, 0.0f));
-    new Qt3DRender::QNoDraw(clearBuffer1);
 
-    auto clearBuffer2 = new Qt3DRender::QClearBuffers(targetSel);
+    auto clearBuffer2 = new Qt3DRender::QClearBuffers(clearBuffer1);
     clearBuffer2->setBuffers(Qt3DRender::QClearBuffers::DepthStencilBuffer);
+    clearBuffer2->setClearDepthValue(1.0);
+    clearBuffer2->setClearStencilValue(0.0);
     new Qt3DRender::QNoDraw(clearBuffer2);
 
     return targetSel;
