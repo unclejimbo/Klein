@@ -1,5 +1,6 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+option(BUILD_SHARED_LIBS "Build shared library" ON)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets 3DCore 3DLogic 3DRender 3DExtras)
 
@@ -66,7 +67,6 @@ add_library(Klein
 )
 add_library(Klein::Klein ALIAS Klein)
 
-option(BUILD_SHARED_LIBS "Build shared library" ON)
 include(GenerateExportHeader)
 generate_export_header(Klein
     EXPORT_MACRO_NAME KLEIN_API
