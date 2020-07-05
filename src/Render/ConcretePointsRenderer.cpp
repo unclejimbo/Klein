@@ -72,29 +72,35 @@ ConcretePointsRenderer::ConcretePointsRenderer(AdditionalAttributes attributes,
 
 void ConcretePointsRenderer::setPositions(const QVector<QVector3D>& positions)
 {
-    QVector<float> modelMatrices;
-    modelMatrices.reserve(positions.size() * 16);
-    for (const auto& p : positions) {
-        auto mat = pointTransformation(p);
-        std::copy(
-            mat.data(), mat.data() + 16, std::back_inserter(modelMatrices));
+    if (!positions.isEmpty()) {
+        QVector<float> modelMatrices;
+        modelMatrices.reserve(positions.size() * 16);
+        for (const auto& p : positions) {
+            auto mat = pointTransformation(p);
+            std::copy(
+                mat.data(), mat.data() + 16, std::back_inserter(modelMatrices));
+        }
+        auto bytes =
+            createByteArray(modelMatrices.begin(), modelMatrices.end());
+        m_modelBuffer->setData(bytes);
+        m_instanceModel->setCount(positions.size());
+        this->setInstanceCount(positions.size());
     }
-    auto bytes = createByteArray(modelMatrices.begin(), modelMatrices.end());
-    m_modelBuffer->setData(bytes);
-    m_instanceModel->setCount(positions.size());
-    this->setInstanceCount(positions.size());
 }
 
 void ConcretePointsRenderer::setColors(const QVector<QColor>& colors)
 {
-    if (m_colorBuffer != nullptr) {
-        auto bytes = createByteArray(colors.begin(), colors.end());
-        m_colorBuffer->setData(bytes);
-        m_instanceColor->setCount(colors.size());
-    }
-    else {
-        qWarning() << "[Warning] ConcretePointsRenderer::setColors called on "
-                      "an object without color attribute.";
+    if (!colors.isEmpty()) {
+        if (m_colorBuffer != nullptr) {
+            auto bytes = createByteArray(colors.begin(), colors.end());
+            m_colorBuffer->setData(bytes);
+            m_instanceColor->setCount(colors.size());
+        }
+        else {
+            qWarning()
+                << "[Warning] ConcretePointsRenderer::setColors called on "
+                   "an object without color attribute.";
+        }
     }
 }
 

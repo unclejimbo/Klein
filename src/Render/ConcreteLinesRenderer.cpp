@@ -73,55 +73,63 @@ ConcreteLinesRenderer::ConcreteLinesRenderer(AdditionalAttributes attributes,
 void ConcreteLinesRenderer::setPositions(const QVector<QVector3D>& positions,
                                          LineType type)
 {
-    QVector<float> modelMatrices;
-    int cnt;
-    if (type == LINES) {
-        cnt = positions.size() / 2;
-        modelMatrices.reserve(cnt * 16);
-        for (int i = 0; i < positions.size(); i += 2) {
-            auto mat = lineTransformation(positions[i], positions[i + 1]);
+    if (!positions.isEmpty()) {
+        QVector<float> modelMatrices;
+        int cnt;
+        if (type == LINES) {
+            cnt = positions.size() / 2;
+            modelMatrices.reserve(cnt * 16);
+            for (int i = 0; i < positions.size(); i += 2) {
+                auto mat = lineTransformation(positions[i], positions[i + 1]);
+                std::copy(mat.data(),
+                          mat.data() + 16,
+                          std::back_inserter(modelMatrices));
+            }
+        }
+        else if (type == LINE_STRIP) {
+            cnt = positions.size() - 1;
+            modelMatrices.reserve(cnt * 16);
+            for (int i = 0; i < positions.size() - 1; ++i) {
+                auto mat = lineTransformation(positions[i], positions[i + 1]);
+                std::copy(mat.data(),
+                          mat.data() + 16,
+                          std::back_inserter(modelMatrices));
+            }
+        }
+        else if (type == LINE_LOOP) {
+            cnt = positions.size();
+            modelMatrices.reserve(cnt * 16);
+            for (int i = 0; i < positions.size() - 1; ++i) {
+                auto mat = lineTransformation(positions[i], positions[i + 1]);
+                std::copy(mat.data(),
+                          mat.data() + 16,
+                          std::back_inserter(modelMatrices));
+            }
+            auto mat = lineTransformation(positions.back(), positions.front());
             std::copy(
                 mat.data(), mat.data() + 16, std::back_inserter(modelMatrices));
         }
+        auto bytes =
+            createByteArray(modelMatrices.begin(), modelMatrices.end());
+        m_modelBuffer->setData(bytes);
+        m_instanceModel->setCount(cnt);
+        this->setInstanceCount(cnt);
     }
-    else if (type == LINE_STRIP) {
-        cnt = positions.size() - 1;
-        modelMatrices.reserve(cnt * 16);
-        for (int i = 0; i < positions.size() - 1; ++i) {
-            auto mat = lineTransformation(positions[i], positions[i + 1]);
-            std::copy(
-                mat.data(), mat.data() + 16, std::back_inserter(modelMatrices));
-        }
-    }
-    else if (type == LINE_LOOP) {
-        cnt = positions.size();
-        modelMatrices.reserve(cnt * 16);
-        for (int i = 0; i < positions.size() - 1; ++i) {
-            auto mat = lineTransformation(positions[i], positions[i + 1]);
-            std::copy(
-                mat.data(), mat.data() + 16, std::back_inserter(modelMatrices));
-        }
-        auto mat = lineTransformation(positions.back(), positions.front());
-        std::copy(
-            mat.data(), mat.data() + 16, std::back_inserter(modelMatrices));
-    }
-    auto bytes = createByteArray(modelMatrices.begin(), modelMatrices.end());
-    m_modelBuffer->setData(bytes);
-    m_instanceModel->setCount(cnt);
-    this->setInstanceCount(cnt);
 }
 
 void ConcreteLinesRenderer::setColors(const QVector<QColor>& colors)
 {
-    if (m_colorBuffer != nullptr) {
-        auto bytes = createByteArray(colors.begin(), colors.end());
-        m_colorBuffer->setData(bytes);
-        m_instanceColor->setCount(colors.size());
-    }
-    else {
-        qWarning()
-            << "[Warning] ConcreteLinesRenderer::setColors called on an object "
-               "without color attribute.";
+    if (!colors.isEmpty()) {
+        if (m_colorBuffer != nullptr) {
+            auto bytes = createByteArray(colors.begin(), colors.end());
+            m_colorBuffer->setData(bytes);
+            m_instanceColor->setCount(colors.size());
+        }
+        else {
+            qWarning() << "[Warning] ConcreteLinesRenderer::setColors called "
+                          "on an object "
+                          "without color attribute.";
+        }
     }
 }
 
