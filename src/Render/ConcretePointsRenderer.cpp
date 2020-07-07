@@ -83,9 +83,9 @@ void ConcretePointsRenderer::setPositions(const QVector<QVector3D>& positions)
         auto bytes =
             createByteArray(modelMatrices.begin(), modelMatrices.end());
         m_modelBuffer->setData(bytes);
-        m_instanceModel->setCount(positions.size());
-        this->setInstanceCount(positions.size());
     }
+    m_instanceModel->setCount(positions.size());
+    this->setInstanceCount(positions.size());
 }
 
 void ConcretePointsRenderer::setColors(const QVector<QColor>& colors)

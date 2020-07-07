@@ -73,9 +73,9 @@ ConcreteLinesRenderer::ConcreteLinesRenderer(AdditionalAttributes attributes,
 void ConcreteLinesRenderer::setPositions(const QVector<QVector3D>& positions,
                                          LineType type)
 {
+    int cnt = 0;
     if (!positions.isEmpty()) {
         QVector<float> modelMatrices;
-        int cnt;
         if (type == LINES) {
             cnt = positions.size() / 2;
             modelMatrices.reserve(cnt * 16);
@@ -112,9 +112,9 @@ void ConcreteLinesRenderer::setPositions(const QVector<QVector3D>& positions,
         auto bytes =
             createByteArray(modelMatrices.begin(), modelMatrices.end());
         m_modelBuffer->setData(bytes);
-        m_instanceModel->setCount(cnt);
-        this->setInstanceCount(cnt);
     }
+    m_instanceModel->setCount(cnt);
+    this->setInstanceCount(cnt);
 }
 
 void ConcreteLinesRenderer::setColors(const QVector<QColor>& colors)
