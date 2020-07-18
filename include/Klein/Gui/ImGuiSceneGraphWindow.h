@@ -71,6 +71,8 @@ signals:
 
     void rootNodeChanged(Qt3DCore::QNode* node);
 
+    void selectedNodeChanged(Qt3DCore::QNode* node);
+
 private:
     void printNode(Qt3DCore::QNode* node, float pos);
 
@@ -78,6 +80,7 @@ private:
     bool m_enabled = true;
     bool m_embedded = false;
     bool m_entityOnly = true;
+    quint64 m_selectedId = 0;
     Qt3DCore::QNode* m_rootNode = nullptr;
 };
 

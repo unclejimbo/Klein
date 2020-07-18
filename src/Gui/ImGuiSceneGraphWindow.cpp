@@ -41,7 +41,23 @@ void ImGuiSceneGraphWindow::printNode(Qt3DCore::QNode* node, float pos)
     auto name = node->objectName();
     if (!name.isEmpty()) { label.append(QString(" (%1)").arg(name)); }
 
-    auto isOpen = ImGui::TreeNode(label.toStdString().c_str());
+    ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow;
+    if (m_selectedId == node->id().id()) {
+        nodeFlags |= ImGuiTreeNodeFlags_Selected;
+    }
+
+    auto isOpen = ImGui::TreeNodeEx(label.toStdString().c_str(), nodeFlags);
+
+    if (ImGui::IsItemClicked()) {
+        if (m_selectedId == node->id().id()) {
+            m_selectedId = 0;
+            emit selectedNodeChanged(nullptr);
+        }
+        else {
+            m_selectedId = node->id().id();
+            emit selectedNodeChanged(node);
+        }
+    }
 
     ImGui::SameLine(pos);
     bool visible = node->isEnabled();
