@@ -126,9 +126,10 @@ void ConcreteLinesRenderer::setColors(const QVector<QColor>& colors)
             m_instanceColor->setCount(colors.size());
         }
         else {
-            qWarning() << "[Warning] ConcreteLinesRenderer::setColors called "
-                          "on an object "
-                          "without color attribute.";
+            qWarning()
+                << "[Klein Warning] ConcreteLinesRenderer::setColors called "
+                   "on an object "
+                   "without color attribute.";
         }
     }
 }

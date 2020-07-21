@@ -5,17 +5,15 @@ namespace Klein
 
 Gizmo::Gizmo(QObject* parent) : QObject(parent) {}
 
-Gizmo::~Gizmo() = default;
-
 void Gizmo::update()
 {
     if (m_enabled) {
         ImGuizmo::BeginFrame();
-        auto& io = ImGui::GetIO();
-        auto viewMat = m_camera->viewMatrix();
-        auto view = viewMat.constData();
-        auto projMat = m_camera->projectionMatrix();
-        auto proj = projMat.constData();
+        const auto& io = ImGui::GetIO();
+        const auto viewMat = m_camera->viewMatrix();
+        const auto view = viewMat.constData();
+        const auto projMat = m_camera->projectionMatrix();
+        const auto proj = projMat.constData();
         auto tranMat = m_transform->matrix();
         auto tran = tranMat.data();
         QMatrix4x4 idMat;

@@ -22,14 +22,10 @@ UnlitInstancedMaterial::UnlitInstancedMaterial(Qt3DCore::QNode* parent)
     this->setEffect(effect);
 }
 
-const QString UnlitInstancedMaterial::effectName{
-    "KLEIN_EFFECT_UNLIT_INSTANCED"
-};
-
 Qt3DRender::QEffect* UnlitInstancedMaterial::createEffect()
 {
-    QString shaderPath("data/shader/");
-    auto shader =
+    const QString shaderPath("data/shader/");
+    const auto shader =
         createShader(shaderPath + QStringLiteral("ShadingInstanced.vert"),
                      shaderPath + QStringLiteral("Unlit.frag"));
     return createEffectImpl(shader);

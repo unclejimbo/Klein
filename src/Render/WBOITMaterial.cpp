@@ -109,7 +109,23 @@ void WBOITCompositor::createTarget(Qt3DCore::QNode* parent)
     wrapMode.setX(Qt3DRender::QTextureWrapMode::ClampToEdge);
     wrapMode.setY(Qt3DRender::QTextureWrapMode::ClampToEdge);
 
-    m_accumTexture = new Qt3DRender::QTexture2D;
+    m_renderTarget = new Qt3DRender::QRenderTarget(parent);
+
+    m_accumOutput = new Qt3DRender::QRenderTargetOutput(m_renderTarget);
+    m_accumOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color0);
+    m_renderTarget->addOutput(m_accumOutput);
+
+    m_revealageOutput = new Qt3DRender::QRenderTargetOutput(m_renderTarget);
+    m_revealageOutput->setAttachmentPoint(
+        Qt3DRender::QRenderTargetOutput::Color1);
+    m_renderTarget->addOutput(m_revealageOutput);
+
+    m_depthOutput = new Qt3DRender::QRenderTargetOutput(m_renderTarget);
+    m_depthOutput->setAttachmentPoint(
+        Qt3DRender::QRenderTargetOutput::DepthStencil);
+    m_renderTarget->addOutput(m_depthOutput);
+
+    m_accumTexture = new Qt3DRender::QTexture2D(m_accumOutput);
     m_accumTexture->setFormat(Qt3DRender::QAbstractTexture::RGBA32F);
     m_accumTexture->setWrapMode(wrapMode);
     m_accumTexture->setGenerateMipMaps(false);
@@ -117,8 +133,9 @@ void WBOITCompositor::createTarget(Qt3DCore::QNode* parent)
         Qt3DRender::QAbstractTexture::Nearest);
     m_accumTexture->setMagnificationFilter(
         Qt3DRender::QAbstractTexture::Nearest);
+    m_accumOutput->setTexture(m_accumTexture);
 
-    m_revealageTexture = new Qt3DRender::QTexture2D;
+    m_revealageTexture = new Qt3DRender::QTexture2D(m_revealageOutput);
     m_revealageTexture->setFormat(Qt3DRender::QAbstractTexture::R8_UNorm);
     m_revealageTexture->setWrapMode(wrapMode);
     m_revealageTexture->setGenerateMipMaps(false);
@@ -126,8 +143,9 @@ void WBOITCompositor::createTarget(Qt3DCore::QNode* parent)
         Qt3DRender::QAbstractTexture::Nearest);
     m_revealageTexture->setMagnificationFilter(
         Qt3DRender::QAbstractTexture::Nearest);
+    m_revealageOutput->setTexture(m_revealageTexture);
 
-    m_depthTexture = new Qt3DRender::QTexture2D;
+    m_depthTexture = new Qt3DRender::QTexture2D(m_depthOutput);
     m_depthTexture->setFormat(Qt3DRender::QAbstractTexture::D24S8);
     m_depthTexture->setWrapMode(wrapMode);
     m_depthTexture->setGenerateMipMaps(false);
@@ -135,78 +153,63 @@ void WBOITCompositor::createTarget(Qt3DCore::QNode* parent)
         Qt3DRender::QAbstractTexture::Nearest);
     m_depthTexture->setMagnificationFilter(
         Qt3DRender::QAbstractTexture::Nearest);
-
-    m_accumOutput = new Qt3DRender::QRenderTargetOutput;
-    m_accumOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color0);
-    m_accumOutput->setTexture(m_accumTexture);
-
-    m_revealageOutput = new Qt3DRender::QRenderTargetOutput;
-    m_revealageOutput->setAttachmentPoint(
-        Qt3DRender::QRenderTargetOutput::Color1);
-    m_revealageOutput->setTexture(m_revealageTexture);
-
-    m_depthOutput = new Qt3DRender::QRenderTargetOutput;
-    m_depthOutput->setAttachmentPoint(
-        Qt3DRender::QRenderTargetOutput::DepthStencil);
     m_depthOutput->setTexture(m_depthTexture);
-
-    m_renderTarget = new Qt3DRender::QRenderTarget(parent);
-    m_renderTarget->addOutput(m_accumOutput);
-    m_renderTarget->addOutput(m_revealageOutput);
-    m_renderTarget->addOutput(m_depthOutput);
 }
 
 void WBOITCompositor::createEntity(Qt3DCore::QNode* parent)
 {
-    // usually, only one compositor is used in a scene so we choose not to share
-    // the effect for it
-    QString shaderPath("data/shader/");
-    auto shader =
-        createShader(shaderPath + QStringLiteral("NoProj.vert"),
-                     shaderPath + QStringLiteral("WBOITComposition.frag"));
+    m_entity = new Qt3DCore::QEntity(parent);
 
-    auto compositionPass = new Qt3DRender::QRenderPass;
-    compositionPass->setShaderProgram(shader);
-    auto compositionPassFK = new Qt3DRender::QFilterKey;
-    compositionPassFK->setName(QStringLiteral("renderPass"));
-    compositionPassFK->setValue(QStringLiteral("composition"));
-    compositionPass->addFilterKey(compositionPassFK);
 
-    auto technique = new Qt3DRender::QTechnique;
-    technique->addRenderPass(compositionPass);
+    auto mesh = new Qt3DExtras::QPlaneMesh(m_entity);
+    mesh->setWidth(2.0f);
+    mesh->setHeight(2.0f);
+    mesh->setMeshResolution(QSize(2, 2));
+    m_entity->addComponent(mesh);
+
+    auto transform = new Qt3DCore::QTransform(m_entity);
+    transform->setRotationX(90.0f);
+    m_entity->addComponent(transform);
+
+    auto material = new Qt3DRender::QMaterial(m_entity);
+    m_entity->addComponent(material);
+
+    auto effect = new Qt3DRender::QEffect(material);
+    material->setEffect(effect);
+
+    auto technique = new Qt3DRender::QTechnique(effect);
     technique->graphicsApiFilter()->setApi(
         Qt3DRender::QGraphicsApiFilter::OpenGL);
     technique->graphicsApiFilter()->setMajorVersion(3);
     technique->graphicsApiFilter()->setMinorVersion(3);
     technique->graphicsApiFilter()->setProfile(
         Qt3DRender::QGraphicsApiFilter::CoreProfile);
-    auto renderingStyle = new Qt3DRender::QFilterKey;
+    effect->addTechnique(technique);
+
+    // usually, only one compositor is used in a scene so we choose not to share
+    // the effect for it
+    const QString shaderPath("data/shader/");
+    const auto shader =
+        createShader(shaderPath + QStringLiteral("NoProj.vert"),
+                     shaderPath + QStringLiteral("WBOITComposition.frag"));
+
+    auto compositionPass = new Qt3DRender::QRenderPass(technique);
+    compositionPass->setShaderProgram(shader);
+    auto compositionPassFK = new Qt3DRender::QFilterKey(compositionPass);
+    compositionPassFK->setName(QStringLiteral("renderPass"));
+    compositionPassFK->setValue(QStringLiteral("composition"));
+    compositionPass->addFilterKey(compositionPassFK);
+    technique->addRenderPass(compositionPass);
+
+    auto renderingStyle = new Qt3DRender::QFilterKey(technique);
     renderingStyle->setName(QStringLiteral("renderingStyle"));
     renderingStyle->setValue(QStringLiteral("forward"));
     technique->addFilterKey(renderingStyle);
-    auto renderingTechnique = new Qt3DRender::QFilterKey;
+
+    auto renderingTechnique = new Qt3DRender::QFilterKey(technique);
     renderingTechnique->setName(QStringLiteral("renderingTechnique"));
     renderingTechnique->setValue(QStringLiteral("wboit"));
     technique->addFilterKey(renderingTechnique);
-
-    auto effect = new Qt3DRender::QEffect;
-    effect->addTechnique(technique);
-
-    auto material = new Qt3DRender::QMaterial;
-    material->setEffect(effect);
-
-    auto mesh = new Qt3DExtras::QPlaneMesh;
-    mesh->setWidth(2.0f);
-    mesh->setHeight(2.0f);
-    mesh->setMeshResolution(QSize(2, 2));
-
-    auto transform = new Qt3DCore::QTransform;
-    transform->setRotationX(90.0f);
-
-    m_entity = new Qt3DCore::QEntity(parent);
-    m_entity->addComponent(material);
-    m_entity->addComponent(mesh);
-    m_entity->addComponent(transform);
 }
 
 WBOITMaterial::WBOITMaterial(Qt3DCore::QNode* parent)
@@ -247,41 +250,42 @@ WBOITMaterial::WBOITMaterial(Qt3DCore::QNode* parent)
     this->setEffect(effect);
 }
 
-const QString WBOITMaterial::effectName{ "KLEIN_EFFECT_WBOIT" };
-
 Qt3DRender::QEffect* WBOITMaterial::createEffect()
 {
-    QString shaderPath("data/shader/");
-    auto shader =
-        createShader(shaderPath + QStringLiteral("Shading.vert"),
-                     shaderPath + QStringLiteral("WBOITTransparent.frag"));
+    auto effect = new Qt3DRender::QEffect;
 
-    auto transparentPass = new Qt3DRender::QRenderPass;
-    transparentPass->setShaderProgram(shader);
-    auto transparentPassFK = new Qt3DRender::QFilterKey;
-    transparentPassFK->setName(QStringLiteral("renderPass"));
-    transparentPassFK->setValue(QStringLiteral("transparent"));
-    transparentPass->addFilterKey(transparentPassFK);
-
-    auto technique = new Qt3DRender::QTechnique;
-    technique->addRenderPass(transparentPass);
+    auto technique = new Qt3DRender::QTechnique(effect);
+    effect->addTechnique(technique);
     technique->graphicsApiFilter()->setApi(
         Qt3DRender::QGraphicsApiFilter::OpenGL);
     technique->graphicsApiFilter()->setMajorVersion(3);
     technique->graphicsApiFilter()->setMinorVersion(3);
     technique->graphicsApiFilter()->setProfile(
         Qt3DRender::QGraphicsApiFilter::CoreProfile);
-    auto renderingStyle = new Qt3DRender::QFilterKey;
+
+    const QString shaderPath("data/shader/");
+    const auto shader =
+        createShader(shaderPath + QStringLiteral("Shading.vert"),
+                     shaderPath + QStringLiteral("WBOITTransparent.frag"));
+
+    auto transparentPass = new Qt3DRender::QRenderPass(technique);
+    technique->addRenderPass(transparentPass);
+    transparentPass->setShaderProgram(shader);
+    auto transparentPassFK = new Qt3DRender::QFilterKey(transparentPass);
+    transparentPassFK->setName(QStringLiteral("renderPass"));
+    transparentPassFK->setValue(QStringLiteral("transparent"));
+    transparentPass->addFilterKey(transparentPassFK);
+
+    auto renderingStyle = new Qt3DRender::QFilterKey(technique);
     renderingStyle->setName(QStringLiteral("renderingStyle"));
     renderingStyle->setValue(QStringLiteral("forward"));
     technique->addFilterKey(renderingStyle);
-    auto renderingTechnique = new Qt3DRender::QFilterKey;
+
+    auto renderingTechnique = new Qt3DRender::QFilterKey(technique);
     renderingTechnique->setName(QStringLiteral("renderingTechnique"));
     renderingTechnique->setValue(QStringLiteral("wboit"));
     technique->addFilterKey(renderingTechnique);
 
-    auto effect = new Qt3DRender::QEffect;
-    effect->addTechnique(technique);
     return effect;
 }
 
@@ -289,17 +293,17 @@ Qt3DRender::QFrameGraphNode* WBOITMaterial::attachTranparentPassTo(
     Qt3DRender::QFrameGraphNode* parent)
 {
     auto tfilter = new Qt3DRender::QTechniqueFilter(parent);
-    auto renderingStyleFK = new Qt3DRender::QFilterKey;
+    auto renderingStyleFK = new Qt3DRender::QFilterKey(tfilter);
     renderingStyleFK->setName(QStringLiteral("renderingStyle"));
     renderingStyleFK->setValue(QStringLiteral("forward"));
     tfilter->addMatch(renderingStyleFK);
-    auto renderingTechnique = new Qt3DRender::QFilterKey;
+    auto renderingTechnique = new Qt3DRender::QFilterKey(tfilter);
     renderingTechnique->setName(QStringLiteral("renderingTechnique"));
     renderingTechnique->setValue(QStringLiteral("wboit"));
     tfilter->addMatch(renderingTechnique);
 
     auto pfilter = new Qt3DRender::QRenderPassFilter(tfilter);
-    auto passFK = new Qt3DRender::QFilterKey;
+    auto passFK = new Qt3DRender::QFilterKey(pfilter);
     passFK->setName(QStringLiteral("renderPass"));
     passFK->setValue(QStringLiteral("transparent"));
     pfilter->addMatch(passFK);

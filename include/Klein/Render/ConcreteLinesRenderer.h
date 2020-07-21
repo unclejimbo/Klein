@@ -42,8 +42,6 @@ public:
         AdditionalAttributes attributes = ADDITIONAL_ATTRIBUTE_NONE,
         Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~ConcreteLinesRenderer() = default;
-
 public slots:
     void setRadius(float radius) { m_cylinder->setRadius(radius); }
 

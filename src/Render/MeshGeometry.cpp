@@ -85,9 +85,9 @@ void MeshGeometry::setNormalBuffer(
         m_normals->setByteStride(byteStride);
     }
     else {
-        qWarning()
-            << "[Warning] MeshGeometry::setNormalBuffer called on an object "
-               "without normal attribute.";
+        qWarning() << "[Klein Warning] MeshGeometry::setNormalBuffer called on "
+                      "an object "
+                      "without normal attribute.";
     }
 }
 
@@ -106,9 +106,9 @@ void MeshGeometry::setTexCoordBuffer(
         m_texCoords->setByteStride(byteStride);
     }
     else {
-        qWarning()
-            << "[Warning] MeshGeometry::setTexCoordBuffer called on an object "
-               "without texCoord attribute.";
+        qWarning() << "[Klein Warning] MeshGeometry::setTexCoordBuffer called "
+                      "on an object "
+                      "without texCoord attribute.";
     }
 }
 
@@ -127,9 +127,9 @@ void MeshGeometry::setColorBuffer(
         m_colors->setByteStride(byteStride);
     }
     else {
-        qWarning()
-            << "[Warning] MeshGeometry::setColorBuffer called on an object "
-               "without color attribute.";
+        qWarning() << "[Klein Warning] MeshGeometry::setColorBuffer called on "
+                      "an object "
+                      "without color attribute.";
     }
 }
 

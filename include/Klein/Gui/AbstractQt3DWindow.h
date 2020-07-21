@@ -32,8 +32,6 @@ class KLEIN_API AbstractQt3DWindow : public QWindow
 public:
     explicit AbstractQt3DWindow(QWindow* parent = nullptr);
 
-    virtual ~AbstractQt3DWindow() {}
-
 protected:
     void exposeEvent(QExposeEvent*) override;
 

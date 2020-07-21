@@ -40,8 +40,6 @@ public:
 public:
     explicit BasePBRMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~BasePBRMaterial() = default;
-
     QColor baseColor() const { return m_baseColor->value().value<int>(); }
 
     const Qt3DRender::QAbstractTexture* baseColorMap() const

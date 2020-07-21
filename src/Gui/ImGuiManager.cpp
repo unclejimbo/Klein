@@ -152,21 +152,21 @@ public:
         case QEvent::MouseButtonPress:
         case QEvent::MouseMove:
         case QEvent::MouseButtonRelease: {
-            QMouseEvent* me = static_cast<QMouseEvent*>(event);
+            QMouseEvent* me = dynamic_cast<QMouseEvent*>(event);
             mousePos = me->pos();
             mouseButtonsDown = me->buttons();
             modifiers = me->modifiers();
         } break;
 
         case QEvent::Wheel: {
-            QWheelEvent* we = static_cast<QWheelEvent*>(event);
+            QWheelEvent* we = dynamic_cast<QWheelEvent*>(event);
             mouseWheel += we->angleDelta().y() / 120.0f;
         } break;
 
         case QEvent::KeyPress:
         case QEvent::KeyRelease: {
             const bool down = event->type() == QEvent::KeyPress;
-            QKeyEvent* ke = static_cast<QKeyEvent*>(event);
+            QKeyEvent* ke = dynamic_cast<QKeyEvent*>(event);
             modifiers = ke->modifiers();
             if (down) keyText.append(ke->text());
             int k = ke->key();

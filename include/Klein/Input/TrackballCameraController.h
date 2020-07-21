@@ -30,8 +30,6 @@ class KLEIN_API TrackballCameraController
 public:
     explicit TrackballCameraController(Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~TrackballCameraController() = default;
-
     QSize windowSize() const { return m_windowSize; }
 
     float trackballSize() const { return m_trackballSize; }
@@ -83,7 +81,7 @@ public slots:
         emit zoomSpeedChanged(m_zoomSpeed);
     }
 
-    void reset()
+    void reset() noexcept
     {
         m_rotationSpeed = 2.0f;
         m_panSpeed = 1.0f;

@@ -25,8 +25,6 @@ public:
         : m_size(size), m_count(count), m_colors({ color1, color2 })
     {}
 
-    virtual ~CheckerboardTextureImageDataGenerator() {}
-
     Qt3DRender::QTextureImageDataPtr operator()() override;
 
     bool operator==(
@@ -44,11 +42,9 @@ class KLEIN_API CheckerboardTextureImage
     Q_OBJECT
 
 public:
-    CheckerboardTextureImage(Qt3DCore::QNode* parent = nullptr)
+    explicit CheckerboardTextureImage(Qt3DCore::QNode* parent = nullptr)
         : Qt3DRender::QAbstractTextureImage(parent)
     {}
-
-    virtual ~CheckerboardTextureImage() {}
 
 public slots:
     void setSize(int size)

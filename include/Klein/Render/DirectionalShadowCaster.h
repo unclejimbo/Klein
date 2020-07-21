@@ -26,8 +26,6 @@ class KLEIN_API DirectionalShadowCaster : public Qt3DCore::QNode
 public:
     explicit DirectionalShadowCaster(Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~DirectionalShadowCaster() = default;
-
     Qt3DRender::QCamera* camera() { return m_camera; }
 
     QVector3D lightDirection() const { return -m_camera->viewVector(); }
@@ -80,10 +78,10 @@ public slots:
 
 private:
     QSize m_size;
-    Qt3DRender::QCamera* m_camera;
-    Qt3DRender::QRenderTarget* m_depthTarget;
-    Qt3DRender::QRenderTargetOutput* m_depthOutput;
-    Qt3DRender::QTexture2D* m_depthTexture;
+    Qt3DRender::QCamera* m_camera = nullptr;
+    Qt3DRender::QRenderTarget* m_depthTarget = nullptr;
+    Qt3DRender::QRenderTargetOutput* m_depthOutput = nullptr;
+    Qt3DRender::QTexture2D* m_depthTexture = nullptr;
 };
 
 } // namespace Klein

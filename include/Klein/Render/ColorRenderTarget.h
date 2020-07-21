@@ -22,8 +22,6 @@ public:
         Qt3DRender::QRenderTargetOutput::AttachmentPoint attatchmentPoint,
         Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~ColorRenderTarget() = default;
-
     const Qt3DRender::QTexture2D* colorTexture() const
     {
         return m_colorTexture;
@@ -46,10 +44,10 @@ public slots:
 
 private:
     QSize m_size;
-    Qt3DRender::QRenderTargetOutput* m_colorOutput;
-    Qt3DRender::QRenderTargetOutput* m_depthOutput;
-    Qt3DRender::QTexture2D* m_colorTexture;
-    Qt3DRender::QTexture2D* m_depthTexture;
+    Qt3DRender::QRenderTargetOutput* m_colorOutput = nullptr;
+    Qt3DRender::QRenderTargetOutput* m_depthOutput = nullptr;
+    Qt3DRender::QTexture2D* m_colorTexture = nullptr;
+    Qt3DRender::QTexture2D* m_depthTexture = nullptr;
 };
 
 } // namespace Klein

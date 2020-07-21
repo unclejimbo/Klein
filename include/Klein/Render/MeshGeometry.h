@@ -34,8 +34,6 @@ public:
     MeshGeometry(AdditionalAttributes attributes,
                  Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~MeshGeometry() = default;
-
 public slots:
     void setCount(uint count);
 

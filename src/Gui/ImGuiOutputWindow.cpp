@@ -38,7 +38,7 @@ void ImGuiMessageHandler::qMsgHandler(QtMsgType type,
 {
     Q_UNUSED(context);
     if (window != nullptr) {
-        auto c = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+        const auto c = ImGui::GetStyleColorVec4(ImGuiCol_Text);
         auto color = QColor::fromRgbF(c.x, c.y, c.z, c.w);
         switch (type) {
         case QtWarningMsg: color = QColor(Qt::yellow); break;

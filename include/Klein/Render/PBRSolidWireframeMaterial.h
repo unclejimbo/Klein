@@ -14,8 +14,6 @@ class KLEIN_API PBRSolidWireframeMaterial : public BasePBRMaterial
 public:
     explicit PBRSolidWireframeMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~PBRSolidWireframeMaterial() = default;
-
     QColor lineColor() const { return m_lineColor->value().value<QColor>(); }
 
     float lineWidth() const { return m_lineColor->value().value<float>(); }
@@ -29,9 +27,13 @@ public:
     static Qt3DRender::QEffect* createEffect(bool castShadow = false);
 
 protected:
-    static const QString effectName_CastShadow;
+    static constexpr const char* effectName_CastShadow{
+        "KLEIN_EFFECT_PBR_SOLID_WIREFRAME_CAST_SHADOW"
+    };
 
-    static const QString effectName_NoShadow;
+    static constexpr const char* effectName_NoShadow{
+        "KLEIN_EFFECT_PBR_SOLID_WIREFRAME_NO_SHADOW"
+    };
 
     Qt3DRender::QEffect* getEffectVariant(bool castSahdow) override;
 

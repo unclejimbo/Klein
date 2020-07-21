@@ -18,8 +18,6 @@ public:
 
     DumbTextureImageDataGenerator() {}
 
-    virtual ~DumbTextureImageDataGenerator() {}
-
     Qt3DRender::QTextureImageDataPtr operator()() override;
 
     bool operator==(
@@ -31,11 +29,9 @@ class KLEIN_API DumbTextureImage : public Qt3DRender::QAbstractTextureImage
     Q_OBJECT
 
 public:
-    DumbTextureImage(Qt3DCore::QNode* parent = nullptr)
+    explicit DumbTextureImage(Qt3DCore::QNode* parent = nullptr)
         : Qt3DRender::QAbstractTextureImage(parent)
     {}
-
-    virtual ~DumbTextureImage() {}
 
 protected:
     Qt3DRender::QTextureImageDataGeneratorPtr dataGenerator() const override

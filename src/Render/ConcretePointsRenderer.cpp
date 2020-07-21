@@ -97,9 +97,9 @@ void ConcretePointsRenderer::setColors(const QVector<QColor>& colors)
             m_instanceColor->setCount(colors.size());
         }
         else {
-            qWarning()
-                << "[Warning] ConcretePointsRenderer::setColors called on "
-                   "an object without color attribute.";
+            qWarning() << "[Klein Warning] ConcretePointsRenderer::setColors "
+                          "called on "
+                          "an object without color attribute.";
         }
     }
 }

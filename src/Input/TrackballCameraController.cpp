@@ -26,6 +26,7 @@ TrackballCameraController::TrackballCameraController(Qt3DCore::QNode* parent)
                      &Qt3DInput::QMouseHandler::pressed,
                      this,
                      [this](Qt3DInput::QMouseEvent* pressedEvent) {
+                         if (pressedEvent == nullptr) { return; }
                          pressedEvent->setAccepted(true);
                          m_mouseLastPosition =
                              QPoint(pressedEvent->x(), pressedEvent->y());
@@ -36,6 +37,7 @@ TrackballCameraController::TrackballCameraController(Qt3DCore::QNode* parent)
                      &Qt3DInput::QMouseHandler::positionChanged,
                      this,
                      [this](Qt3DInput::QMouseEvent* positionChangedEvent) {
+                         if (positionChangedEvent == nullptr) { return; }
                          positionChangedEvent->setAccepted(true);
                          m_mouseCurrentPosition =
                              QPoint(positionChangedEvent->x(),
@@ -46,15 +48,16 @@ TrackballCameraController::TrackballCameraController(Qt3DCore::QNode* parent)
 QVector3D TrackballCameraController::projectToTrackball(
     const QPoint& screenCoords) const
 {
-    float sx = screenCoords.x(), sy = m_windowSize.height() - screenCoords.y();
+    const float sx = screenCoords.x(),
+                sy = m_windowSize.height() - screenCoords.y();
 
-    QVector2D p2d(sx / m_windowSize.width() - 0.5f,
-                  sy / m_windowSize.height() - 0.5f);
+    const QVector2D p2d(sx / m_windowSize.width() - 0.5f,
+                        sy / m_windowSize.height() - 0.5f);
 
     float z = 0.0f;
-    float r2 = m_trackballSize * m_trackballSize;
+    const float r2 = m_trackballSize * m_trackballSize;
     if (p2d.lengthSquared() <= r2 * 0.5f) {
-        z = qSqrt(r2 - p2d.lengthSquared());
+        z = std::sqrt(r2 - p2d.lengthSquared());
     }
     else {
         z = r2 * 0.5f / p2d.length();
@@ -64,7 +67,7 @@ QVector3D TrackballCameraController::projectToTrackball(
     return p3d;
 }
 
-static inline float clamp(float x)
+static inline constexpr const float clamp(float x) noexcept
 {
     return x > 1 ? 1 : (x < -1 ? -1 : x);
 }
@@ -74,8 +77,8 @@ void TrackballCameraController::createRotation(const QPoint& firstPoint,
                                                QVector3D& dir,
                                                float& angle)
 {
-    auto lastPos3D = projectToTrackball(firstPoint).normalized();
-    auto currentPos3D = projectToTrackball(nextPoint).normalized();
+    const auto lastPos3D = projectToTrackball(firstPoint).normalized();
+    const auto currentPos3D = projectToTrackball(nextPoint).normalized();
 
     // Compute axis of rotation:
     dir = QVector3D::crossProduct(currentPos3D, lastPos3D);
@@ -94,9 +97,9 @@ void TrackballCameraController::moveCamera(
 
     if (state.middleMouseButtonActive) {
         if (state.shiftKeyActive) { // pan
-            auto dist =
+            const auto dist =
                 (theCamera->position() - theCamera->viewCenter()).length();
-            auto d = dt * m_panSpeed * dist;
+            const auto d = dt * m_panSpeed * dist;
             theCamera->translate(
                 QVector3D(-state.rxAxisValue, -state.ryAxisValue, 0.0f) * d);
         }
@@ -106,9 +109,9 @@ void TrackballCameraController::moveCamera(
             createRotation(
                 m_mouseLastPosition, m_mouseCurrentPosition, dir, angle);
 
-            auto currentRotation = theCamera->transform()->rotation();
+            const auto currentRotation = theCamera->transform()->rotation();
 
-            auto rotatedAxis = currentRotation.rotatedVector(dir);
+            const auto rotatedAxis = currentRotation.rotatedVector(dir);
             angle *= m_rotationSpeed;
 
             theCamera->rotateAboutViewCenter(QQuaternion::fromAxisAndAngle(
@@ -118,10 +121,10 @@ void TrackballCameraController::moveCamera(
     }
 
     if (state.tzAxisValue != 0.0f) { // zoom
-        auto pos = this->camera()->position();
-        auto center = this->camera()->viewCenter();
-        auto len = (pos - center).length();
-        auto step = state.tzAxisValue * m_zoomSpeed * dt;
+        const auto pos = this->camera()->position();
+        const auto center = this->camera()->viewCenter();
+        const auto len = (pos - center).length();
+        const auto step = state.tzAxisValue * m_zoomSpeed * dt;
         // avoid flipping
         if (step < len) {
             theCamera->translate(QVector3D(0.0f, 0.0f, step),

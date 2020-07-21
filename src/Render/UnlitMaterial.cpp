@@ -19,13 +19,12 @@ UnlitMaterial::UnlitMaterial(Qt3DCore::QNode* parent)
     this->setEffect(effect);
 }
 
-const QString UnlitMaterial::effectName{ "KLEIN_EFFECT_UNLIT" };
-
 Qt3DRender::QEffect* UnlitMaterial::createEffect()
 {
-    QString shaderPath("data/shader/");
-    auto shader = createShader(shaderPath + QStringLiteral("Shading.vert"),
-                               shaderPath + QStringLiteral("Unlit.frag"));
+    const QString shaderPath("data/shader/");
+    const auto shader =
+        createShader(shaderPath + QStringLiteral("Shading.vert"),
+                     shaderPath + QStringLiteral("Unlit.frag"));
     return createEffectImpl(shader);
 }
 

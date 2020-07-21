@@ -17,8 +17,6 @@ public:
     PBRInstancedMaterial(bool useInstanceColor,
                          Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~PBRInstancedMaterial() = default;
-
     bool useInstanceColor() const
     {
         return m_useInstanceColor->value().value<bool>();
@@ -41,15 +39,19 @@ public:
     static Qt3DRender::QEffect* createEffect(bool castShadow = false);
 
 protected:
-    static const QString effectName_CastShadow;
+    static constexpr const char* effectName_CastShadow{
+        "KLEIN_EFFECT_PBR_INSTANCED_CAST_SHADOW"
+    };
 
-    static const QString effectName_NoShadow;
+    static constexpr const char* effectName_NoShadow{
+        "KLEIN_EFFECT_PBR_INSTANCED_NO_SHADOW"
+    };
 
     Qt3DRender::QEffect* getEffectVariant(bool castSahdow) override;
 
 private:
     bool m_baseColorMapInitialized = false;
-    Qt3DRender::QParameter* m_useInstanceColor;
+    Qt3DRender::QParameter* m_useInstanceColor = nullptr;
 };
 
 } // namespace Klein

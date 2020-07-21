@@ -98,8 +98,6 @@ public:
 public:
     explicit ImGuiManager(QObject* parent = nullptr);
 
-    ~ImGuiManager() = default;
-
     void setFrameFunc(FrameFunc f) { m_frame = f; }
 
     void setInputEventSource(QObject* src);
@@ -130,15 +128,15 @@ private:
     struct SharedRenderPassData
     {
         bool valid = false;
-        Qt3DRender::QShaderProgram* progES2;
-        Qt3DRender::QShaderProgram* progGL3;
-        Qt3DRender::QFilterKey* techniqueFilterKey;
-        Qt3DRender::QDepthTest* depthTest;
-        Qt3DRender::QNoDepthMask* noDepthWrite;
-        Qt3DRender::QBlendEquation* blendFunc;
-        Qt3DRender::QBlendEquationArguments* blendArgs;
-        Qt3DRender::QCullFace* cullFace;
-        Qt3DRender::QColorMask* colorMask;
+        Qt3DRender::QShaderProgram* progES2 = nullptr;
+        Qt3DRender::QShaderProgram* progGL3 = nullptr;
+        Qt3DRender::QFilterKey* techniqueFilterKey = nullptr;
+        Qt3DRender::QDepthTest* depthTest = nullptr;
+        Qt3DRender::QNoDepthMask* noDepthWrite = nullptr;
+        Qt3DRender::QBlendEquation* blendFunc = nullptr;
+        Qt3DRender::QBlendEquationArguments* blendArgs = nullptr;
+        Qt3DRender::QCullFace* cullFace = nullptr;
+        Qt3DRender::QColorMask* colorMask = nullptr;
         QVector<Qt3DCore::QNode*> enabledToggle;
     } rpd;
 
@@ -163,7 +161,7 @@ private:
     struct DisplayInfo
     {
         QSize size;
-        qreal dpr;
+        qreal dpr = 0.0;
     };
 
 private:

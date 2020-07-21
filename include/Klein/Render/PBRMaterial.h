@@ -14,15 +14,17 @@ class KLEIN_API PBRMaterial : public BasePBRMaterial
 public:
     explicit PBRMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~PBRMaterial() = default;
-
 public:
     static Qt3DRender::QEffect* createEffect(bool castShadow = false);
 
 protected:
-    static const QString effectName_CastShadow;
+    static constexpr const char* effectName_CastShadow{
+        "KLEIN_EFFECT_PBR_CAST_SHADOW"
+    };
 
-    static const QString effectName_NoShadow;
+    static constexpr const char* effectName_NoShadow{
+        "KLEIN_EFFECT_PBR_NO_SHADOW"
+    };
 
     Qt3DRender::QEffect* getEffectVariant(bool castSahdow) override;
 };

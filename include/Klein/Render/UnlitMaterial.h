@@ -14,10 +14,8 @@ class KLEIN_API UnlitMaterial : public BaseUnlitMaterial
 public:
     explicit UnlitMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~UnlitMaterial() = default;
-
 public:
-    static const QString effectName;
+    static constexpr const char* effectName{ "KLEIN_EFFECT_UNLIT" };
 
     static Qt3DRender::QEffect* createEffect();
 };

@@ -19,11 +19,9 @@ class KLEIN_API Gizmo : public QObject
 public:
     explicit Gizmo(QObject* parent = nullptr);
 
-    virtual ~Gizmo();
-
     void update();
 
-    bool isEnabled() const { return m_enabled; }
+    bool isEnabled() const noexcept { return m_enabled; }
 
 public slots:
     void setEnabled(bool value);

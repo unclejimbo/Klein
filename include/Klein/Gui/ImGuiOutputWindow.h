@@ -18,8 +18,6 @@ class KLEIN_API ImGuiOutputWindow : public QObject
 public:
     explicit ImGuiOutputWindow(QObject* parent = nullptr);
 
-    virtual ~ImGuiOutputWindow() = default;
-
     void update();
 
     bool isEnabled() const { return m_open; }

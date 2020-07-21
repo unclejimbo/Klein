@@ -14,8 +14,6 @@ class KLEIN_API UnlitInstancedMaterial : public BaseUnlitMaterial
 public:
     explicit UnlitInstancedMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~UnlitInstancedMaterial() = default;
-
     bool useInstanceColor() const
     {
         return m_useInstanceColor->value().value<bool>();
@@ -33,7 +31,7 @@ public slots:
     }
 
 public:
-    static const QString effectName;
+    static constexpr const char* effectName{ "KLEIN_EFFECT_UNLIT_INSTANCED" };
 
     static Qt3DRender::QEffect* createEffect();
 

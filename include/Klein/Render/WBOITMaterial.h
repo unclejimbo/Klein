@@ -28,8 +28,6 @@ class KLEIN_API WBOITCompositor : public Qt3DCore::QNode
 public:
     explicit WBOITCompositor(Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~WBOITCompositor() = default;
-
     Qt3DRender::QFrameGraphNode* attachRenderTargetTo(
         Qt3DRender::QFrameGraphNode* parent);
 
@@ -56,14 +54,14 @@ private:
 
 private:
     QSize m_size;
-    Qt3DRender::QRenderTarget* m_renderTarget;
-    Qt3DRender::QRenderTargetOutput* m_accumOutput;
-    Qt3DRender::QRenderTargetOutput* m_revealageOutput;
-    Qt3DRender::QRenderTargetOutput* m_depthOutput;
-    Qt3DRender::QTexture2D* m_accumTexture;
-    Qt3DRender::QTexture2D* m_revealageTexture;
-    Qt3DRender::QTexture2D* m_depthTexture;
-    Qt3DCore::QEntity* m_entity;
+    Qt3DRender::QRenderTarget* m_renderTarget = nullptr;
+    Qt3DRender::QRenderTargetOutput* m_accumOutput = nullptr;
+    Qt3DRender::QRenderTargetOutput* m_revealageOutput = nullptr;
+    Qt3DRender::QRenderTargetOutput* m_depthOutput = nullptr;
+    Qt3DRender::QTexture2D* m_accumTexture = nullptr;
+    Qt3DRender::QTexture2D* m_revealageTexture = nullptr;
+    Qt3DRender::QTexture2D* m_depthTexture = nullptr;
+    Qt3DCore::QEntity* m_entity = nullptr;
 };
 
 class KLEIN_API WBOITMaterial : public Qt3DRender::QMaterial
@@ -81,8 +79,6 @@ public:
 
 public:
     explicit WBOITMaterial(Qt3DCore::QNode* parent = nullptr);
-
-    virtual ~WBOITMaterial() = default;
 
     QColor baseColor() const { return m_baseColor->value().value<int>(); }
 
@@ -128,7 +124,7 @@ public slots:
     void setTexCoordScale(float value) { m_texCoordScale->setValue(value); }
 
 public:
-    static const QString effectName;
+    static constexpr const char* effectName{ "KLEIN_EFFECT_WBOIT" };
 
     static Qt3DRender::QEffect* createEffect();
 
@@ -136,12 +132,12 @@ public:
         Qt3DRender::QFrameGraphNode* parent);
 
 protected:
-    Qt3DRender::QParameter* m_baseColor;
-    Qt3DRender::QParameter* m_baseColorMap;
-    Qt3DRender::QParameter* m_depthScale;
-    Qt3DRender::QParameter* m_renderMode;
-    Qt3DRender::QParameter* m_texCoordOffset;
-    Qt3DRender::QParameter* m_texCoordScale;
+    Qt3DRender::QParameter* m_baseColor = nullptr;
+    Qt3DRender::QParameter* m_baseColorMap = nullptr;
+    Qt3DRender::QParameter* m_depthScale = nullptr;
+    Qt3DRender::QParameter* m_renderMode = nullptr;
+    Qt3DRender::QParameter* m_texCoordOffset = nullptr;
+    Qt3DRender::QParameter* m_texCoordScale = nullptr;
 };
 
 } // namespace Klein

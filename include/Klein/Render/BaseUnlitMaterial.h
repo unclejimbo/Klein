@@ -37,8 +37,6 @@ public:
 public:
     explicit BaseUnlitMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~BaseUnlitMaterial() = default;
-
     QColor baseColor() const { return m_baseColor->value().value<int>(); }
 
     const Qt3DRender::QAbstractTexture* baseColorMap() const
@@ -101,12 +99,12 @@ protected:
         Qt3DRender::QShaderProgram* shader);
 
 protected:
-    Qt3DRender::QParameter* m_baseColor;
-    Qt3DRender::QParameter* m_baseColorMap;
-    Qt3DRender::QParameter* m_renderMode;
-    Qt3DRender::QParameter* m_shift;
-    Qt3DRender::QParameter* m_texCoordOffset;
-    Qt3DRender::QParameter* m_texCoordScale;
+    Qt3DRender::QParameter* m_baseColor = nullptr;
+    Qt3DRender::QParameter* m_baseColorMap = nullptr;
+    Qt3DRender::QParameter* m_renderMode = nullptr;
+    Qt3DRender::QParameter* m_shift = nullptr;
+    Qt3DRender::QParameter* m_texCoordOffset = nullptr;
+    Qt3DRender::QParameter* m_texCoordScale = nullptr;
 };
 
 } // namespace Klein

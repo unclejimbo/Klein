@@ -26,14 +26,10 @@ UnlitSolidWireframeMaterial::UnlitSolidWireframeMaterial(
     this->setEffect(effect);
 }
 
-const QString UnlitSolidWireframeMaterial::effectName{
-    "KLEIN_EFFECT_UNLIT_SOLID_WIREFRAME"
-};
-
 Qt3DRender::QEffect* UnlitSolidWireframeMaterial::createEffect()
 {
-    QString shaderPath("data/shader/");
-    auto shader =
+    const QString shaderPath("data/shader/");
+    const auto shader =
         createShader(shaderPath + QStringLiteral("ShadingSolidWireframe.vert"),
                      shaderPath + QStringLiteral("ShadingSolidWireframe.geom"),
                      shaderPath + QStringLiteral("UnlitSolidWireframe.frag"));

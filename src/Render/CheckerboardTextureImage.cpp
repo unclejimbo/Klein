@@ -21,19 +21,19 @@ operator()()
     image->setMipLevels(1);
 
     QByteArray bytes;
-    auto size = m_size * m_size * 3;
+    const auto size = m_size * m_size * 3;
     bytes.resize(size * sizeof(uint8_t));
     auto data = reinterpret_cast<uint8_t*>(bytes.data());
-    auto gridSize = m_size / m_count;
-    int offset = gridSize / 2; // symmetry on border
+    const auto gridSize = m_size / m_count;
+    const int offset = gridSize / 2; // symmetry on border
     for (int i = 0; i < m_size; ++i) {
         for (int j = 0; j < m_size; ++j) {
             int s = i - offset;
             int t = j - offset;
             s = s < 0 ? m_size + s : s;
             t = t < 0 ? m_size + t : t;
-            auto c = (s / gridSize + t / gridSize) % 2;
-            auto idx = 3 * (i * m_size + j);
+            const auto c = (s / gridSize + t / gridSize) % 2;
+            const auto idx = 3 * (i * m_size + j);
             data[idx + 0] = static_cast<uint8_t>(m_colors[c].red());
             data[idx + 1] = static_cast<uint8_t>(m_colors[c].green());
             data[idx + 2] = static_cast<uint8_t>(m_colors[c].blue());

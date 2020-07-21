@@ -22,21 +22,13 @@ PBRSolidWireframeMaterial::PBRSolidWireframeMaterial(Qt3DCore::QNode* parent)
 
 Qt3DRender::QEffect* PBRSolidWireframeMaterial::createEffect(bool castShadow)
 {
-    QString shaderPath("data/shader/");
-    auto shader =
+    const QString shaderPath("data/shader/");
+    const auto shader =
         createShader(shaderPath + QStringLiteral("ShadingSolidWireframe.vert"),
                      shaderPath + QStringLiteral("ShadingSolidWireframe.geom"),
                      shaderPath + QStringLiteral("PBRSolidWireframe.frag"));
     return createEffectImpl(shader, castShadow);
 }
-
-const QString PBRSolidWireframeMaterial::effectName_CastShadow{
-    "KLEIN_EFFECT_PBR_SOLID_WIREFRAME_CAST_SHADOW"
-};
-
-const QString PBRSolidWireframeMaterial::effectName_NoShadow{
-    "KLEIN_EFFECT_PBR_SOLID_WIREFRAME_NO_SHADOW"
-};
 
 Qt3DRender::QEffect* PBRSolidWireframeMaterial::getEffectVariant(
     bool castShadow)

@@ -5,7 +5,7 @@
 namespace Klein
 {
 
-ColorPalette::ColorPalette()
+ColorPalette::ColorPalette() noexcept
 {
     m_palette = {
         "maroon", "chocolate", "olive",  "teal",    "navy",
@@ -23,9 +23,9 @@ ColorPalette::ColorPalette(int n,
     m_palette.resize(n);
     QRandomGenerator rng(seed);
     for (int i = 0; i < m_palette.size(); ++i) {
-        auto h = rng.bounded(0, 359);
-        auto s = rng.bounded(saturationLow, 255);
-        auto v = rng.bounded(saturationLow, 255);
+        const auto h = rng.bounded(0, 359);
+        const auto s = rng.bounded(saturationLow, 255);
+        const auto v = rng.bounded(saturationLow, 255);
         m_palette[i].setHsv(h, s, v);
     }
 }

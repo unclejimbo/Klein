@@ -35,8 +35,6 @@ public:
         AdditionalAttributes attributes = ADDITIONAL_ATTRIBUTE_NONE,
         Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~ConcretePointsRenderer() = default;
-
 public slots:
     void setRadius(float radius) { m_sphere->setRadius(radius); }
 

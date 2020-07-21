@@ -32,9 +32,9 @@ AbstractQt3DWindow::AbstractQt3DWindow(QWindow* parent) : QWindow(parent)
     QSurfaceFormat::setDefaultFormat(format);
 
     m_aspectEngine = new Qt3DCore::QAspectEngine(this);
-    m_aspectEngine->registerAspect(new Qt3DInput::QInputAspect);
-    m_aspectEngine->registerAspect(new Qt3DLogic::QLogicAspect);
-    m_aspectEngine->registerAspect(new Qt3DRender::QRenderAspect);
+    m_aspectEngine->registerAspect(new Qt3DInput::QInputAspect(m_aspectEngine));
+    m_aspectEngine->registerAspect(new Qt3DLogic::QLogicAspect(m_aspectEngine));
+    m_aspectEngine->registerAspect(new Qt3DRender::QRenderAspect(m_aspectEngine));
 }
 
 void AbstractQt3DWindow::exposeEvent(QExposeEvent*)

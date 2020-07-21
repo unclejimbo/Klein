@@ -17,8 +17,6 @@ class KLEIN_API ImGuiSceneGraphWindow : public QObject
 public:
     explicit ImGuiSceneGraphWindow(QObject* parent = nullptr);
 
-    virtual ~ImGuiSceneGraphWindow() = default;
-
     void update();
 
     bool isEnabled() const { return m_enabled; }

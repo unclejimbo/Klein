@@ -16,8 +16,6 @@ class KLEIN_API ImGuiDockSpace : public QObject
 public:
     explicit ImGuiDockSpace(QObject* parent = nullptr) : QObject(parent) {}
 
-    virtual ~ImGuiDockSpace();
-
     void update();
 
     bool isEnabled() const { return m_open; }

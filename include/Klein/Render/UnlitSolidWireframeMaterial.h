@@ -14,8 +14,6 @@ class KLEIN_API UnlitSolidWireframeMaterial : public BaseUnlitMaterial
 public:
     explicit UnlitSolidWireframeMaterial(Qt3DCore::QNode* parent = nullptr);
 
-    virtual ~UnlitSolidWireframeMaterial() = default;
-
     QColor lineColor() const { return m_lineColor->value().value<QColor>(); }
 
     float lineWidth() const { return m_lineColor->value().value<float>(); }
@@ -26,7 +24,9 @@ public slots:
     void setLineWidth(float value) { m_lineWidth->setValue(value); }
 
 public:
-    static const QString effectName;
+    static constexpr const char* effectName{
+        "KLEIN_EFFECT_UNLIT_SOLID_WIREFRAME"
+    };
 
     static Qt3DRender::QEffect* createEffect();
 

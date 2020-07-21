@@ -19,20 +19,12 @@ PBRInstancedMaterial::PBRInstancedMaterial(Qt3DCore::QNode* parent)
 
 Qt3DRender::QEffect* PBRInstancedMaterial::createEffect(bool castShadow)
 {
-    QString shaderPath("data/shader/");
-    auto shader =
+    const QString shaderPath("data/shader/");
+    const auto shader =
         createShader(shaderPath + QStringLiteral("ShadingInstanced.vert"),
                      shaderPath + QStringLiteral("PBR.frag"));
     return createEffectImpl(shader, castShadow);
 }
-
-const QString PBRInstancedMaterial::effectName_CastShadow{
-    "KLEIN_EFFECT_PBR_INSTANCED_CAST_SHADOW"
-};
-
-const QString PBRInstancedMaterial::effectName_NoShadow{
-    "KLEIN_EFFECT_PBR_INSTANCED_NO_SHADOW"
-};
 
 Qt3DRender::QEffect* PBRInstancedMaterial::getEffectVariant(bool castShadow)
 {
