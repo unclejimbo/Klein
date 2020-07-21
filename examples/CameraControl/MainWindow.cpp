@@ -125,8 +125,8 @@ void MainWindow::_renderGui()
                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize |
                 ImGuiWindowFlags_NoSavedSettings |
                 ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
-        ImGui::Text("Hold left mouse and drag to rotate");
-        ImGui::Text("Hold shift and drag to pan");
+        ImGui::Text("Hold middle mouse and drag to rotate");
+        ImGui::Text("Hold shift + middle mouse and drag to pan");
         ImGui::Text("Scroll wheel to zoom");
     }
     ImGui::End();
