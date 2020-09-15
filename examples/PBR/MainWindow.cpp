@@ -80,6 +80,7 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
                     QStringLiteral("./data/texture/cerberus_A.png"),
                     true,
                     Qt3DRender::QAbstractTexture::LinearMipMapLinear);
+    baseColorMap->setFormat(Qt3DRender::QAbstractTexture::SRGB8);
     auto normalMap =
         loadTexture(rootEntity,
                     QStringLiteral("./data/texture/cerberus_N.png"),
