@@ -23,7 +23,7 @@ inline KLEIN_API QMatrix4x4 lineTransformation(const QVector3D& p0,
     QMatrix4x4 scaling, rotation, translation;
     scaling.scale(1.0f, (p0 - p1).length(), 1.0f);
     rotation.rotate(
-        QQuaternion::rotationTo(QVector3D(0.0f, 1.0f, 0.0f), (p0 - p1)));
+        QQuaternion::rotationTo(QVector3D(0.0f, 1.0f, 0.0f), (p1 - p0)));
     translation.translate((p0 + p1) / 2);
     return translation * rotation * scaling;
 }

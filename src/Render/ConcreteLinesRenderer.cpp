@@ -6,23 +6,28 @@
 #include <algorithm>
 #include <Qt3DRender/QAttribute>
 #include <Qt3DRender/QBuffer>
+#include <Qt3DExtras/QConeGeometry>
+#include <Qt3DExtras/QCylinderGeometry>
 
 namespace Klein
 {
 
+ConcreteLinesRenderer::ConcreteLinesRenderer(Qt3DCore::QNode* parent)
+    : ConcreteLinesRenderer(ADDITIONAL_ATTRIBUTE_NONE, CYLINDER, parent)
+{}
+
 ConcreteLinesRenderer::ConcreteLinesRenderer(AdditionalAttributes attributes,
+                                             Qt3DCore::QNode* parent)
+    : ConcreteLinesRenderer(attributes, CYLINDER, parent)
+{}
+
+ConcreteLinesRenderer::ConcreteLinesRenderer(AdditionalAttributes attributes,
+                                             LineStyle style,
                                              Qt3DCore::QNode* parent)
     : Qt3DRender::QGeometryRenderer(parent)
 {
     qRegisterMetaType<QVector<QVector3D>>("QVector<QVector3D>");
     qRegisterMetaType<QVector<QColor>>("QVector<QColor>");
-
-    m_cylinder = new Qt3DExtras::QCylinderGeometry(this);
-    m_cylinder->setRadius(1.0f);
-    m_cylinder->setRings(10);
-    m_cylinder->setSlices(10);
-    m_cylinder->setLength(1.0f);
-    this->setGeometry(m_cylinder);
 
     m_modelBuffer = new Qt3DRender::QBuffer(this);
     m_modelBuffer->setUsage(Qt3DRender::QBuffer::StaticDraw);
@@ -42,7 +47,6 @@ ConcreteLinesRenderer::ConcreteLinesRenderer(AdditionalAttributes attributes,
     m_instanceModel->setByteOffset(0);
     m_instanceModel->setByteStride(16 * sizeof(float));
     m_instanceModel->setCount(0);
-    m_cylinder->addAttribute(m_instanceModel);
 
     if (attributes & ADDITIONAL_ATTRIBUTE_COLOR) {
         m_colorBuffer = new Qt3DRender::QBuffer(this);
@@ -64,11 +68,62 @@ ConcreteLinesRenderer::ConcreteLinesRenderer(AdditionalAttributes attributes,
         m_instanceColor->setByteOffset(0);
         m_instanceColor->setByteStride(3 * sizeof(float));
         m_instanceColor->setCount(0);
-        m_cylinder->addAttribute(m_instanceColor);
     }
 
+    this->setLineStyle(style);
     this->setInstanceCount(0);
-} // namespace Klein
+}
+
+void ConcreteLinesRenderer::setLineStyle(LineStyle style)
+{
+    m_style = style;
+    if (m_geometry != nullptr) {
+        m_geometry->setParent((Qt3DCore::QNode*)nullptr);
+        delete m_geometry;
+    }
+    switch (m_style) {
+    case CONE: {
+        auto cone = new Qt3DExtras::QConeGeometry(this);
+        cone->setRings(10);
+        cone->setSlices(10);
+        cone->setLength(1.0);
+        cone->setBottomRadius(m_radius);
+        m_geometry = cone;
+        break;
+    }
+    case CYLINDER:
+    default: {
+        auto cylinder = new Qt3DExtras::QCylinderGeometry(this);
+        cylinder->setRings(10);
+        cylinder->setSlices(10);
+        cylinder->setLength(1.0);
+        cylinder->setRadius(m_radius);
+        m_geometry = cylinder;
+        break;
+    }
+    }
+    m_geometry->addAttribute(m_instanceModel);
+    if (m_instanceColor != nullptr) {
+        m_geometry->addAttribute(m_instanceColor);
+    }
+    this->setGeometry(m_geometry);
+}
+
+void ConcreteLinesRenderer::setRadius(float radius)
+{
+    m_radius = radius;
+    switch (m_style) {
+    case CONE:
+        qobject_cast<Qt3DExtras::QConeGeometry*>(m_geometry)
+            ->setBottomRadius(m_radius);
+        break;
+    case CYLINDER:
+    default:
+        qobject_cast<Qt3DExtras::QCylinderGeometry*>(m_geometry)
+            ->setRadius(m_radius);
+        break;
+    }
+}
 
 void ConcreteLinesRenderer::setPositions(const QVector<QVector3D>& positions,
                                          LineType type)

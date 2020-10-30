@@ -7,12 +7,12 @@
 #include <QVector>
 #include <QVector3D>
 #include <Qt3DRender/QGeometryRenderer>
-#include <Qt3DExtras/QCylinderGeometry>
 
 namespace Qt3DRender
 {
 class QAttribute;
 class QBuffer;
+class QGeometry;
 } // namespace Qt3DRender
 
 namespace Klein
@@ -37,13 +37,26 @@ public:
         LINE_LOOP
     };
 
+    enum LineStyle
+    {
+        CYLINDER,
+        CONE
+    };
+
 public:
-    ConcreteLinesRenderer(
-        AdditionalAttributes attributes = ADDITIONAL_ATTRIBUTE_NONE,
-        Qt3DCore::QNode* parent = nullptr);
+    explicit ConcreteLinesRenderer(Qt3DCore::QNode* parent = nullptr);
+
+    ConcreteLinesRenderer(AdditionalAttributes attributes,
+                          Qt3DCore::QNode* parent = nullptr);
+
+    ConcreteLinesRenderer(AdditionalAttributes attributes,
+                          LineStyle style,
+                          Qt3DCore::QNode* parent = nullptr);
 
 public slots:
-    void setRadius(float radius) { m_cylinder->setRadius(radius); }
+    void setLineStyle(LineStyle style);
+
+    void setRadius(float radius);
 
     void setPositions(const QVector<QVector3D>& positions,
                       ConcreteLinesRenderer::LineType type = LINES);
@@ -51,7 +64,9 @@ public slots:
     void setColors(const QVector<QColor>& colors);
 
 private:
-    Qt3DExtras::QCylinderGeometry* m_cylinder = nullptr;
+    LineStyle m_style = CYLINDER;
+    float m_radius = 1.0f;
+    Qt3DRender::QGeometry* m_geometry = nullptr;
     Qt3DRender::QBuffer* m_modelBuffer = nullptr;
     Qt3DRender::QBuffer* m_colorBuffer = nullptr;
     Qt3DRender::QAttribute* m_instanceModel = nullptr;
