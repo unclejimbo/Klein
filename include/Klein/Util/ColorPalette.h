@@ -20,16 +20,7 @@ public:
                  int brightnessLow = 200,
                  quint32 seed = 0);
 
-    QColor color(int i) const
-    {
-        if (i < m_palette.size()) { return m_palette[i]; }
-        else {
-            qWarning()
-                << "[Klein Warning] QColor ColorPalette::color(int i) const, "
-                   "calling i greater than palette size, i % size is used.";
-            return m_palette[i % m_palette.size()];
-        }
-    }
+    QColor color(int i) const { return m_palette[i % m_palette.size()]; }
 
     QVector<QColor> palette() const { return m_palette; }
 
