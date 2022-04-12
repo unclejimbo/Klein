@@ -18,6 +18,7 @@
 #include <Qt3DRender/QLayerFilter>
 #include <Qt3DRender/QMesh>
 #include <Qt3DRender/QNoDraw>
+#include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QRenderSettings>
 #include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DRender/QTexture>
@@ -37,7 +38,7 @@ Qt3DRender::QAbstractTexture* loadTexture(
     texture->setSource(QUrl::fromLocalFile(file));
     texture->setWrapMode(wrapMode);
     texture->setGenerateMipMaps(genMipMaps);
-    texture->setMagnificationFilter(filter);
+    texture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
     texture->setMinificationFilter(filter);
     return texture;
 }
@@ -109,46 +110,68 @@ Qt3DCore::QEntity* MainWindow::createSceneGraph()
         loadTexture(rootEntity,
                     QStringLiteral("./data/envmap/outdoorSpecularHDR.dds"),
                     false,
-                    Qt3DRender::QAbstractTexture::Linear);
+                    Qt3DRender::QAbstractTexture::LinearMipMapLinear);
 
     // Add PBR material
-    auto material = new Klein::PBRMaterial(rootEntity);
-    material->setRenderMode(Klein::BasePBRMaterial::RENDER_MODE_BASE_COLOR_MAP |
-                            Klein::BasePBRMaterial::RENDER_MODE_NORMAL_MAP |
-                            Klein::BasePBRMaterial::RENDER_MODE_MATERIAL_MAP);
-    material->setBaseColorMap(baseColorMap);
-    material->setNormalMap(normalMap);
-    material->setRoughnessMap(roughnessMap);
-    material->setMetalnessMap(metalnessMap);
-    material->setEnvLightBrdf(brdfMap); // some ibl properties are set here
-    material->setEnvLightIntensity(1.0f);
+    m_cerberusMaterial = new Klein::PBRMaterial(rootEntity);
+    m_cerberusMaterial->setRenderMode(
+        Klein::BasePBRMaterial::RENDER_MODE_BASE_COLOR_MAP |
+        Klein::BasePBRMaterial::RENDER_MODE_NORMAL_MAP |
+        Klein::BasePBRMaterial::RENDER_MODE_MATERIAL_MAP);
+    m_cerberusMaterial->setBaseColorMap(baseColorMap);
+    m_cerberusMaterial->setNormalMap(normalMap);
+    m_cerberusMaterial->setRoughnessMap(roughnessMap);
+    m_cerberusMaterial->setMetalnessMap(metalnessMap);
+    m_cerberusMaterial->setEnvLightBrdf(
+        brdfMap); // some ibl properties are set here
+    m_cerberusMaterial->setEnvLightIntensity(1.0f);
 
     // The mesh entity
     m_cerberus = new Qt3DCore::QEntity(rootEntity);
-    m_cerberus->addComponent(material);
+    m_cerberus->addComponent(m_cerberusMaterial);
     m_cerberus->addComponent(mesh);
 
     // This node acts as a parent with no visuals
     m_spheres = new Qt3DCore::QEntity(rootEntity);
     m_spheres->setEnabled(false);
-    for (int i = 0; i < 10; ++i) {
-        for (int j = 0; j < 10; ++j) {
-            auto sphere = new Qt3DCore::QEntity(m_spheres);
-            auto renderer = new Qt3DExtras::QSphereMesh(sphere);
-            auto material = new Klein::PBRMaterial(sphere);
-            material->setBaseColor(Qt::red);
-            material->setRoughness(i / 10.0f);
-            material->setMetalness(j / 10.0f);
-            material->setEnvLightBrdf(brdfMap);
-            material->setEnvLightIntensity(1.0f);
-            auto transform = new Qt3DCore::QTransform(sphere);
-            transform->setScale(0.04f);
-            transform->setTranslation(
-                QVector3D(0.0f, 0.5f - i / 10.0f, 0.5f - j / 10.0f));
-            sphere->addComponent(renderer);
-            sphere->addComponent(material);
-            sphere->addComponent(transform);
-        }
+    auto sphereMesh = new Qt3DExtras::QSphereMesh(m_spheres);
+    sphereMesh->setRings(50);
+    sphereMesh->setSlices(100);
+    sphereMesh->setShareable(true);
+    for (int i = 0; i <= 10; ++i) {
+        auto sphere = new Qt3DCore::QEntity(m_spheres);
+        auto material = new Klein::PBRMaterial(sphere);
+        material->setBaseColor(Qt::red);
+        material->setRoughness(i / 10.0f);
+        material->setMetalness(0.0f);
+        material->setEnvLightBrdf(brdfMap);
+        material->setEnvLightIntensity(1.0f);
+        material->setEnvLightMipLevels(7);
+        m_sphereMaterials.push_back(material);
+        auto transform = new Qt3DCore::QTransform(sphere);
+        transform->setScale(0.15f);
+        transform->setTranslation(QVector3D(0.0f, 0.0f, 2.0f - i * 0.4f));
+        sphere->addComponent(sphereMesh);
+        sphere->addComponent(material);
+        sphere->addComponent(transform);
+    }
+
+    // Add direct lighting
+    QVector<QVector3D> lightPositions{
+        QVector3D(2.0f, 1.0f, 1.0f),
+        QVector3D(2.0f, 1.0f, -1.0f),
+        QVector3D(2.0f, -1.0f, 1.0f),
+        QVector3D(2.0f, -1.0f, -1.0f),
+    };
+    for (auto pos : lightPositions) {
+        auto light = new Qt3DCore::QEntity(rootEntity);
+        auto lighting = new Qt3DRender::QPointLight(light);
+        lighting->setIntensity(m_dlIntensity);
+        m_directLights.push_back(lighting);
+        auto transform = new Qt3DCore::QTransform(light);
+        transform->setTranslation(pos);
+        light->addComponent(lighting);
+        light->addComponent(transform);
     }
 
     // Add image-based lighting
@@ -251,6 +274,107 @@ void MainWindow::_renderGui()
             m_cerberus->setEnabled(false);
             m_spheres->setEnabled(true);
         }
+        if (m_activeScene == 1) {
+            ImGui::TextUnformatted("Material:");
+            ImGui::Indent();
+            const char* params[] = { "Roughness", "Metalness", "Specular" };
+            if (ImGui::Combo(
+                    "Varying", &m_varyingParam, params, IM_ARRAYSIZE(params))) {
+                for (int i = 0; i < m_sphereMaterials.size(); ++i) {
+                    switch (m_varyingParam) {
+                    case 0:
+                        m_sphereMaterials[i]->setRoughness(
+                            (i + 0.0f) / (m_sphereMaterials.size() - 1));
+                        m_sphereMaterials[i]->setMetalness(m_metalness);
+                        m_sphereMaterials[i]->setSpecular(m_specular);
+                        break;
+                    case 1:
+                        m_sphereMaterials[i]->setMetalness(
+                            (i + 0.0f) / (m_sphereMaterials.size() - 1));
+                        m_sphereMaterials[i]->setRoughness(m_metalness);
+                        m_sphereMaterials[i]->setSpecular(m_specular);
+                        break;
+                    case 2:
+                        m_sphereMaterials[i]->setSpecular(
+                            (i + 0.0f) / (m_sphereMaterials.size() - 1));
+                        m_sphereMaterials[i]->setRoughness(m_specular);
+                        m_sphereMaterials[i]->setMetalness(m_metalness);
+                        break;
+                    }
+                }
+            }
+            if (m_varyingParam == 0) {
+                ImGui::SliderFloat("Roughness",
+                                   &m_roughness,
+                                   m_roughness,
+                                   m_roughness,
+                                   "%.2f");
+            }
+            else {
+                if (ImGui::SliderFloat(
+                        "Roughness", &m_roughness, 0.0f, 1.0f, "%.2f")) {
+                    for (auto& mat : m_sphereMaterials) {
+                        mat->setRoughness(m_roughness);
+                    }
+                }
+            }
+            if (m_varyingParam == 1) {
+                ImGui::SliderFloat("Metalness",
+                                   &m_metalness,
+                                   m_metalness,
+                                   m_metalness,
+                                   "%.2f");
+            }
+            else {
+                if (ImGui::SliderFloat(
+                        "Metalness", &m_metalness, 0.0f, 1.0f, "%.2f")) {
+                    for (auto& mat : m_sphereMaterials) {
+                        mat->setMetalness(m_metalness);
+                    }
+                }
+            }
+            if (m_varyingParam == 2) {
+                ImGui::SliderFloat(
+                    "Specular", &m_specular, m_specular, m_specular, "%.2f");
+            }
+            else {
+                if (ImGui::SliderFloat(
+                        "Specular", &m_specular, 0.0f, 1.0f, "%.2f")) {
+                    for (auto& mat : m_sphereMaterials) {
+                        mat->setSpecular(m_specular);
+                    }
+                }
+            }
+            if (ImGui::ColorEdit3("Base color", m_baseColor)) {
+                for (auto& mat : m_sphereMaterials) {
+                    mat->setBaseColor(QColor::fromRgbF(
+                        m_baseColor[0], m_baseColor[1], m_baseColor[2]));
+                }
+            }
+            ImGui::Unindent();
+        }
+        ImGui::TextUnformatted("Lighting:");
+        ImGui::Indent();
+        if (ImGui::SliderFloat("Direct lighting intensity",
+                               &m_dlIntensity,
+                               0.0f,
+                               1.0f,
+                               "%.2f")) {
+            for (auto& light : m_directLights) {
+                light->setIntensity(m_dlIntensity);
+            }
+        }
+        if (ImGui::SliderFloat("Image-based lighting intensity",
+                               &m_iblIntensity,
+                               0.0f,
+                               1.0f,
+                               "%.2f")) {
+            m_cerberusMaterial->setEnvLightIntensity(m_iblIntensity);
+            for (auto& mat : m_sphereMaterials) {
+                mat->setEnvLightIntensity(m_iblIntensity);
+            }
+        }
+        ImGui::Unindent();
     }
     ImGui::End();
 }

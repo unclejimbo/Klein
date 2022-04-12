@@ -57,6 +57,16 @@ public:
         return m_envLightIntensity->value().toFloat();
     }
 
+    int envLightMipLevels() const
+    {
+        return m_envLightMipLevels->value().toInt();
+    }
+
+    int envLightMipOffset() const
+    {
+        return m_envLightMipOffset->value().toInt();
+    }
+
     bool isShadowCastingEnabled() const { return m_shadowCastingEnabled; }
 
     bool isShadowReceivingEnabled() const
@@ -90,6 +100,8 @@ public:
 
     float shift() const { return m_shift->value().value<float>(); }
 
+    float specular() const { return m_specular->value().value<float>(); }
+
     float texCoordOffset() const
     {
         return m_texCoordOffset->value().value<float>();
@@ -116,6 +128,16 @@ public slots:
     void setEnvLightIntensity(float value)
     {
         m_envLightIntensity->setValue(value);
+    }
+
+    void setEnvLightMipLevels(int value)
+    {
+        m_envLightMipLevels->setValue(value);
+    }
+
+    void setEnvLightMipOffset(int value)
+    {
+        m_envLightMipOffset->setValue(value);
     }
 
     void setMetalness(float value) { m_metalness->setValue(value); }
@@ -155,6 +177,8 @@ public slots:
 
     void setShift(float value) { m_shift->setValue(value); }
 
+    void setSpecular(float value) { m_specular->setValue(value); }
+
     void setTexCoordOffset(float value) { m_texCoordOffset->setValue(value); }
 
     void setTexCoordScale(float value) { m_texCoordScale->setValue(value); }
@@ -186,6 +210,8 @@ protected:
     Qt3DRender::QParameter* m_baseColorMap = nullptr;
     Qt3DRender::QParameter* m_envLightBrdf = nullptr;
     Qt3DRender::QParameter* m_envLightIntensity = nullptr;
+    Qt3DRender::QParameter* m_envLightMipLevels = nullptr;
+    Qt3DRender::QParameter* m_envLightMipOffset = nullptr;
     Qt3DRender::QParameter* m_metalness = nullptr;
     Qt3DRender::QParameter* m_metalnessMap = nullptr;
     Qt3DRender::QParameter* m_normalMap = nullptr;
@@ -194,6 +220,7 @@ protected:
     Qt3DRender::QParameter* m_roughness = nullptr;
     Qt3DRender::QParameter* m_roughnessMap = nullptr;
     Qt3DRender::QParameter* m_shift = nullptr;
+    Qt3DRender::QParameter* m_specular = nullptr;
     Qt3DRender::QParameter* m_texCoordOffset = nullptr;
     Qt3DRender::QParameter* m_texCoordScale = nullptr;
     bool m_shadowCastingEnabled = false;

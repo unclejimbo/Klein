@@ -10,6 +10,7 @@
 #include <Qt3DRender/QGraphicsApiFilter>
 #include <Qt3DRender/QRenderPassFilter>
 #include <Qt3DRender/QRenderStateSet>
+#include <Qt3DRender/QSeamlessCubemap>
 #include <Qt3DRender/QShaderProgram>
 #include <Qt3DRender/QTechnique>
 #include <Qt3DRender/QTechniqueFilter>
@@ -38,6 +39,10 @@ BasePBRMaterial::BasePBRMaterial(Qt3DCore::QNode* parent)
         QStringLiteral("envLight.brdf"), dumbTexture, this);
     m_envLightIntensity = new Qt3DRender::QParameter(
         QStringLiteral("envLight.intensity"), 0.0f, this);
+    m_envLightMipLevels = new Qt3DRender::QParameter(
+        QStringLiteral("envLight.mipLevels"), 8, this);
+    m_envLightMipOffset = new Qt3DRender::QParameter(
+        QStringLiteral("envLight.mipOffset"), 0, this);
     m_metalness =
         new Qt3DRender::QParameter(QStringLiteral("metalness"), 0.0f, this);
     m_metalnessMap = new Qt3DRender::QParameter(
@@ -53,6 +58,8 @@ BasePBRMaterial::BasePBRMaterial(Qt3DCore::QNode* parent)
     m_roughnessMap = new Qt3DRender::QParameter(
         QStringLiteral("roughnessMap"), dumbTexture, this);
     m_shift = new Qt3DRender::QParameter(QStringLiteral("shift"), 0.0f, this);
+    m_specular =
+        new Qt3DRender::QParameter(QStringLiteral("specular"), 0.5f, this);
     m_texCoordOffset = new Qt3DRender::QParameter(
         QStringLiteral("texCoordOffset"), 0.0f, this);
     m_texCoordScale =
@@ -63,12 +70,15 @@ BasePBRMaterial::BasePBRMaterial(Qt3DCore::QNode* parent)
     this->addParameter(m_envLightIntensity);
     this->addParameter(m_metalness);
     this->addParameter(m_metalnessMap);
+    this->addParameter(m_envLightMipLevels);
+    this->addParameter(m_envLightMipOffset);
     this->addParameter(m_normalMap);
     this->addParameter(m_receiveShadow);
     this->addParameter(m_renderMode);
     this->addParameter(m_roughness);
     this->addParameter(m_roughnessMap);
     this->addParameter(m_shift);
+    this->addParameter(m_specular);
     this->addParameter(m_texCoordOffset);
     this->addParameter(m_texCoordScale);
 }
@@ -101,7 +111,9 @@ Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachRenderPassTo(
     auto renderStateSet = new Qt3DRender::QRenderStateSet(pfilter);
     auto depthTest = new Qt3DRender::QDepthTest(renderStateSet);
     depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
+    auto seamlessCubeMap = new Qt3DRender::QSeamlessCubemap(renderStateSet);
     renderStateSet->addRenderState(depthTest);
+    renderStateSet->addRenderState(seamlessCubeMap);
     return renderStateSet;
 }
 
@@ -147,7 +159,9 @@ Qt3DRender::QFrameGraphNode* BasePBRMaterial::attachRenderPassTo(
     auto renderStateSet = new Qt3DRender::QRenderStateSet(pfilter);
     auto depthTest = new Qt3DRender::QDepthTest(renderStateSet);
     depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
+    auto seamlessCubeMap = new Qt3DRender::QSeamlessCubemap(renderStateSet);
     renderStateSet->addRenderState(depthTest);
+    renderStateSet->addRenderState(seamlessCubeMap);
     return renderStateSet;
 }
 

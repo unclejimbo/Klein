@@ -90,6 +90,8 @@ struct EnvironmentLight
     samplerCube specular;
     sampler2D brdf;
     float intensity;
+    int mipLevels;
+    int mipOffset;
 };
 uniform EnvironmentLight envLight;
 

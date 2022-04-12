@@ -7,15 +7,11 @@ uniform float exposure = 0.0;
 // Gamma correction
 uniform float gamma = 2.2;
 
+// F0 of the Fresnel for dielectric materials, should be remapped before use
+uniform float specular = 0.5;
+
 // Constants
 #define PI 3.1415926538
-
-int mipLevelCount(const in samplerCube cube)
-{
-    int baseSize = textureSize(cube, 0).x;
-    int nMips = int(log2(float(baseSize > 0 ? baseSize : 1))) + 1;
-    return nMips;
-}
 
 float remapRoughness(const in float roughness)
 {
@@ -24,39 +20,19 @@ float remapRoughness(const in float roughness)
     // we remap the roughness to give a more perceptually linear response
     // of "bluriness" as a function of the roughness specified by the user.
     // r = roughness^2
-    const float maxSpecPower = 999999.0;
-    const float minRoughness = sqrt(2.0 / (maxSpecPower + 2));
-    return max(roughness * roughness, minRoughness);
+    return roughness * roughness;
 }
 
-float alphaToMipLevel(float alpha)
+float remapSpecular(const in float specular)
 {
-    float specPower = 2.0 / (alpha * alpha) - 2.0;
+    // Perceptual linear specular response, see also frosbite's note
+    return 0.16 * specular * specular;
+}
 
-    // We use the mip level calculation from Lys' default power drop, which in
-    // turn is a slight modification of that used in Marmoset Toolbag. See
-    // https://docs.knaldtech.com/doku.php?id=specular_lys for details.
-    // For now we assume a max specular power of 999999 which gives
-    // maxGlossiness = 1.
-    const float k0 = 0.00098;
-    const float k1 = 0.9921;
-    float glossiness = (pow(2.0, -10.0 / sqrt(specPower)) - k0) / k1;
-
-    // TODO: Optimize by doing this on CPU and set as
-    // uniform int envLight.specularMipLevels say (if present in shader).
-    // Lookup the number of mips in the specular envmap
-    int mipLevels = mipLevelCount(envLight.specular);
-
-    // Offset of smallest miplevel we should use (corresponds to specular
-    // power of 1). I.e. in the 32x32 sized mip.
-    const float mipOffset = 3.0;
-
-    // The final factor is really 1 - g / g_max but as mentioned above g_max
-    // is 1 by definition here so we can avoid the division. If we make the
-    // max specular power for the spec map configurable, this will need to
-    // be handled properly.
-    float mipLevel = (mipLevels - 1.0 - mipOffset) * (1.0 - glossiness);
-    return mipLevel;
+float alphaToMipLevel(float roughness)
+{
+    // Using roughness as suggested by frosbite's note (eq.63)
+    return (envLight.mipLevels - 1.0 - envLight.mipOffset) * roughness;
 }
 
 float D_GGX(const in vec3 n, const in vec3 h, const in float alpha)
@@ -64,7 +40,7 @@ float D_GGX(const in vec3 n, const in vec3 h, const in float alpha)
     // Normal Distribution Function - GGX (Trobridge-Reitz)
     float nDotH = max(dot(n, h), 0.0);
     float a = nDotH * alpha;
-    float k = alpha / (1.0 - nDotH * nDotH + a * a);
+    float k = alpha / (1.0 - nDotH * nDotH + a * a + 1e-8);
     return k * k * (1.0 / PI);
 }
 
@@ -75,9 +51,9 @@ float G_SmithGGX(const in float lDotN,
     // Geometric Shadowing - Smith GGX
     // Optimized with the denominator of the BRDF
     float a2 = alpha * alpha;
-    float G1 = lDotN * sqrt(vDotN * vDotN * (1.0 - a2) + a2);
-    float G2 = vDotN * sqrt(lDotN * lDotN * (1.0 - a2) + a2);
-    return 0.5 / (G1 + G2);
+    float V1 = lDotN * sqrt(vDotN * vDotN * (1.0 - a2) + a2);
+    float V2 = vDotN * sqrt(lDotN * lDotN * (1.0 - a2) + a2);
+    return 0.5 / (V1 + V2 + 1e-8);
 }
 
 vec3 F_Schlick(const in vec3 F0, const in float cosineFactor)
@@ -91,6 +67,8 @@ vec3 F_SchlickRoughness(const in vec3 F0,
                         const in float alpha)
 {
     // Fresnel - Schlick
+    // Prefiltered Fresnel term is factored according to
+    // https://seblagarde.wordpress.com/2011/08/17/hello-world/
     return F0 +
            (max(vec3(1.0 - alpha), F0) - F0) * pow(1.0 - cosineFactor, 5.0);
 }
@@ -179,6 +157,7 @@ vec3 pbrIblModel(const in vec3 wNormal,
                  const in vec3 wView,
                  const in vec3 baseColor,
                  const in float metalness,
+                 const in float roughness,
                  const in float alpha,
                  const in vec3 F0)
 {
@@ -190,9 +169,11 @@ vec3 pbrIblModel(const in vec3 wNormal,
     vec3 diffuseColor = (1.0 - metalness) * baseColor;
     vec3 diffuse = diffuseColor * texture(envLight.irradiance, n).rgb;
 
-    float lod = alphaToMipLevel(alpha);
+    float lod = alphaToMipLevel(roughness);
     vec3 specularColor = textureLod(envLight.specular, l, lod).rgb;
-    vec2 envBRDF = texture(envLight.brdf, vec2(vDotN, alpha)).rg;
+    // Use (1 - alpha) as the coordinate because Qt loads dds image without
+    // flipping, so the brdf lut image is upside down
+    vec2 envBRDF = texture(envLight.brdf, vec2(vDotN, 1.0 - alpha)).rg;
     vec3 F = F_SchlickRoughness(F0, vDotN, alpha);
     vec3 specular = specularColor * (F * envBRDF.x + envBRDF.y);
 
@@ -235,12 +216,12 @@ vec3 shadeMetalRough(vec3 worldPosition,
     float alpha = remapRoughness(roughness);
 
     // Approaximate F0 using dielectric and metalness
-    vec3 dielectricColor = vec3(0.04);
+    vec3 dielectricColor = vec3(remapSpecular(specular));
     vec3 F0 = mix(dielectricColor, baseColor, metalness);
 
     // Image-based lighting
-    cLinear +=
-        pbrIblModel(worldNormal, worldView, baseColor, metalness, alpha, F0);
+    cLinear += pbrIblModel(
+        worldNormal, worldView, baseColor, metalness, roughness, alpha, F0);
 
     // Punctual lighting
     for (int i = 0; i < lightCount; ++i) {
@@ -258,7 +239,7 @@ vec3 shadeMetalRough(vec3 worldPosition,
     // Apply exposure correction
     cLinear *= pow(2.0, exposure);
 
-    // Apply simple (Reinhard) tonemap transform to get into LDR range [0, 1]
+    // Apply tonemap transform to get into LDR range [0, 1]
     vec3 cToneMapped = toneMap_ACES(cLinear);
 
     // Apply gamma correction prior to display
