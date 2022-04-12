@@ -345,6 +345,21 @@ void MainWindow::_renderGui()
                     }
                 }
             }
+            if (ImGui::SliderFloat(
+                    "Clearcoat", &m_clearcoat, 0.0f, 1.0f, "%.2f")) {
+                for (auto& mat : m_sphereMaterials) {
+                    mat->setClearCoat(m_clearcoat);
+                }
+            }
+            if (ImGui::SliderFloat("Clearcoat roughness",
+                                   &m_clearcoatRoughness,
+                                   0.0f,
+                                   1.0f,
+                                   "%.2f")) {
+                for (auto& mat : m_sphereMaterials) {
+                    mat->setClearCoatRoughness(m_clearcoatRoughness);
+                }
+            }
             if (ImGui::ColorEdit3("Base color", m_baseColor)) {
                 for (auto& mat : m_sphereMaterials) {
                     mat->setBaseColor(QColor::fromRgbF(

@@ -10,6 +10,10 @@ uniform float gamma = 2.2;
 // F0 of the Fresnel for dielectric materials, should be remapped before use
 uniform float specular = 0.5;
 
+// Clearcoat strength and roughness
+uniform float clearcoat = 0.0f;
+uniform float clearcoatRoughness = 0.0f;
+
 // Constants
 #define PI 3.1415926538
 
@@ -35,10 +39,9 @@ float alphaToMipLevel(float roughness)
     return (envLight.mipLevels - 1.0 - envLight.mipOffset) * roughness;
 }
 
-float D_GGX(const in vec3 n, const in vec3 h, const in float alpha)
+float D_GGX(const in float nDotH, const in float alpha)
 {
     // Normal Distribution Function - GGX (Trobridge-Reitz)
-    float nDotH = max(dot(n, h), 0.0);
     float a = nDotH * alpha;
     float k = alpha / (1.0 - nDotH * nDotH + a * a + 1e-8);
     return k * k * (1.0 / PI);
@@ -88,7 +91,8 @@ vec3 pbrModel(const in int lightIndex,
     vec3 v = wView;
     vec3 h = vec3(0.0);
 
-    float vDotN = dot(v, n);
+    float vDotN = max(dot(v, n), 0.0);
+    float nDotH = max(dot(n, h), 0.0);
     float sDotN = 0.0;
     float sDotH = 0.0;
     float att = 1.0;
@@ -138,18 +142,31 @@ vec3 pbrModel(const in int lightIndex,
     float G = 0.0;
     vec3 F = vec3(0.0);
     if (sDotN > 0.0) {
-        D = D_GGX(n, h, alpha);
+        D = D_GGX(nDotH, alpha);
         G = G_SmithGGX(sDotN, vDotN, alpha);
         F = F_Schlick(F0, sDotH);
     }
     vec3 specular = D * G * F;
 
+    // Clearcoat layer
+    float Dc = 0.0;
+    float Gc = 0.0;
+    vec3 Fc = vec3(0.0);
+    float alphac = clearcoatRoughness * clearcoatRoughness;
+    if (sDotN > 0.0) {
+        Dc = D_GGX(nDotH, alphac);
+        Gc = G_SmithGGX(sDotN, vDotN, alphac);
+        Fc = F_Schlick(vec3(0.04), sDotH);
+    }
+    vec3 specularc = Dc * Gc * Fc * clearcoat;
+
     // Blend between diffuse and specular to conserver energy
     // Use Fresnel term as the fraction of specular reflectance
     vec3 radiance =
         lights[lightIndex].intensity * lights[lightIndex].color * att;
-    vec3 irradiance = radiance * sDotN * (specular + diffuse * (vec3(1.0) - F));
-
+    vec3 irradiance =
+        radiance * sDotN *
+        ((specular + diffuse * (vec3(1.0) - F)) * (vec3(1.0) - Fc) + specularc);
     return irradiance;
 }
 
@@ -177,11 +194,21 @@ vec3 pbrIblModel(const in vec3 wNormal,
     vec3 F = F_SchlickRoughness(F0, vDotN, alpha);
     vec3 specular = specularColor * (F * envBRDF.x + envBRDF.y);
 
+    // Clearcoat layer
+    float alphaCoat = clearcoatRoughness * clearcoatRoughness;
+    float lodCoat = alphaToMipLevel(alphaCoat);
+    vec3 specularColorCoat = textureLod(envLight.specular, l, lodCoat).rgb;
+    vec2 envBRDFCoat = texture(envLight.brdf, vec2(vDotN, 1.0 - alphaCoat)).rg;
+    vec3 FCoat = F_SchlickRoughness(vec3(0.04), vDotN, alphaCoat);
+    vec3 specularCoat =
+        specularColorCoat * (FCoat * envBRDF.x + envBRDF.y) * clearcoat;
+
     // Blend between diffuse and specular to conserve energy
     // Use Fresnel term as the fraction of specular reflectance
     vec3 irradiance =
-        envLight.intensity * (specular + diffuse * (vec3(1.0) - F));
-
+        envLight.intensity *
+        ((specular + diffuse * (vec3(1.0) - F)) * (vec3(1.0) - FCoat) +
+         specularCoat);
     return irradiance;
 }
 

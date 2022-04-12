@@ -47,6 +47,13 @@ public:
         return m_baseColorMap->value().value<Qt3DRender::QAbstractTexture*>();
     }
 
+    float clearCoat() const { return m_clearCoat->value().toFloat(); }
+
+    float clearCoatRoughness() const
+    {
+        return m_clearCoatRoughness->value().toFloat();
+    }
+
     const Qt3DRender::QAbstractTexture* envLightBrdf() const
     {
         return m_envLightBrdf->value().value<Qt3DRender::QAbstractTexture*>();
@@ -118,6 +125,13 @@ public slots:
     void setBaseColorMap(Qt3DRender::QAbstractTexture* value)
     {
         m_baseColorMap->setValue(QVariant::fromValue(value));
+    }
+
+    void setClearCoat(float value) { m_clearCoat->setValue(value); }
+
+    void setClearCoatRoughness(float value)
+    {
+        m_clearCoatRoughness->setValue(value);
     }
 
     void setEnvLightBrdf(Qt3DRender::QAbstractTexture* value)
@@ -208,6 +222,8 @@ protected:
 protected:
     Qt3DRender::QParameter* m_baseColor = nullptr;
     Qt3DRender::QParameter* m_baseColorMap = nullptr;
+    Qt3DRender::QParameter* m_clearCoat = nullptr;
+    Qt3DRender::QParameter* m_clearCoatRoughness = nullptr;
     Qt3DRender::QParameter* m_envLightBrdf = nullptr;
     Qt3DRender::QParameter* m_envLightIntensity = nullptr;
     Qt3DRender::QParameter* m_envLightMipLevels = nullptr;

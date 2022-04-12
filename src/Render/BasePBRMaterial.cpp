@@ -35,6 +35,10 @@ BasePBRMaterial::BasePBRMaterial(Qt3DCore::QNode* parent)
         QStringLiteral("baseColor"), QColor("white"), this);
     m_baseColorMap = new Qt3DRender::QParameter(
         QStringLiteral("baseColorMap"), dumbTexture, this);
+    m_clearCoat =
+        new Qt3DRender::QParameter(QStringLiteral("clearcoat"), 0.0f, this);
+    m_clearCoatRoughness = new Qt3DRender::QParameter(
+        QStringLiteral("clearcoatRoughness"), 0.0f, this);
     m_envLightBrdf = new Qt3DRender::QParameter(
         QStringLiteral("envLight.brdf"), dumbTexture, this);
     m_envLightIntensity = new Qt3DRender::QParameter(
@@ -66,6 +70,8 @@ BasePBRMaterial::BasePBRMaterial(Qt3DCore::QNode* parent)
         new Qt3DRender::QParameter(QStringLiteral("texCoordScale"), 1.0f, this);
     this->addParameter(m_baseColor);
     this->addParameter(m_baseColorMap);
+    this->addParameter(m_clearCoat);
+    this->addParameter(m_clearCoatRoughness);
     this->addParameter(m_envLightBrdf);
     this->addParameter(m_envLightIntensity);
     this->addParameter(m_metalness);

@@ -57,6 +57,8 @@ private:
     float m_roughness = 0.0f;
     float m_metalness = 0.0f;
     float m_specular = 0.5f;
+    float m_clearcoat = 0.0f;
+    float m_clearcoatRoughness = 0.0f;
     float m_baseColor[3] = { 1.0f, 0.0f, 0.0f };
     float m_dlIntensity = 1.0f;
     float m_iblIntensity = 1.0f;
